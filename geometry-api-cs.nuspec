@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <!-- Required elements-->
+        <id>EchoParkLabs.Computational.Geometry</id>
+        <version>1.2.1-alpha</version>
+        <description>GIS Computational Geometry library ported from the open sourced ESRI geometry library (this branch supplies the automated build of this library: https://github.com/davidraleigh/geometry-api-java/tree/ci-build). All relational operators from ESRI's computational geometry library are supported (Contains, Touches, Crosses, de-9im pattern matrix string). Most all topological operators (difference, simplify, intersection, buffer, convex hull, etc). </description>
+        <authors>davidraleigh</authors>
+
+        <!-- Optional elements -->
+        <title>Computational Geometry library for GIS</title>
+        <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+        <projectUrl>http://github.com/echoparklabs/geometry-api-cs</projectUrl>        
+        <iconUrl>https://avatars3.githubusercontent.com/u/29678708</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <copyright>Copyright ©2017 Echo Park Labs</copyright>
+        <summary>GIS Computational Geometry library from Echo Park Labs. Ported from the open sourced ESRI geometry library (https://github.com/Esri/geometry-api-java)</summary>
+        <tags>geometry computational gis geography geographic geometric topological topology difference relational operators</tags>
+        <!-- ... -->
+    </metadata>
+    <!-- Optional 'files' node -->
+</package>

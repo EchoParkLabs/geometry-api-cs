@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3557A654-0C3C-4C0F-9DA1-B67F596A6B68}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>linuxtests</RootNamespace>
+    <AssemblyName>linux-tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\visual-studio-tests\RandomCoordinateGenerator.cs">
+      <Link>RandomCoordinateGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestAttributes.cs">
+      <Link>TestAttributes.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestBuffer.cs">
+      <Link>TestBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestClip.cs">
+      <Link>TestClip.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestConvexHull.cs">
+      <Link>TestConvexHull.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestCut.cs">
+      <Link>TestCut.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestDifference.cs">
+      <Link>TestDifference.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestDistance.cs">
+      <Link>TestDistance.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestEditShape.cs">
+      <Link>TestEditShape.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestEnvelope2DIntersector.cs">
+      <Link>TestEnvelope2DIntersector.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestEquals.cs">
+      <Link>TestEquals.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestFailed.cs">
+      <Link>TestFailed.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestGeneralize.cs">
+      <Link>TestGeneralize.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestGeodetic.cs">
+      <Link>TestGeodetic.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestImportExport.cs">
+      <Link>TestImportExport.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestInterpolateAttributes.cs">
+      <Link>TestInterpolateAttributes.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestIntersect2.cs">
+      <Link>TestIntersect2.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestIntersection.cs">
+      <Link>TestIntersection.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestIntervalTree.cs">
+      <Link>TestIntervalTree.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestMathUtils.cs">
+      <Link>TestMathUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestMultiPoint.cs">
+      <Link>TestMultiPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestOffset.cs">
+      <Link>TestOffset.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestPoint.cs">
+      <Link>TestPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestPolygon.cs">
+      <Link>TestPolygon.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestPolygonUtils.cs">
+      <Link>TestPolygonUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestProximity2D.cs">
+      <Link>TestProximity2D.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestQuadTree.cs">
+      <Link>TestQuadTree.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestRasterizedGeometry2D.cs">
+      <Link>TestRasterizedGeometry2D.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestRelation.cs">
+      <Link>TestRelation.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestSimplify.cs">
+      <Link>TestSimplify.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestSpatialReference.cs">
+      <Link>TestSpatialReference.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestTouch.cs">
+      <Link>TestTouch.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestTreap.cs">
+      <Link>TestTreap.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestUnion.cs">
+      <Link>TestUnion.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestWkid.cs">
+      <Link>TestWkid.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\TestWktParser.cs">
+      <Link>TestWktParser.cs</Link>
+    </Compile>
+    <Compile Include="..\visual-studio-tests\Utils.cs">
+      <Link>Utils.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\geometry-api-cs.csproj">
+      <Project>{021BC608-4EA1-49FE-90A0-D080B44E863D}</Project>
+      <Name>geometry-api-cs</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

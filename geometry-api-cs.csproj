@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{021BC608-4EA1-49FE-90A0-D080B44E863D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>geometry_api_cs</RootNamespace>
+    <AssemblyName>geometry-api-cs</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="com\epl\geometry\AttributeStreamBase.cs" />
+    <Compile Include="com\epl\geometry\AttributeStreamOfDbl.cs" />
+    <Compile Include="com\epl\geometry\AttributeStreamOfFloat.cs" />
+    <Compile Include="com\epl\geometry\AttributeStreamOfInt16.cs" />
+    <Compile Include="com\epl\geometry\AttributeStreamOfInt32.cs" />
+    <Compile Include="com\epl\geometry\AttributeStreamOfInt64.cs" />
+    <Compile Include="com\epl\geometry\AttributeStreamOfInt8.cs" />
+    <Compile Include="com\epl\geometry\Boundary.cs" />
+    <Compile Include="com\epl\geometry\BucketSort.cs" />
+    <Compile Include="com\epl\geometry\Bufferer.cs" />
+    <Compile Include="com\epl\geometry\ByteBufferCursor.cs" />
+    <Compile Include="com\epl\geometry\ClassicSort.cs" />
+    <Compile Include="com\epl\geometry\Clipper.cs" />
+    <Compile Include="com\epl\geometry\Clusterer.cs" />
+    <Compile Include="com\epl\geometry\CombineOperator.cs" />
+    <Compile Include="com\epl\geometry\ConstructOffset.cs" />
+    <Compile Include="com\epl\geometry\ConvexHull.cs" />
+    <Compile Include="com\epl\geometry\CrackAndCluster.cs" />
+    <Compile Include="com\epl\geometry\Cracker.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="com\epl\geometry\Cutter.cs" />
+    <Compile Include="com\epl\geometry\DirtyFlags.cs" />
+    <Compile Include="com\epl\geometry\ECoordinate.cs" />
+    <Compile Include="com\epl\geometry\EditShape.cs" />
+    <Compile Include="com\epl\geometry\Envelope.cs" />
+    <Compile Include="com\epl\geometry\Envelope1D.cs" />
+    <Compile Include="com\epl\geometry\Envelope2D.cs" />
+    <Compile Include="com\epl\geometry\Envelope2DIntersectorImpl.cs" />
+    <Compile Include="com\epl\geometry\Envelope3D.cs" />
+    <Compile Include="com\epl\geometry\GeneralizeType.cs" />
+    <Compile Include="com\epl\geometry\GeodeticCurveType.cs" />
+    <Compile Include="com\epl\geometry\GeoDist.cs" />
+    <Compile Include="com\epl\geometry\GeoJsonExportFlags.cs" />
+    <Compile Include="com\epl\geometry\GeoJsonImportFlags.cs" />
+    <Compile Include="com\epl\geometry\Geometry.cs" />
+    <Compile Include="com\epl\geometry\GeometryAccelerators.cs" />
+    <Compile Include="com\epl\geometry\GeometryCursor.cs" />
+    <Compile Include="com\epl\geometry\GeometryCursorAppend.cs" />
+    <Compile Include="com\epl\geometry\GeometryEngine.cs" />
+    <Compile Include="com\epl\geometry\GeometryException.cs" />
+    <Compile Include="com\epl\geometry\IndexHashTable.cs" />
+    <Compile Include="com\epl\geometry\IndexMultiDCList.cs" />
+    <Compile Include="com\epl\geometry\IndexMultiList.cs" />
+    <Compile Include="com\epl\geometry\InternalUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="com\epl\geometry\Interop.cs" />
+    <Compile Include="com\epl\geometry\IntervalTreeImpl.cs" />
+    <Compile Include="com\epl\geometry\JsonCursor.cs" />
+    <Compile Include="com\epl\geometry\JsonStringWriter.cs" />
+    <Compile Include="com\epl\geometry\JsonWriter.cs" />
+    <Compile Include="com\epl\geometry\Line.cs" />
+    <Compile Include="com\epl\geometry\ListeningGeometryCursor.cs" />
+    <Compile Include="com\epl\geometry\MapGeometry.cs" />
+    <Compile Include="com\epl\geometry\MapGeometryCursor.cs" />
+    <Compile Include="com\epl\geometry\MapOGCStructure.cs" />
+    <Compile Include="com\epl\geometry\MathUtils.cs" />
+    <Compile Include="com\epl\geometry\MgrsConversionMode.cs" />
+    <Compile Include="com\epl\geometry\MultiPath.cs" />
+    <Compile Include="com\epl\geometry\MultiPathImpl.cs" />
+    <Compile Include="com\epl\geometry\MultiPoint.cs" />
+    <Compile Include="com\epl\geometry\MultiPointImpl.cs" />
+    <Compile Include="com\epl\geometry\MultiVertexGeometry.cs" />
+    <Compile Include="com\epl\geometry\MultiVertexGeometryImpl.cs" />
+    <Compile Include="com\epl\geometry\NonSimpleResult.cs" />
+    <Compile Include="com\epl\geometry\NumberUtils.cs" />
+    <Compile Include="com\epl\geometry\OGCStructure.cs" />
+    <Compile Include="com\epl\geometry\Operator.cs" />
+    <Compile Include="com\epl\geometry\OperatorBoundary.cs" />
+    <Compile Include="com\epl\geometry\OperatorBoundaryLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorBoundaryLocalCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorBuffer.cs" />
+    <Compile Include="com\epl\geometry\OperatorBufferCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorBufferLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorClip.cs" />
+    <Compile Include="com\epl\geometry\OperatorClipCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorClipLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorContains.cs" />
+    <Compile Include="com\epl\geometry\OperatorContainsLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorConvexHull.cs" />
+    <Compile Include="com\epl\geometry\OperatorConvexHullCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorConvexHullLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorCrosses.cs" />
+    <Compile Include="com\epl\geometry\OperatorCrossesLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorCut.cs" />
+    <Compile Include="com\epl\geometry\OperatorCutCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorCutLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorDensifyByLength.cs" />
+    <Compile Include="com\epl\geometry\OperatorDensifyByLengthCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorDensifyByLengthLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorDifference.cs" />
+    <Compile Include="com\epl\geometry\OperatorDifferenceCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorDifferenceLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorDisjoint.cs" />
+    <Compile Include="com\epl\geometry\OperatorDisjointLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorDistance.cs" />
+    <Compile Include="com\epl\geometry\OperatorDistanceLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorEquals.cs" />
+    <Compile Include="com\epl\geometry\OperatorEqualsLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorExportToESRIShape.cs" />
+    <Compile Include="com\epl\geometry\OperatorExportToESRIShapeCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorExportToESRIShapeLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorExportToWkt.cs" />
+    <Compile Include="com\epl\geometry\OperatorExportToWktLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorFactory.cs" />
+    <Compile Include="com\epl\geometry\OperatorFactoryLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeneralize.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeneralizeCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeneralizeLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeodesicBuffer.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeodesicBufferLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeodeticArea.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeodeticAreaLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeodeticDensifyByLength.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeodeticDensifyLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeodeticLength.cs" />
+    <Compile Include="com\epl\geometry\OperatorGeodeticLengthLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorImportFromESRIShape.cs" />
+    <Compile Include="com\epl\geometry\OperatorImportFromESRIShapeCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorImportFromESRIShapeLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorImportFromWkt.cs" />
+    <Compile Include="com\epl\geometry\OperatorImportFromWktLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorInternalRelationUtils.cs" />
+    <Compile Include="com\epl\geometry\OperatorIntersection.cs" />
+    <Compile Include="com\epl\geometry\OperatorIntersectionCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorIntersectionLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorIntersects.cs" />
+    <Compile Include="com\epl\geometry\OperatorIntersectsLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorOffset.cs" />
+    <Compile Include="com\epl\geometry\OperatorOffsetCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorOffsetLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorOverlaps.cs" />
+    <Compile Include="com\epl\geometry\OperatorOverlapsLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorProject.cs" />
+    <Compile Include="com\epl\geometry\OperatorProjectLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorProximity2D.cs" />
+    <Compile Include="com\epl\geometry\OperatorProximity2DLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorRelate.cs" />
+    <Compile Include="com\epl\geometry\OperatorRelateLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorShapePreservingDensify.cs" />
+    <Compile Include="com\epl\geometry\OperatorShapePreservingDensifyLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorSimpleRelation.cs" />
+    <Compile Include="com\epl\geometry\OperatorSimplify.cs" />
+    <Compile Include="com\epl\geometry\OperatorSimplifyCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorSimplifyCursorOGC.cs" />
+    <Compile Include="com\epl\geometry\OperatorSimplifyLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorSimplifyLocalHelper.cs" />
+    <Compile Include="com\epl\geometry\OperatorSimplifyLocalOGC.cs" />
+    <Compile Include="com\epl\geometry\OperatorSimplifyOGC.cs" />
+    <Compile Include="com\epl\geometry\OperatorSymmetricDifference.cs" />
+    <Compile Include="com\epl\geometry\OperatorSymmetricDifferenceCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorSymmetricDifferenceLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorTouches.cs" />
+    <Compile Include="com\epl\geometry\OperatorTouchesLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorUnion.cs" />
+    <Compile Include="com\epl\geometry\OperatorUnionCursor.cs" />
+    <Compile Include="com\epl\geometry\OperatorUnionLocal.cs" />
+    <Compile Include="com\epl\geometry\OperatorWithin.cs" />
+    <Compile Include="com\epl\geometry\OperatorWithinLocal.cs" />
+    <Compile Include="com\epl\geometry\PairwiseIntersectorImpl.cs" />
+    <Compile Include="com\epl\geometry\PathFlags.cs" />
+    <Compile Include="com\epl\geometry\PeDouble.cs" />
+    <Compile Include="com\epl\geometry\PlaneSweepCrackerHelper.cs" />
+    <Compile Include="com\epl\geometry\Point.cs" />
+    <Compile Include="com\epl\geometry\Point2D.cs" />
+    <Compile Include="com\epl\geometry\Point3D.cs" />
+    <Compile Include="com\epl\geometry\PointInPolygonHelper.cs" />
+    <Compile Include="com\epl\geometry\Polygon.cs" />
+    <Compile Include="com\epl\geometry\PolygonUtils.cs" />
+    <Compile Include="com\epl\geometry\Polyline.cs" />
+    <Compile Include="com\epl\geometry\PolylinePath.cs" />
+    <Compile Include="com\epl\geometry\ProgressTracker.cs" />
+    <Compile Include="com\epl\geometry\ProjectionTransformation.cs" />
+    <Compile Include="com\epl\geometry\Proximity2DResult.cs" />
+    <Compile Include="com\epl\geometry\Proximity2DResultComparator.cs" />
+    <Compile Include="com\epl\geometry\QuadTree.cs" />
+    <Compile Include="com\epl\geometry\QuadTreeImpl.cs" />
+    <Compile Include="com\epl\geometry\RasterizedGeometry2D.cs" />
+    <Compile Include="com\epl\geometry\RasterizedGeometry2DImpl.cs" />
+    <Compile Include="com\epl\geometry\RelationalOperations.cs" />
+    <Compile Include="com\epl\geometry\RelationalOperationsMatrix.cs" />
+    <Compile Include="com\epl\geometry\RingOrientationFixer.cs" />
+    <Compile Include="com\epl\geometry\Segment.cs" />
+    <Compile Include="com\epl\geometry\SegmentBuffer.cs" />
+    <Compile Include="com\epl\geometry\SegmentFlags.cs" />
+    <Compile Include="com\epl\geometry\SegmentIntersector.cs" />
+    <Compile Include="com\epl\geometry\SegmentIterator.cs" />
+    <Compile Include="com\epl\geometry\SegmentIteratorImpl.cs" />
+    <Compile Include="com\epl\geometry\ShapeExportFlags.cs" />
+    <Compile Include="com\epl\geometry\ShapeImportFlags.cs" />
+    <Compile Include="com\epl\geometry\ShapeModifiers.cs" />
+    <Compile Include="com\epl\geometry\ShapeType.cs" />
+    <Compile Include="com\epl\geometry\SimpleByteBufferCursor.cs" />
+    <Compile Include="com\epl\geometry\SimpleGeometryCursor.cs" />
+    <Compile Include="com\epl\geometry\SimpleRasterizer.cs" />
+    <Compile Include="com\epl\geometry\Simplificator.cs" />
+    <Compile Include="com\epl\geometry\SpatialReference.cs" />
+    <Compile Include="com\epl\geometry\SpatialReferenceImpl.cs" />
+    <Compile Include="com\epl\geometry\SpatialReferenceSerializer.cs" />
+    <Compile Include="com\epl\geometry\StridedIndexTypeCollection.cs" />
+    <Compile Include="com\epl\geometry\StringUtils.cs" />
+    <Compile Include="com\epl\geometry\SweepComparator.cs" />
+    <Compile Include="com\epl\geometry\SweepMonkierComparator.cs" />
+    <Compile Include="com\epl\geometry\TopoGraph.cs" />
+    <Compile Include="com\epl\geometry\TopologicalOperations.cs" />
+    <Compile Include="com\epl\geometry\Transformation2D.cs" />
+    <Compile Include="com\epl\geometry\Transformation3D.cs" />
+    <Compile Include="com\epl\geometry\Treap.cs" />
+    <Compile Include="com\epl\geometry\UserCancelException.cs" />
+    <Compile Include="com\epl\geometry\VertexDescription.cs" />
+    <Compile Include="com\epl\geometry\VertexDescriptionDesignerImpl.cs" />
+    <Compile Include="com\epl\geometry\VertexDescriptionHash.cs" />
+    <Compile Include="com\epl\geometry\WkbByteOrder.cs" />
+    <Compile Include="com\epl\geometry\WkbExportFlags.cs" />
+    <Compile Include="com\epl\geometry\WkbGeometryType.cs" />
+    <Compile Include="com\epl\geometry\WkbImportFlags.cs" />
+    <Compile Include="com\epl\geometry\Wkid.cs" />
+    <Compile Include="com\epl\geometry\Wkt.cs" />
+    <Compile Include="com\epl\geometry\WktExportFlags.cs" />
+    <Compile Include="com\epl\geometry\WktImportFlags.cs" />
+    <Compile Include="com\epl\geometry\WktParser.cs" />
+    <Compile Include="GeometryResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GeometryResources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="java\util\Arrays.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GeometryResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>GeometryResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\gcs_id_to_tolerance.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\gcs_tolerances.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\intermediate_to_old_wkid.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\new_to_old_wkid.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\pcs_id_to_tolerance.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\pcs_tolerances.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="geometry-api-cs.nuspec" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
