@@ -146,10 +146,23 @@ namespace com.epl.geometry
 			return value < 0 ? -1 : (value > 0) ? 1 : 0;
 		}
 
+		/// <summary>Rounds towards zero.</summary>
+		internal static double Truncate(double v)
+		{
+			if (v >= 0)
+			{
+				return System.Math.Floor(v);
+			}
+			else
+			{
+				return -System.Math.Floor(-v);
+			}
+		}
+
 		/// <summary>C fmod function.</summary>
 		internal static double FMod(double x, double y)
 		{
-			return x - System.Math.Floor(x / y) * y;
+			return x - Truncate(x / y) * y;
 		}
 
 		/// <summary>Rounds double to the closest integer value.</summary>
@@ -199,23 +212,28 @@ namespace com.epl.geometry
 		/// </remarks>
 		internal static void Lerp(com.epl.geometry.Point2D start_, com.epl.geometry.Point2D end_, double t, com.epl.geometry.Point2D result)
 		{
+			System.Diagnostics.Debug.Assert((start_ != result));
 			// When end == start, we want result to be equal to start, for all t
 			// values. At the same time, when end != start, we want the result to be
 			// equal to start for t==0 and end for t == 1.0
 			// The regular formula end_ * t + (1.0 - t) * start_, when end_ ==
 			// start_, and t at 1/3, produces value different from start
+			double rx;
+			double ry;
 			if (t <= 0.5)
 			{
-				result.x = start_.x + (end_.x - start_.x) * t;
-				result.y = start_.y + (end_.y - start_.y) * t;
+				rx = start_.x + (end_.x - start_.x) * t;
+				ry = start_.y + (end_.y - start_.y) * t;
 			}
 			else
 			{
-				result.x = end_.x - (end_.x - start_.x) * (1.0 - t);
-				result.y = end_.y - (end_.y - start_.y) * (1.0 - t);
+				rx = end_.x - (end_.x - start_.x) * (1.0 - t);
+				ry = end_.y - (end_.y - start_.y) * (1.0 - t);
 			}
-			System.Diagnostics.Debug.Assert((t < 0 || t > 1.0 || (result.x >= start_.x && result.x <= end_.x) || (result.x <= start_.x && result.x >= end_.x)));
-			System.Diagnostics.Debug.Assert((t < 0 || t > 1.0 || (result.y >= start_.y && result.y <= end_.y) || (result.y <= start_.y && result.y >= end_.y)));
+			System.Diagnostics.Debug.Assert((t < 0 || t > 1.0 || (rx >= start_.x && rx <= end_.x) || (rx <= start_.x && rx >= end_.x)));
+			System.Diagnostics.Debug.Assert((t < 0 || t > 1.0 || (ry >= start_.y && ry <= end_.y) || (ry <= start_.y && ry >= end_.y)));
+			result.x = rx;
+			result.y = ry;
 		}
 
 		internal static void Lerp(double start_x, double start_y, double end_x, double end_y, double t, com.epl.geometry.Point2D result)
