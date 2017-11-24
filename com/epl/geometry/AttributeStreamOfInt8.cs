@@ -23,9 +23,9 @@ namespace com.epl.geometry
 {
 	internal sealed class AttributeStreamOfInt8 : com.epl.geometry.AttributeStreamBase
 	{
-		internal byte[] m_buffer = null;
+		private byte[] m_buffer = null;
 
-		internal int m_size;
+		private int m_size;
 
 		public int Size()
 		{
@@ -53,6 +53,11 @@ namespace com.epl.geometry
 				System.Array.Copy(m_buffer, 0, buf, 0, m_size);
 				m_buffer = buf;
 			}
+		}
+
+		public int Capacity()
+		{
+			return m_buffer != null ? m_buffer.Length : 0;
 		}
 
 		public AttributeStreamOfInt8(int size)
@@ -371,7 +376,7 @@ namespace com.epl.geometry
 			Resize(newSize);
 			if (bForward)
 			{
-				System.Array.Copy(((com.epl.geometry.AttributeStreamOfDbl)src).m_buffer, start, m_buffer, oldSize, count);
+				System.Array.Copy(((com.epl.geometry.AttributeStreamOfInt8)src).m_buffer, start, m_buffer, oldSize, count);
 			}
 			else
 			{

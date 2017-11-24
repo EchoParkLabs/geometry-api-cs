@@ -23,13 +23,12 @@ namespace com.epl.geometry
 {
 	internal sealed class AttributeStreamOfInt32 : com.epl.geometry.AttributeStreamBase
 	{
-		internal int[] m_buffer = null;
+		private int[] m_buffer = null;
 
-		internal int m_size;
+		private int m_size;
 
 		public void Reserve(int reserve)
 		{
-			// only in Java
 			if (reserve <= 0)
 			{
 				return;
@@ -53,6 +52,11 @@ namespace com.epl.geometry
 		public int Size()
 		{
 			return m_size;
+		}
+
+		public int Capacity()
+		{
+			return m_buffer != null ? m_buffer.Length : 0;
 		}
 
 		public AttributeStreamOfInt32(int size)
@@ -383,7 +387,7 @@ namespace com.epl.geometry
 			Resize(newSize);
 			if (bForward)
 			{
-				System.Array.Copy(((com.epl.geometry.AttributeStreamOfDbl)src).m_buffer, start, m_buffer, oldSize, count);
+				System.Array.Copy(((com.epl.geometry.AttributeStreamOfInt32)src).m_buffer, start, m_buffer, oldSize, count);
 			}
 			else
 			{

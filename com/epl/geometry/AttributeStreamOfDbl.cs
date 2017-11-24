@@ -23,9 +23,9 @@ namespace com.epl.geometry
 {
 	internal sealed class AttributeStreamOfDbl : com.epl.geometry.AttributeStreamBase
 	{
-		internal double[] m_buffer = null;
+		private double[] m_buffer = null;
 
-		internal int m_size;
+		private int m_size;
 
 		public int Size()
 		{
@@ -34,7 +34,6 @@ namespace com.epl.geometry
 
 		public void Reserve(int reserve)
 		{
-			// only in Java
 			if (reserve <= 0)
 			{
 				return;
@@ -53,6 +52,11 @@ namespace com.epl.geometry
 				System.Array.Copy(m_buffer, 0, buf, 0, m_size);
 				m_buffer = buf;
 			}
+		}
+
+		public int Capacity()
+		{
+			return m_buffer != null ? m_buffer.Length : 0;
 		}
 
 		public AttributeStreamOfDbl(int size)
