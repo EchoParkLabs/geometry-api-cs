@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -17,99 +36,108 @@ namespace com.epl.geometry
 			
 		}
 
-		[NUnit.Framework.Test]
-		public static void TestImportExportShapePolygon()
-		{
-			com.epl.geometry.OperatorExportToESRIShape exporterShape = (com.epl.geometry.OperatorExportToESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToESRIShape);
-			com.epl.geometry.OperatorImportFromESRIShape importerShape = (com.epl.geometry.OperatorImportFromESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromESRIShape);
-			com.epl.geometry.Polygon polygon = MakePolygon();
-			byte[] esriShape = com.epl.geometry.GeometryEngine.GeometryToEsriShape(polygon);
-			com.epl.geometry.Geometry imported = com.epl.geometry.GeometryEngine.GeometryFromEsriShape(esriShape, com.epl.geometry.Geometry.Type.Unknown);
-			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiPath)imported, polygon);
-			// Test Import Polygon from Polygon
-			System.IO.MemoryStream polygonShapeBuffer = exporterShape.Execute(0, polygon);
-			com.epl.geometry.Geometry polygonShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Polygon, polygonShapeBuffer);
-			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiPath)polygonShapeGeometry, polygon);
-			// Test Import Envelope from Polygon
-			com.epl.geometry.Geometry envelopeShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Envelope, polygonShapeBuffer);
-			com.epl.geometry.Envelope envelope = (com.epl.geometry.Envelope)envelopeShapeGeometry;
-			com.epl.geometry.Envelope env = new com.epl.geometry.Envelope();
-			com.epl.geometry.Envelope otherenv = new com.epl.geometry.Envelope();
-			polygon.QueryEnvelope(otherenv);
-			NUnit.Framework.Assert.IsTrue(envelope.GetXMin() == otherenv.GetXMin());
-			NUnit.Framework.Assert.IsTrue(envelope.GetXMax() == otherenv.GetXMax());
-			NUnit.Framework.Assert.IsTrue(envelope.GetYMin() == otherenv.GetYMin());
-			NUnit.Framework.Assert.IsTrue(envelope.GetYMax() == otherenv.GetYMax());
-			com.epl.geometry.Envelope1D interval;
-			com.epl.geometry.Envelope1D otherinterval;
-			interval = envelope.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
-			otherinterval = polygon.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
-			NUnit.Framework.Assert.IsTrue(interval.vmin == otherinterval.vmin);
-			NUnit.Framework.Assert.IsTrue(interval.vmax == otherinterval.vmax);
-		}
-
-		[NUnit.Framework.Test]
-		public static void TestImportExportShapePolyline()
-		{
-			com.epl.geometry.OperatorExportToESRIShape exporterShape = (com.epl.geometry.OperatorExportToESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToESRIShape);
-			com.epl.geometry.OperatorImportFromESRIShape importerShape = (com.epl.geometry.OperatorImportFromESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromESRIShape);
-			com.epl.geometry.Polyline polyline = MakePolyline();
-			// Test Import Polyline from Polyline
-			System.IO.MemoryStream polylineShapeBuffer = exporterShape.Execute(0, polyline);
-			com.epl.geometry.Geometry polylineShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Polyline, polylineShapeBuffer);
-			// TODO test this
-			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiPath)polylineShapeGeometry, polyline);
-			// Test Import Envelope from Polyline;
-			com.epl.geometry.Geometry envelopeShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Envelope, polylineShapeBuffer);
-			com.epl.geometry.Envelope envelope = (com.epl.geometry.Envelope)envelopeShapeGeometry;
-			com.epl.geometry.Envelope env = new com.epl.geometry.Envelope();
-			com.epl.geometry.Envelope otherenv = new com.epl.geometry.Envelope();
-			envelope.QueryEnvelope(env);
-			polyline.QueryEnvelope(otherenv);
-			NUnit.Framework.Assert.IsTrue(env.GetXMin() == otherenv.GetXMin());
-			NUnit.Framework.Assert.IsTrue(env.GetXMax() == otherenv.GetXMax());
-			NUnit.Framework.Assert.IsTrue(env.GetYMin() == otherenv.GetYMin());
-			NUnit.Framework.Assert.IsTrue(env.GetYMax() == otherenv.GetYMax());
-			com.epl.geometry.Envelope1D interval;
-			com.epl.geometry.Envelope1D otherinterval;
-			interval = envelope.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
-			otherinterval = polyline.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
-			NUnit.Framework.Assert.IsTrue(interval.vmin == otherinterval.vmin);
-			NUnit.Framework.Assert.IsTrue(interval.vmax == otherinterval.vmax);
-		}
-
-		[NUnit.Framework.Test]
-		public static void TestImportExportShapeMultiPoint()
-		{
-			com.epl.geometry.OperatorExportToESRIShape exporterShape = (com.epl.geometry.OperatorExportToESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToESRIShape);
-			com.epl.geometry.OperatorImportFromESRIShape importerShape = (com.epl.geometry.OperatorImportFromESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromESRIShape);
-			com.epl.geometry.MultiPoint multipoint = MakeMultiPoint();
-			// Test Import MultiPoint from MultiPoint
-			System.IO.MemoryStream multipointShapeBuffer = exporterShape.Execute(0, multipoint);
-			com.epl.geometry.MultiPoint multipointShapeGeometry = (com.epl.geometry.MultiPoint)importerShape.Execute(0, com.epl.geometry.Geometry.Type.MultiPoint, multipointShapeBuffer);
-			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiPoint)multipointShapeGeometry, multipoint);
-			// Test Import Envelope from MultiPoint
-			com.epl.geometry.Geometry envelopeShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Envelope, multipointShapeBuffer);
-			com.epl.geometry.Envelope envelope = (com.epl.geometry.Envelope)envelopeShapeGeometry;
-			com.epl.geometry.Envelope env = new com.epl.geometry.Envelope();
-			com.epl.geometry.Envelope otherenv = new com.epl.geometry.Envelope();
-			envelope.QueryEnvelope(env);
-			multipoint.QueryEnvelope(otherenv);
-			NUnit.Framework.Assert.IsTrue(env.GetXMin() == otherenv.GetXMin());
-			NUnit.Framework.Assert.IsTrue(env.GetXMax() == otherenv.GetXMax());
-			NUnit.Framework.Assert.IsTrue(env.GetYMin() == otherenv.GetYMin());
-			NUnit.Framework.Assert.IsTrue(env.GetYMax() == otherenv.GetYMax());
-			com.epl.geometry.Envelope1D interval;
-			com.epl.geometry.Envelope1D otherinterval;
-			interval = envelope.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
-			otherinterval = multipoint.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
-			NUnit.Framework.Assert.IsTrue(interval.vmin == otherinterval.vmin);
-			NUnit.Framework.Assert.IsTrue(interval.vmax == otherinterval.vmax);
-			interval = envelope.QueryInterval(com.epl.geometry.VertexDescription.Semantics.ID, 0);
-			otherinterval = multipoint.QueryInterval(com.epl.geometry.VertexDescription.Semantics.ID, 0);
-			NUnit.Framework.Assert.IsTrue(interval.vmin == otherinterval.vmin);
-			NUnit.Framework.Assert.IsTrue(interval.vmax == otherinterval.vmax);
-		}
+//		[NUnit.Framework.Test]
+//		public static void TestImportExportShapePolygon()
+//		{
+//			//		{
+//			//			String s = "MULTIPOLYGON (((-1.4337158203098852 53.42590083930004, -1.4346462383651897 53.42590083930004, -1.4349713164114632 53.42426406667512, -1.4344808816770183 53.42391134176576, -1.4337158203098852 53.424339319373516, -1.4337158203098852 53.42590083930004, -1.4282226562499147 53.42590083930004, -1.4282226562499147 53.42262754610009, -1.423659941537096 53.42262754610009, -1.4227294921872726 53.42418897437618, -1.4199829101572732 53.42265258737483, -1.4172363281222147 53.42418897437334, -1.4144897460898278 53.42265258737625, -1.4144897460898278 53.42099079900008, -1.4117431640598568 53.42099079712516, -1.4117431640598568 53.41849780932388, -1.4112778948070286 53.41771711805022, -1.4114404909237805 53.41689867267529, -1.411277890108579 53.416080187950215, -1.4117431640598568 53.4152995338453, -1.4117431657531654 53.40953184824072, -1.41723632610001 53.40953184402311, -1.4172363281199125 53.406257299700044, -1.4227294921899158 53.406257299700044, -1.4227294921899158 53.40789459668797, -1.4254760767598498 53.40789460061099, -1.4262193642339867 53.40914148401417, -1.4273828468095076 53.409531853100034, -1.4337158203098852 53.409531790075235, -1.4337158203098852 53.41280609140024, -1.4392089843723568 53.41280609140024, -1.439208984371362 53.41608014067522, -1.441160015802268 53.41935368587538, -1.4427511170075604 53.41935368587538, -1.4447021484373863 53.42099064750012, -1.4501953124999432 53.42099064750012, -1.4501953124999432 53.43214683850347, -1.4513643355446106 53.434108816701794, -1.4502702625278232 53.43636597733034, -1.4494587195580948 53.437354845300334, -1.4431075935937656 53.437354845300334, -1.4372459179209045 53.43244635455021, -1.433996276212838 53.42917388040006, -1.4337158203098852 53.42917388040006, -1.4337158203098852 53.42590083930004)))";
+//			//			Geometry g = OperatorImportFromWkt.local().execute(0,  Geometry.Type.Unknown, s, null);
+//			//			boolean result1 = OperatorSimplify.local().isSimpleAsFeature(g, null, null);
+//			//			boolean result2 = OperatorSimplifyOGC.local().isSimpleOGC(g, null, true, null, null);
+//			//			Geometry simple = OperatorSimplifyOGC.local().execute(g, null, true, null);
+//			//			OperatorFactoryLocal.saveToWKTFileDbg("c:/temp/simplifiedeeee",  simple, null);
+//			//			int i = 0;
+//			//		}
+//			com.epl.geometry.OperatorExportToESRIShape exporterShape = (com.epl.geometry.OperatorExportToESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToESRIShape);
+//			com.epl.geometry.OperatorImportFromESRIShape importerShape = (com.epl.geometry.OperatorImportFromESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromESRIShape);
+//			com.epl.geometry.Polygon polygon = MakePolygon();
+//			byte[] esriShape = com.epl.geometry.GeometryEngine.GeometryToEsriShape(polygon);
+//			com.epl.geometry.Geometry imported = com.epl.geometry.GeometryEngine.GeometryFromEsriShape(esriShape, com.epl.geometry.Geometry.Type.Unknown);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiPath)imported, polygon);
+//			// Test Import Polygon from Polygon
+//			System.IO.MemoryStream polygonShapeBuffer = exporterShape.Execute(0, polygon);
+//			com.epl.geometry.Geometry polygonShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Polygon, polygonShapeBuffer);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiPath)polygonShapeGeometry, polygon);
+//			// Test Import Envelope from Polygon
+//			com.epl.geometry.Geometry envelopeShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Envelope, polygonShapeBuffer);
+//			com.epl.geometry.Envelope envelope = (com.epl.geometry.Envelope)envelopeShapeGeometry;
+//			com.epl.geometry.Envelope env = new com.epl.geometry.Envelope();
+//			com.epl.geometry.Envelope otherenv = new com.epl.geometry.Envelope();
+//			polygon.QueryEnvelope(otherenv);
+//			NUnit.Framework.Assert.IsTrue(envelope.GetXMin() == otherenv.GetXMin());
+//			NUnit.Framework.Assert.IsTrue(envelope.GetXMax() == otherenv.GetXMax());
+//			NUnit.Framework.Assert.IsTrue(envelope.GetYMin() == otherenv.GetYMin());
+//			NUnit.Framework.Assert.IsTrue(envelope.GetYMax() == otherenv.GetYMax());
+//			com.epl.geometry.Envelope1D interval;
+//			com.epl.geometry.Envelope1D otherinterval;
+//			interval = envelope.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
+//			otherinterval = polygon.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
+//			NUnit.Framework.Assert.IsTrue(interval.vmin == otherinterval.vmin);
+//			NUnit.Framework.Assert.IsTrue(interval.vmax == otherinterval.vmax);
+//		}
+//
+//		[NUnit.Framework.Test]
+//		public static void TestImportExportShapePolyline()
+//		{
+//			com.epl.geometry.OperatorExportToESRIShape exporterShape = (com.epl.geometry.OperatorExportToESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToESRIShape);
+//			com.epl.geometry.OperatorImportFromESRIShape importerShape = (com.epl.geometry.OperatorImportFromESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromESRIShape);
+//			com.epl.geometry.Polyline polyline = MakePolyline();
+//			// Test Import Polyline from Polyline
+//			System.IO.MemoryStream polylineShapeBuffer = exporterShape.Execute(0, polyline);
+//			com.epl.geometry.Geometry polylineShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Polyline, polylineShapeBuffer);
+//			// TODO test this
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiPath)polylineShapeGeometry, polyline);
+//			// Test Import Envelope from Polyline;
+//			com.epl.geometry.Geometry envelopeShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Envelope, polylineShapeBuffer);
+//			com.epl.geometry.Envelope envelope = (com.epl.geometry.Envelope)envelopeShapeGeometry;
+//			com.epl.geometry.Envelope env = new com.epl.geometry.Envelope();
+//			com.epl.geometry.Envelope otherenv = new com.epl.geometry.Envelope();
+//			envelope.QueryEnvelope(env);
+//			polyline.QueryEnvelope(otherenv);
+//			NUnit.Framework.Assert.IsTrue(env.GetXMin() == otherenv.GetXMin());
+//			NUnit.Framework.Assert.IsTrue(env.GetXMax() == otherenv.GetXMax());
+//			NUnit.Framework.Assert.IsTrue(env.GetYMin() == otherenv.GetYMin());
+//			NUnit.Framework.Assert.IsTrue(env.GetYMax() == otherenv.GetYMax());
+//			com.epl.geometry.Envelope1D interval;
+//			com.epl.geometry.Envelope1D otherinterval;
+//			interval = envelope.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
+//			otherinterval = polyline.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
+//			NUnit.Framework.Assert.IsTrue(interval.vmin == otherinterval.vmin);
+//			NUnit.Framework.Assert.IsTrue(interval.vmax == otherinterval.vmax);
+//		}
+//
+//		[NUnit.Framework.Test]
+//		public static void TestImportExportShapeMultiPoint()
+//		{
+//			com.epl.geometry.OperatorExportToESRIShape exporterShape = (com.epl.geometry.OperatorExportToESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToESRIShape);
+//			com.epl.geometry.OperatorImportFromESRIShape importerShape = (com.epl.geometry.OperatorImportFromESRIShape)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromESRIShape);
+//			com.epl.geometry.MultiPoint multipoint = MakeMultiPoint();
+//			// Test Import MultiPoint from MultiPoint
+//			System.IO.MemoryStream multipointShapeBuffer = exporterShape.Execute(0, multipoint);
+//			com.epl.geometry.MultiPoint multipointShapeGeometry = (com.epl.geometry.MultiPoint)importerShape.Execute(0, com.epl.geometry.Geometry.Type.MultiPoint, multipointShapeBuffer);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiPoint)multipointShapeGeometry, multipoint);
+//			// Test Import Envelope from MultiPoint
+//			com.epl.geometry.Geometry envelopeShapeGeometry = importerShape.Execute(0, com.epl.geometry.Geometry.Type.Envelope, multipointShapeBuffer);
+//			com.epl.geometry.Envelope envelope = (com.epl.geometry.Envelope)envelopeShapeGeometry;
+//			com.epl.geometry.Envelope env = new com.epl.geometry.Envelope();
+//			com.epl.geometry.Envelope otherenv = new com.epl.geometry.Envelope();
+//			envelope.QueryEnvelope(env);
+//			multipoint.QueryEnvelope(otherenv);
+//			NUnit.Framework.Assert.IsTrue(env.GetXMin() == otherenv.GetXMin());
+//			NUnit.Framework.Assert.IsTrue(env.GetXMax() == otherenv.GetXMax());
+//			NUnit.Framework.Assert.IsTrue(env.GetYMin() == otherenv.GetYMin());
+//			NUnit.Framework.Assert.IsTrue(env.GetYMax() == otherenv.GetYMax());
+//			com.epl.geometry.Envelope1D interval;
+//			com.epl.geometry.Envelope1D otherinterval;
+//			interval = envelope.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
+//			otherinterval = multipoint.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
+//			NUnit.Framework.Assert.IsTrue(interval.vmin == otherinterval.vmin);
+//			NUnit.Framework.Assert.IsTrue(interval.vmax == otherinterval.vmax);
+//			interval = envelope.QueryInterval(com.epl.geometry.VertexDescription.Semantics.ID, 0);
+//			otherinterval = multipoint.QueryInterval(com.epl.geometry.VertexDescription.Semantics.ID, 0);
+//			NUnit.Framework.Assert.IsTrue(interval.vmin == otherinterval.vmin);
+//			NUnit.Framework.Assert.IsTrue(interval.vmax == otherinterval.vmax);
+//		}
 
 		[NUnit.Framework.Test]
 		public static void TestImportExportShapePoint()
@@ -503,20 +531,20 @@ namespace com.epl.geometry
 //			int wkbType = polygonWKBBuffer.GetInt(1);
 //			NUnit.Framework.Assert.IsTrue(wkbType == com.epl.geometry.WkbGeometryType.wkbMultiPolygonZM);
 //			com.epl.geometry.Geometry polygonWKBGeometry = importerWKB.Execute(0, com.epl.geometry.Geometry.Type.Polygon, polygonWKBBuffer, null);
-//			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polygonWKBGeometry, polygon);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polygonWKBGeometry, polygon);
 //			// Test WKB_export_multi_polygon on nonempty single part polygon
 //			com.epl.geometry.Polygon polygon2 = MakePolygon2();
 //			NUnit.Framework.Assert.IsTrue(polygon2.GetPathCount() == 1);
 //			polygonWKBBuffer = exporterWKB.Execute(com.epl.geometry.WkbExportFlags.wkbExportMultiPolygon, polygon2, null);
 //			polygonWKBGeometry = importerWKB.Execute(0, com.epl.geometry.Geometry.Type.Polygon, polygonWKBBuffer, null);
-//			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polygonWKBGeometry, polygon2);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polygonWKBGeometry, polygon2);
 //			wkbType = polygonWKBBuffer.GetInt(1);
 //			NUnit.Framework.Assert.IsTrue(wkbType == com.epl.geometry.WkbGeometryType.wkbMultiPolygonZM);
 //			// Test WKB_export_polygon on nonempty single part polygon
 //			NUnit.Framework.Assert.IsTrue(polygon2.GetPathCount() == 1);
 //			polygonWKBBuffer = exporterWKB.Execute(com.epl.geometry.WkbExportFlags.wkbExportPolygon, polygon2, null);
 //			polygonWKBGeometry = importerWKB.Execute(0, com.epl.geometry.Geometry.Type.Polygon, polygonWKBBuffer, null);
-//			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polygonWKBGeometry, polygon2);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polygonWKBGeometry, polygon2);
 //			wkbType = polygonWKBBuffer.GetInt(1);
 //			NUnit.Framework.Assert.IsTrue(wkbType == com.epl.geometry.WkbGeometryType.wkbPolygonZM);
 //			// Test WKB_export_polygon on empty polygon
@@ -633,20 +661,20 @@ namespace com.epl.geometry
 //			int wkbType = polylineWKBBuffer.GetInt(1);
 //			NUnit.Framework.Assert.IsTrue(wkbType == com.epl.geometry.WkbGeometryType.wkbMultiLineStringZM);
 //			com.epl.geometry.Geometry polylineWKBGeometry = importerWKB.Execute(0, com.epl.geometry.Geometry.Type.Polyline, polylineWKBBuffer, null);
-//			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polylineWKBGeometry, polyline);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polylineWKBGeometry, polyline);
 //			// Test wkbExportMultiPolyline on nonempty single part polyline
 //			com.epl.geometry.Polyline polyline2 = MakePolyline2();
 //			NUnit.Framework.Assert.IsTrue(polyline2.GetPathCount() == 1);
 //			polylineWKBBuffer = exporterWKB.Execute(com.epl.geometry.WkbExportFlags.wkbExportMultiLineString, polyline2, null);
 //			polylineWKBGeometry = importerWKB.Execute(0, com.epl.geometry.Geometry.Type.Polyline, polylineWKBBuffer, null);
-//			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polylineWKBGeometry, polyline2);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polylineWKBGeometry, polyline2);
 //			wkbType = polylineWKBBuffer.GetInt(1);
 //			NUnit.Framework.Assert.IsTrue(wkbType == com.epl.geometry.WkbGeometryType.wkbMultiLineStringZM);
 //			// Test wkbExportPolyline on nonempty single part polyline
 //			NUnit.Framework.Assert.IsTrue(polyline2.GetPathCount() == 1);
 //			polylineWKBBuffer = exporterWKB.Execute(com.epl.geometry.WkbExportFlags.wkbExportLineString, polyline2, null);
 //			polylineWKBGeometry = importerWKB.Execute(0, com.epl.geometry.Geometry.Type.Polyline, polylineWKBBuffer, null);
-//			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polylineWKBGeometry, polyline2);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)polylineWKBGeometry, polyline2);
 //			wkbType = polylineWKBBuffer.GetInt(1);
 //			NUnit.Framework.Assert.IsTrue(wkbType == com.epl.geometry.WkbGeometryType.wkbLineStringZM);
 //			// Test wkbExportPolyline on empty polyline
@@ -676,7 +704,7 @@ namespace com.epl.geometry
 //			int wkbType = multipointWKBBuffer.GetInt(1);
 //			NUnit.Framework.Assert.IsTrue(wkbType == com.epl.geometry.WkbGeometryType.wkbMultiPointZ);
 //			com.epl.geometry.MultiPoint multipointWKBGeometry = (com.epl.geometry.MultiPoint)(importerWKB.Execute(0, com.epl.geometry.Geometry.Type.MultiPoint, multipointWKBBuffer, null));
-//			//com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)multipointWKBGeometry, multipoint);
+//			com.epl.geometry.TestCommonMethods.CompareGeometryContent((com.epl.geometry.MultiVertexGeometry)multipointWKBGeometry, multipoint);
 //			// Test WKB_export_point on nonempty single point Multi_point
 //			com.epl.geometry.MultiPoint multipoint2 = MakeMultiPoint2();
 //			NUnit.Framework.Assert.IsTrue(multipoint2.GetPointCount() == 1);
@@ -838,28 +866,28 @@ namespace com.epl.geometry
 //			polygon = (com.epl.geometry.Polygon)(importerWKB.Execute(0, com.epl.geometry.Geometry.Type.Polygon, polygonWKBBuffer, null));
 //			NUnit.Framework.Assert.IsTrue(polygon.IsEmpty());
 //		}
-//
-//		[NUnit.Framework.Test]
-//		public static void TestImportExportWktGeometryCollection()
-//		{
-//			com.epl.geometry.OperatorImportFromWkt importerWKT = (com.epl.geometry.OperatorImportFromWkt)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromWkt);
-//			com.epl.geometry.OperatorExportToWkt exporterWKT = (com.epl.geometry.OperatorExportToWkt)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToWkt);
-//			string wktString;
-//			com.epl.geometry.Envelope2D envelope = new com.epl.geometry.Envelope2D();
-//			com.epl.geometry.WktParser wktParser = new com.epl.geometry.WktParser();
-//			wktString = "GeometryCollection( Point (0 0),  GeometryCollection( Point (0 0) ,  Point (1 1) , Point (2 2), LineString empty ), Point (1 1),  Point (2 2) )";
-//			com.epl.geometry.OGCStructure structure = importerWKT.ExecuteOGC(0, wktString, null).m_structures[0];
-//			NUnit.Framework.Assert.IsTrue(structure.m_type == 7);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[0].m_type == 1);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[0].m_type == 1);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_type == 7);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[2].m_type == 1);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[3].m_type == 1);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[0].m_type == 1);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[1].m_type == 1);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[2].m_type == 1);
-//			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[3].m_type == 2);
-//		}
+
+		[NUnit.Framework.Test]
+		public static void TestImportExportWktGeometryCollection()
+		{
+			com.epl.geometry.OperatorImportFromWkt importerWKT = (com.epl.geometry.OperatorImportFromWkt)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromWkt);
+			com.epl.geometry.OperatorExportToWkt exporterWKT = (com.epl.geometry.OperatorExportToWkt)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToWkt);
+			string wktString;
+			com.epl.geometry.Envelope2D envelope = new com.epl.geometry.Envelope2D();
+			com.epl.geometry.WktParser wktParser = new com.epl.geometry.WktParser();
+			wktString = "GeometryCollection( Point (0 0),  GeometryCollection( Point (0 0) ,  Point (1 1) , Point (2 2), LineString empty ), Point (1 1),  Point (2 2) )";
+			com.epl.geometry.OGCStructure structure = importerWKT.ExecuteOGC(0, wktString, null).m_structures[0];
+			NUnit.Framework.Assert.IsTrue(structure.m_type == 7);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[0].m_type == 1);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[0].m_type == 1);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_type == 7);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[2].m_type == 1);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[3].m_type == 1);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[0].m_type == 1);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[1].m_type == 1);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[2].m_type == 1);
+			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[3].m_type == 2);
+		}
 
 		[NUnit.Framework.Test]
 		public static void TestImportExportWktMultiPolygon()
@@ -1204,7 +1232,7 @@ namespace com.epl.geometry
 			}
 		}
 
-//		/// <exception cref="org.json.JSONException"/>
+//		[System.Obsolete]
 //		[NUnit.Framework.Test]
 //		public static void TestImportGeoJsonGeometryCollection()
 //		{
@@ -1226,134 +1254,244 @@ namespace com.epl.geometry
 //			NUnit.Framework.Assert.IsTrue(structure.m_structures[1].m_structures[3].m_type == 2);
 //		}
 //
-//		/// <exception cref="org.json.JSONException"/>
+//		/// <exception cref="System.Exception"/>
 //		[NUnit.Framework.Test]
 //		public static void TestImportGeoJsonMultiPolygon()
 //		{
 //			com.epl.geometry.OperatorImportFromGeoJson importerGeoJson = (com.epl.geometry.OperatorImportFromGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromGeoJson);
+//			com.epl.geometry.OperatorExportToGeoJson exporterGeoJson = (com.epl.geometry.OperatorExportToGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToGeoJson);
+//			com.epl.geometry.MapGeometry map_geometry;
 //			com.epl.geometry.Polygon polygon;
+//			com.epl.geometry.SpatialReference spatial_reference;
 //			string geoJsonString;
 //			com.epl.geometry.Envelope2D envelope = new com.epl.geometry.Envelope2D();
 //			// Test Import from MultiPolygon
-//			geoJsonString = "{\"type\": \"Multipolygon\", \"coordinates\": []}";
+//			geoJsonString = "{\"type\": \"MultiPolygon\", \"coordinates\": []}";
 //			polygon = (com.epl.geometry.Polygon)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null).GetGeometry());
 //			NUnit.Framework.Assert.IsTrue(polygon != null);
 //			NUnit.Framework.Assert.IsTrue(polygon.IsEmpty());
 //			NUnit.Framework.Assert.IsTrue(!polygon.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
-//			polygon = (com.epl.geometry.Polygon)(com.epl.geometry.GeometryEngine.GeometryFromGeoJson(geoJsonString, 0, com.epl.geometry.Geometry.Type.Unknown).GetGeometry());
+//			geoJsonString = "{\"coordinates\" : [], \"type\": \"MultiPolygon\", \"crs\": {\"type\": \"name\", \"some\": \"stuff\", \"properties\": {\"some\" : \"stuff\", \"name\": \"urn:ogc:def:crs:OGC:1.3:CRS84\"}}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
 //			NUnit.Framework.Assert.IsTrue(polygon != null);
 //			NUnit.Framework.Assert.IsTrue(polygon.IsEmpty());
-//			NUnit.Framework.Assert.IsTrue(!polygon.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
-//			geoJsonString = "{\"type\": \"Multipolygon\", \"coordinates\": [[], [[], [[10, 10, 5], [20, 10, 5], [20, 20, 5], [10, 20, 5], [10, 10, 5]], [[12, 12, 3]], [], [[10, 10, 1], [12, 12, 1]]], [], [[[90, 90, 88], [60, 90, 7], [60, 60, 7]], [], [[70, 70, 7], [80, 80, 7], [70, 80, 7], [70, 70, 7]]], []]}";
-//			polygon = (com.epl.geometry.Polygon)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null).GetGeometry());
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 4326);
+//			geoJsonString = "{\"coordinates\" : null, \"crs\": null, \"type\": \"MultiPolygon\"}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
+//			NUnit.Framework.Assert.IsTrue(polygon != null);
+//			NUnit.Framework.Assert.IsTrue(polygon.IsEmpty());
+//			NUnit.Framework.Assert.IsTrue(spatial_reference == null);
+//			geoJsonString = "{\"type\": \"MultiPolygon\", \"coordinates\" : [[], [], [[[]]]], \"crsURN\": \"urn:ogc:def:crs:OGC:1.3:CRS27\"}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
+//			NUnit.Framework.Assert.IsTrue(polygon != null);
+//			NUnit.Framework.Assert.IsTrue(polygon.IsEmpty());
+//			NUnit.Framework.Assert.IsTrue(spatial_reference != null);
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 4267);
+//			geoJsonString = "{\"coordinates\" : [[], [[], [[10, 10, 5], [20, 10, 5], [20, 20, 5], [10, 20, 5], [10, 10, 5]], [[12, 12, 3]], [], [[10, 10, 1], [12, 12, 1]]], [], [[[90, 90, 88], [60, 90, 7], [60, 60, 7]], [], [[70, 70, 7], [80, 80, 7], [70, 80, 7], [70, 70, 7]]], []], \"crs\": {\"type\": \"link\", \"properties\": {\"href\": \"http://spatialreference.org/ref/sr-org/6928/ogcwkt/\"}}, \"type\": \"MultiPolygon\"}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
 //			NUnit.Framework.Assert.IsTrue(polygon != null);
 //			polygon.QueryEnvelope2D(envelope);
 //			NUnit.Framework.Assert.IsTrue(envelope.xmin == 10 && envelope.xmax == 90 && envelope.ymin == 10 && envelope.ymax == 90);
 //			NUnit.Framework.Assert.IsTrue(polygon.GetPointCount() == 14);
 //			NUnit.Framework.Assert.IsTrue(polygon.GetPathCount() == 5);
-//			// assertTrue(polygon.calculate_area_2D() > 0.0);
-//			// assertTrue(polygon.hasAttribute(VertexDescription.Semantics.Z));
-//			// double z = polygon.getAttributeAsDbl(VertexDescription.Semantics.Z,
-//			// 0, 0);
-//			// assertTrue(z == 5);
-//			// Test import Polygon
-//			geoJsonString = "{\"type\": \"POLYGON\", \"coordinates\": [[], [], [[10, 10, 5], [10, 20, 5], [20, 20, 5], [20, 10, 5]], [[12, 12, 3]], [], [[10, 10, 1], [12, 12, 1]], [], [[60, 60, 7], [60, 90, 7], [90, 90, 7], [60, 60, 7]], [], [[70, 70, 7], [70, 80, 7], [80, 80, 7]], []] }";
-//			polygon = (com.epl.geometry.Polygon)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null).GetGeometry());
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 3857);
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
 //			NUnit.Framework.Assert.IsTrue(polygon != null);
+//			polygon.QueryEnvelope2D(envelope);
+//			NUnit.Framework.Assert.IsTrue(envelope.xmin == 10 && envelope.xmax == 90 && envelope.ymin == 10 && envelope.ymax == 90);
 //			NUnit.Framework.Assert.IsTrue(polygon.GetPointCount() == 14);
 //			NUnit.Framework.Assert.IsTrue(polygon.GetPathCount() == 5);
-//			// assertTrue(polygon.hasAttribute(VertexDescription.Semantics.Z));
-//			geoJsonString = "{\"type\": \"MULTIPOLYGON\", \"coordinates\": [[[[90, 10, 7], [10, 10, 1], [10, 90, 7], [90, 90, 1], [90, 10, 7]]]] }";
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 3857);
+//			// Test Export to GeoJSON MultiPolygon
+//			geoJsonString = exporterGeoJson.Execute(com.epl.geometry.GeoJsonExportFlags.geoJsonExportSkipCRS, spatial_reference, polygon);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPolygon\",\"coordinates\":[[[[10,10,5],[20,10,5],[20,20,5],[10,20,5],[10,10,5]],[[12,12,3],[12,12,3],[12,12,3]],[[10,10,1],[12,12,1],[10,10,1]]],[[[90,90,88],[60,90,7],[60,60,7],[90,90,88]],[[70,70,7],[70,80,7],[80,80,7],[70,70,7]]]]}"
+//				));
+//			geoJsonString = exporterGeoJson.Execute(0, spatial_reference, polygon);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPolygon\",\"coordinates\":[[[[10,10,5],[20,10,5],[20,20,5],[10,20,5],[10,10,5]],[[12,12,3],[12,12,3],[12,12,3]],[[10,10,1],[12,12,1],[10,10,1]]],[[[90,90,88],[60,90,7],[60,60,7],[90,90,88]],[[70,70,7],[70,80,7],[80,80,7],[70,70,7]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:3857\"}}}"
+//				));
+//			geoJsonString = "{\"type\": \"MultiPolygon\", \"coordinates\": [[[[90, 10, 7], [10, 10, 1], [10, 90, 7], [90, 90, 1], [90, 10, 7]]]] }";
 //			// ring
-//			// is
-//			// oriented
-//			// clockwise
+//			// i																																															// clockwise
 //			polygon = (com.epl.geometry.Polygon)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null).GetGeometry());
 //			NUnit.Framework.Assert.IsTrue(polygon != null);
 //			NUnit.Framework.Assert.IsTrue(polygon.GetPointCount() == 4);
 //			NUnit.Framework.Assert.IsTrue(polygon.GetPathCount() == 1);
-//			// assertTrue(polygon.hasAttribute(VertexDescription.Semantics.Z));
+//			NUnit.Framework.Assert.IsTrue(polygon.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
 //			NUnit.Framework.Assert.IsTrue(polygon.CalculateArea2D() > 0);
+//			// Test import Polygon
+//			geoJsonString = "{\"type\": \"Polygon\", \"coordinates\": [[], [], [[10, 10, 5], [10, 20, 5], [20, 20, 5], [20, 10, 5]], [[12, 12, 3]], [], [[10, 10, 1], [12, 12, 1]], [], [[60, 60, 7], [60, 90, 7], [90, 90, 7], [60, 60, 7]], [], [[70, 70, 7], [70, 80, 7], [80, 80, 7]], []] }";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
+//			NUnit.Framework.Assert.IsTrue(polygon != null);
+//			NUnit.Framework.Assert.IsTrue(polygon.GetPointCount() == 14);
+//			NUnit.Framework.Assert.IsTrue(polygon.GetPathCount() == 5);
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 4326);
+//			geoJsonString = exporterGeoJson.Execute(0, spatial_reference, polygon);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"Polygon\",\"coordinates\":[[[10,10,5],[20,10,5],[20,20,5],[10,20,5],[10,10,5]],[[12,12,3],[12,12,3],[12,12,3]],[[10,10,1],[12,12,1],[10,10,1]],[[60,60,7],[60,90,7],[90,90,7],[60,60,7]],[[70,70,7],[70,80,7],[80,80,7],[70,70,7]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}}"
+//				));
+//			com.epl.geometry.Envelope env = new com.epl.geometry.Envelope();
+//			env.AddAttribute(com.epl.geometry.VertexDescription.Semantics.Z);
+//			polygon.QueryEnvelope(env);
+//			geoJsonString = "{\"coordinates\" : [], \"type\": \"MultiPolygon\", \"crs\":{\"esriwkt\":\"PROJCS[\\\"Gnomonic\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Gnomonic\\\"],PARAMETER[\\\"Longitude_Of_Center\\\",0.0],PARAMETER[\\\"Latitude_Of_Center\\\",-45.0],UNIT[\\\"Meter\\\",1.0]]\"}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
+//			string wkt = spatial_reference.GetText();
+//			NUnit.Framework.Assert.IsTrue(wkt.Equals("PROJCS[\"Gnomonic\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Gnomonic\"],PARAMETER[\"Longitude_Of_Center\",0.0],PARAMETER[\"Latitude_Of_Center\",-45.0],UNIT[\"Meter\",1.0]]"
+//				));
+//			geoJsonString = "{\"coordinates\" : [], \"type\": \"MultiPolygon\", \"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"PROJCS[\\\"Gnomonic\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Gnomonic\\\"],PARAMETER[\\\"Longitude_Of_Center\\\",0.0],PARAMETER[\\\"Latitude_Of_Center\\\",-45.0],UNIT[\\\"Meter\\\",1.0]]\"}}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
+//			wkt = spatial_reference.GetText();
+//			NUnit.Framework.Assert.IsTrue(wkt.Equals("PROJCS[\"Gnomonic\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Gnomonic\"],PARAMETER[\"Longitude_Of_Center\",0.0],PARAMETER[\"Latitude_Of_Center\",-45.0],UNIT[\"Meter\",1.0]]"
+//				));
+//			NUnit.Framework.Assert.IsTrue(polygon != null);
+//			NUnit.Framework.Assert.IsTrue(polygon.IsEmpty());
+//			// AGOL exports wkt like this...
+//			geoJsonString = "{\"coordinates\" : [], \"type\": \"MultiPolygon\", \"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"ESRI:PROJCS[\\\"Gnomonic\\\",GEOGCS[\\\"GCS_WGS_1984\\\",DATUM[\\\"D_WGS_1984\\\",SPHEROID[\\\"WGS_1984\\\",6378137.0,298.257223563]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Gnomonic\\\"],PARAMETER[\\\"Longitude_Of_Center\\\",0.0],PARAMETER[\\\"Latitude_Of_Center\\\",-45.0],UNIT[\\\"Meter\\\",1.0]]\"}}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Polygon, geoJsonString, null);
+//			polygon = (com.epl.geometry.Polygon)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
+//			wkt = spatial_reference.GetText();
+//			NUnit.Framework.Assert.IsTrue(wkt.Equals("PROJCS[\"Gnomonic\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Gnomonic\"],PARAMETER[\"Longitude_Of_Center\",0.0],PARAMETER[\"Latitude_Of_Center\",-45.0],UNIT[\"Meter\",1.0]]"
+//				));
+//			NUnit.Framework.Assert.IsTrue(polygon != null);
+//			NUnit.Framework.Assert.IsTrue(polygon.IsEmpty());
+//			bool exceptionThrownNoWKT = false;
+//			try
+//			{
+//				geoJsonString = exporterGeoJson.Execute(com.epl.geometry.GeoJsonExportFlags.geoJsonExportPreferMultiGeometry, spatial_reference, polygon);
+//			}
+//			catch (System.Exception)
+//			{
+//				exceptionThrownNoWKT = true;
+//			}
+//			NUnit.Framework.Assert.IsTrue(exceptionThrownNoWKT);
 //		}
 //
-//		/// <exception cref="org.json.JSONException"/>
+//		/// <exception cref="System.Exception"/>
 //		[NUnit.Framework.Test]
 //		public static void TestImportGeoJsonMultiLineString()
 //		{
 //			com.epl.geometry.OperatorImportFromGeoJson importerGeoJson = (com.epl.geometry.OperatorImportFromGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromGeoJson);
+//			com.epl.geometry.OperatorExportToGeoJson exporterGeoJson = (com.epl.geometry.OperatorExportToGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToGeoJson);
+//			com.epl.geometry.MapGeometry map_geometry;
 //			com.epl.geometry.Polyline polyline;
+//			com.epl.geometry.SpatialReference spatial_reference;
 //			string geoJsonString;
 //			com.epl.geometry.Envelope2D envelope = new com.epl.geometry.Envelope2D();
 //			// Test Import from MultiLineString
-//			geoJsonString = "{\"type\": \"MultiLineString\", \"coordinates\": []}";
-//			polyline = (com.epl.geometry.Polyline)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
+//			geoJsonString = "{\"type\":\"MultiLineString\",\"coordinates\":[], \"crs\" : {\"type\" : \"URL\", \"properties\" : {\"url\" : \"http://www.opengis.net/def/crs/EPSG/0/3857\"}}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			polyline = (com.epl.geometry.Polyline)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
 //			NUnit.Framework.Assert.IsTrue(polyline != null);
+//			NUnit.Framework.Assert.IsTrue(spatial_reference != null);
 //			NUnit.Framework.Assert.IsTrue(polyline.IsEmpty());
-//			NUnit.Framework.Assert.IsTrue(!polyline.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
-//			NUnit.Framework.Assert.IsTrue(!polyline.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
-//			geoJsonString = "{\"type\": \"MultiLineString\", \"coordinates\": [[], [], [[10, 10, 5], [10, 20, 5], [20, 88, 5], [20, 10, 5]], [[12, 88, 3]], [], [[10, 10, 1], [12, 12, 1]], [], [[88, 60, 7], [60, 90, 7], [90, 90, 7]], [], [[70, 70, 7], [70, 80, 7], [80, 80, 7]], []]}";
-//			polyline = (com.epl.geometry.Polyline)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 3857);
+//			geoJsonString = "{\"crs\" : {\"type\" : \"link\", \"properties\" : {\"href\" : \"www.spatialreference.org/ref/epsg/4309/\"}}, \"type\":\"MultiLineString\",\"coordinates\":[[], [], [[10, 10, 5], [10, 20, 5], [20, 88, 5], [20, 10, 5]], [[12, 88, 3]], [], [[10, 10, 1], [12, 12, 1]], [], [[88, 60, 7], [60, 90, 7], [90, 90, 7]], [], [[70, 70, 7], [70, 80, 7], [80, 80, 7]], []]}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			polyline = (com.epl.geometry.Polyline)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
 //			NUnit.Framework.Assert.IsTrue(polyline != null);
 //			polyline.QueryEnvelope2D(envelope);
 //			NUnit.Framework.Assert.IsTrue(envelope.xmin == 10 && envelope.xmax == 90 && envelope.ymin == 10 && envelope.ymax == 90);
 //			NUnit.Framework.Assert.IsTrue(polyline.GetPointCount() == 14);
 //			NUnit.Framework.Assert.IsTrue(polyline.GetPathCount() == 5);
-//			// assertTrue(!polyline.hasAttribute(VertexDescription.Semantics.M));
+//			NUnit.Framework.Assert.IsTrue(polyline.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 4309);
+//			geoJsonString = exporterGeoJson.Execute(0, spatial_reference, polyline);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiLineString\",\"coordinates\":[[[10,10,5],[10,20,5],[20,88,5],[20,10,5]],[[12,88,3],[12,88,3]],[[10,10,1],[12,12,1]],[[88,60,7],[60,90,7],[90,90,7]],[[70,70,7],[70,80,7],[80,80,7]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4309\"}}}"
+//				));
 //			// Test Import LineString
-//			geoJsonString = "{\"type\": \"Linestring\", \"coordinates\": [[10, 10, 5], [10, 20, 5], [20, 20, 5], [20, 10, 5]]}";
+//			geoJsonString = "{\"type\": \"LineString\", \"coordinates\": [[10, 10, 5], [10, 20, 5], [20, 20, 5], [20, 10, 5]]}";
 //			polyline = (com.epl.geometry.Polyline)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
 //			NUnit.Framework.Assert.IsTrue(polyline.GetPointCount() == 4);
-//			// assertTrue(polyline.hasAttribute(VertexDescription.Semantics.Z));
-//			geoJsonString = "{\"type\": \"Linestring\", \"coordinates\": [[10, 10, 5], [10, 20, 5, 3], [20, 20, 5], [20, 10, 5]]}";
+//			NUnit.Framework.Assert.IsTrue(polyline.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
+//			geoJsonString = "{\"type\": \"LineString\", \"coordinates\": [[10, 10, 5], [10, 20, 5, 3], [20, 20, 5], [20, 10, 5]]}";
 //			polyline = (com.epl.geometry.Polyline)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
 //			NUnit.Framework.Assert.IsTrue(polyline.GetPointCount() == 4);
+//			NUnit.Framework.Assert.IsTrue(polyline.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
+//			NUnit.Framework.Assert.IsTrue(polyline.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
+//			geoJsonString = "{\"type\":\"LineString\",\"coordinates\": [[10, 10, 5], [10, 20, 5], [20, 20, 5], [], [20, 10, 5]],\"crs\" : {\"type\" : \"link\", \"properties\" : {\"href\" : \"www.opengis.net/def/crs/EPSG/0/3857\"}}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			polyline = (com.epl.geometry.Polyline)(map_geometry.GetGeometry());
+//			spatial_reference = map_geometry.GetSpatialReference();
+//			NUnit.Framework.Assert.IsTrue(polyline.GetPointCount() == 4);
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 3857);
+//			geoJsonString = exporterGeoJson.Execute(0, spatial_reference, polyline);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"LineString\",\"coordinates\":[[10,10,5],[10,20,5],[20,20,5],[20,10,5]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:3857\"}}}"));
+//			geoJsonString = exporterGeoJson.Execute(0, null, polyline);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"LineString\",\"coordinates\":[[10,10,5],[10,20,5],[20,20,5],[20,10,5]],\"crs\":null}"));
 //		}
 //
-//		// assertTrue(polyline.hasAttribute(VertexDescription.Semantics.Z));
-//		// assertTrue(polyline.hasAttribute(VertexDescription.Semantics.M));
-//		/// <exception cref="org.json.JSONException"/>
+//		/// <exception cref="System.Exception"/>
 //		[NUnit.Framework.Test]
 //		public static void TestImportGeoJsonMultiPoint()
 //		{
 //			com.epl.geometry.OperatorImportFromGeoJson importerGeoJson = (com.epl.geometry.OperatorImportFromGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromGeoJson);
+//			com.epl.geometry.OperatorExportToGeoJson exporterGeoJson = (com.epl.geometry.OperatorExportToGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToGeoJson);
+//			com.epl.geometry.MapGeometry map_geometry;
 //			com.epl.geometry.MultiPoint multipoint;
+//			com.epl.geometry.SpatialReference spatial_reference;
 //			string geoJsonString;
 //			com.epl.geometry.Envelope2D envelope = new com.epl.geometry.Envelope2D();
 //			// Test Import from Multi_point
-//			geoJsonString = "{\"type\": \"MultiPoint\", \"coordinates\": []}";
-//			multipoint = (com.epl.geometry.MultiPoint)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
+//			geoJsonString = "{\"type\":\"MultiPoint\",\"coordinates\":[]}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			multipoint = (com.epl.geometry.MultiPoint)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
 //			NUnit.Framework.Assert.IsTrue(multipoint != null);
 //			NUnit.Framework.Assert.IsTrue(multipoint.IsEmpty());
-//			NUnit.Framework.Assert.IsTrue(!multipoint.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
-//			NUnit.Framework.Assert.IsTrue(!multipoint.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 4326);
+//			geoJsonString = exporterGeoJson.Execute(0, null, multipoint);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPoint\",\"coordinates\":[],\"crs\":null}"));
 //			multipoint = new com.epl.geometry.MultiPoint();
-//			multipoint.Add(118.15114354234563, 33.82234433423462345);
+//			multipoint.Add(118.15, 2);
 //			multipoint.Add(88, 88);
-//			multipoint = new com.epl.geometry.MultiPoint();
+//			geoJsonString = exporterGeoJson.Execute(com.epl.geometry.GeoJsonExportFlags.geoJsonExportPrecision16, com.epl.geometry.SpatialReference.Create(4269), multipoint);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPoint\",\"coordinates\":[[118.15,2],[88,88]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4269\"}}}"));
+//			multipoint.SetEmpty();
 //			multipoint.Add(88, 2);
 //			multipoint.Add(88, 88);
-//			geoJsonString = "{\"type\": \"Multipoint\", \"coordinates\": [[], [], [10, 88, 88, 33], [10, 20, 5, 33], [20, 20, 5, 33], [20, 10, 5, 33], [12, 12, 3, 33], [], [10, 10, 1, 33], [12, 12, 1, 33], [], [60, 60, 7, 33], [60, 90.1, 7, 33], [90, 90, 7, 33], [], [70, 70, 7, 33], [70, 80, 7, 33], [80, 80, 7, 33], []]}";
-//			multipoint = (com.epl.geometry.MultiPoint)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
+//			geoJsonString = exporterGeoJson.Execute(0, com.epl.geometry.SpatialReference.Create(102100), multipoint);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPoint\",\"coordinates\":[[88,2],[88,88]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:3857\"}}}"));
+//			geoJsonString = "{\"type\":\"MultiPoint\",\"coordinates\":[[], [], [10, 88, 88, 33], [10, 20, 5, 33], [20, 20, 5, 33], [20, 10, 5, 33], [12, 12, 3, 33], [], [10, 10, 1, 33], [12, 12, 1, 33], [], [60, 60, 7, 33], [60, 90.1, 7, 33], [90, 90, 7, 33], [], [70, 70, 7, 33], [70, 80, 7, 33], [80, 80, 7, 33], []],\"crs\":{\"type\":\"OGC\",\"properties\":{\"urn\":\"urn:ogc:def:crs:OGC:1.3:CRS83\"}}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			multipoint = (com.epl.geometry.MultiPoint)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
 //			NUnit.Framework.Assert.IsTrue(multipoint != null);
-//			multipoint.QueryEnvelope2D(envelope);
-//			// assertTrue(envelope.xmin == 10 && envelope.xmax == 90 &&
-//			// envelope.ymin == 10 && Math.abs(envelope.ymax - 90.1) <= 0.001);
 //			NUnit.Framework.Assert.IsTrue(multipoint.GetPointCount() == 13);
-//			// assertTrue(multipoint.hasAttribute(VertexDescription.Semantics.Z));
-//			// assertTrue(multipoint.hasAttribute(VertexDescription.Semantics.M));
-//			geoJsonString = "{\"type\": \"Multipoint\", \"coordinates\": [[10, 88, 88, 33], [10, 20, 5, 33], [20, 20, 5, 33], [20, 10, 5, 33], [12, 12, 3, 33], [10, 10, 1, 33], [12, 12, 1, 33], [60, 60, 7, 33], [60, 90.1, 7, 33], [90, 90, 7, 33], [70, 70, 7, 33], [70, 80, 7, 33], [80, 80, 7, 33]]}";
-//			multipoint = (com.epl.geometry.MultiPoint)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
+//			NUnit.Framework.Assert.IsTrue(multipoint.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
+//			NUnit.Framework.Assert.IsTrue(multipoint.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 4269);
+//			geoJsonString = "{\"type\":\"MultiPoint\",\"coordinates\": [[10, 88, 88, 33], [10, 20, 5, 33], [20, 20, 5, 33], [], [20, 10, 5, 33], [12, 12, 3, 33], [], [10, 10, 1, 33], [12, 12, 1, 33], [60, 60, 7, 33], [60, 90.1, 7, 33], [90, 90, 7, 33], [70, 70, 7, 33], [70, 80, 7, 33], [80, 80, 7, 33]]}";
+//			multipoint = (com.epl.geometry.MultiPoint)importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry();
 //			NUnit.Framework.Assert.IsTrue(multipoint != null);
-//			// assertTrue(envelope.xmin == 10 && envelope.xmax == 90 &&
-//			// envelope.ymin == 10 && ::fabs(envelope.ymax - 90.1) <= 0.001);
 //			NUnit.Framework.Assert.IsTrue(multipoint.GetPointCount() == 13);
-//			// assertTrue(multipoint.hasAttribute(VertexDescription.Semantics.Z));
-//			// assertTrue(multipoint.hasAttribute(VertexDescription.Semantics.M));
-//			geoJsonString = "{\"type\": \"Multipoint\", \"coordinates\": [[], [], [10, 10, 5, 33]]}";
-//			multipoint = (com.epl.geometry.MultiPoint)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
+//			NUnit.Framework.Assert.IsTrue(multipoint.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
+//			NUnit.Framework.Assert.IsTrue(multipoint.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
+//			geoJsonString = exporterGeoJson.Execute(com.epl.geometry.GeoJsonExportFlags.geoJsonExportPrecision15, null, multipoint);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPoint\",\"coordinates\":[[10,88,88,33],[10,20,5,33],[20,20,5,33],[20,10,5,33],[12,12,3,33],[10,10,1,33],[12,12,1,33],[60,60,7,33],[60,90.1,7,33],[90,90,7,33],[70,70,7,33],[70,80,7,33],[80,80,7,33]],\"crs\":null}"));
+//			geoJsonString = "{\"type\":\"MultiPoint\",\"coordinates\":[[], [], [10, 10, 5, 33]]}";
+//			multipoint = (com.epl.geometry.MultiPoint)importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry();
+//			geoJsonString = exporterGeoJson.Execute(0, null, multipoint);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPoint\",\"coordinates\":[[10,10,5,33]],\"crs\":null}"));
 //		}
 //
-//		/// <exception cref="org.json.JSONException"/>
+//		/// <exception cref="System.Exception"/>
 //		[NUnit.Framework.Test]
 //		public static void TestImportGeoJsonPolygon()
 //		{
@@ -1375,13 +1513,13 @@ namespace com.epl.geometry
 //			NUnit.Framework.Assert.IsTrue(envelope.xmin == 10 && envelope.xmax == 20 && envelope.ymin == 10 && envelope.ymax == 20);
 //			NUnit.Framework.Assert.IsTrue(polygon.GetPointCount() == 8);
 //			NUnit.Framework.Assert.IsTrue(polygon.GetPathCount() == 3);
-//			// assertTrue(polygon.hasAttribute(VertexDescription.Semantics.Z));
-//			geoJsonString = "{\"type\": \"polygon\", \"coordinates\": [[[35, 10], [10, 20], [15, 40], [45, 45], [35, 10]], [[20, 30], [35, 35], [30, 20], [20, 30]]]}";
+//			NUnit.Framework.Assert.IsTrue(polygon.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
+//			geoJsonString = "{\"type\": \"Polygon\", \"coordinates\": [[[35, 10], [10, 20], [15, 40], [45, 45], [35, 10]], [[20, 30], [35, 35], [30, 20], [20, 30]]]}";
 //			com.epl.geometry.Polygon polygon2 = (com.epl.geometry.Polygon)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
 //			NUnit.Framework.Assert.IsTrue(polygon2 != null);
 //		}
 //
-//		/// <exception cref="org.json.JSONException"/>
+//		/// <exception cref="System.Exception"/>
 //		[NUnit.Framework.Test]
 //		public static void TestImportGeoJsonLineString()
 //		{
@@ -1403,39 +1541,172 @@ namespace com.epl.geometry
 //			NUnit.Framework.Assert.IsTrue(envelope.xmin == 10 && envelope.xmax == 20 && envelope.ymin == 10 && envelope.ymax == 20);
 //			NUnit.Framework.Assert.IsTrue(polyline.GetPointCount() == 4);
 //			NUnit.Framework.Assert.IsTrue(polyline.GetPathCount() == 1);
+//			NUnit.Framework.Assert.IsTrue(!polyline.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
 //		}
 //
-//		// assertTrue(!polyline.hasAttribute(VertexDescription.Semantics.M));
-//		/// <exception cref="org.json.JSONException"/>
+//		/// <exception cref="System.Exception"/>
 //		[NUnit.Framework.Test]
 //		public static void TestImportGeoJsonPoint()
 //		{
 //			com.epl.geometry.OperatorImportFromGeoJson importerGeoJson = (com.epl.geometry.OperatorImportFromGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromGeoJson);
+//			com.epl.geometry.OperatorExportToGeoJson exporterGeoJson = (com.epl.geometry.OperatorExportToGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToGeoJson);
+//			com.epl.geometry.MapGeometry map_geometry;
+//			com.epl.geometry.SpatialReference spatial_reference;
 //			com.epl.geometry.Point point;
 //			string geoJsonString;
 //			// Test Import from Point
-//			geoJsonString = "{\"type\": \"Point\", \"coordinates\": []}";
-//			point = (com.epl.geometry.Point)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
+//			geoJsonString = "{\"type\":\"Point\",\"coordinates\":[],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:3857\"}}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			point = (com.epl.geometry.Point)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 3857);
 //			NUnit.Framework.Assert.IsTrue(point != null);
 //			NUnit.Framework.Assert.IsTrue(point.IsEmpty());
-//			NUnit.Framework.Assert.IsTrue(!point.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
-//			NUnit.Framework.Assert.IsTrue(!point.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
-//			geoJsonString = "{\"type\": \"Point\", \"coordinates\": [30.1, 10.6, 5.1, 33.1]}";
-//			point = (com.epl.geometry.Point)(importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null).GetGeometry());
+//			geoJsonString = exporterGeoJson.Execute(0, null, point);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"Point\",\"coordinates\":[],\"crs\":null}"));
+//			geoJsonString = exporterGeoJson.Execute(com.epl.geometry.GeoJsonExportFlags.geoJsonExportPreferMultiGeometry, null, point);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPoint\",\"coordinates\":[],\"crs\":null}"));
+//			geoJsonString = "{\"type\":\"Point\",\"coordinates\":[30.1,10.6,5.1,33.1],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:ESRI::54051\"}}}";
+//			map_geometry = importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//			point = (com.epl.geometry.Point)map_geometry.GetGeometry();
+//			spatial_reference = map_geometry.GetSpatialReference();
 //			NUnit.Framework.Assert.IsTrue(point != null);
-//			// assertTrue(point.hasAttribute(VertexDescription.Semantics.Z));
-//			// assertTrue(point.hasAttribute(VertexDescription.Semantics.M));
+//			NUnit.Framework.Assert.IsTrue(point.HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z));
+//			NUnit.Framework.Assert.IsTrue(point.HasAttribute(com.epl.geometry.VertexDescription.Semantics.M));
+//			NUnit.Framework.Assert.IsTrue(spatial_reference.GetLatestID() == 54051);
 //			double x = point.GetX();
 //			double y = point.GetY();
-//			// double z = point.getZ();
-//			// double m = point.getM();
+//			double z = point.GetZ();
+//			double m = point.GetM();
 //			NUnit.Framework.Assert.IsTrue(x == 30.1);
 //			NUnit.Framework.Assert.IsTrue(y == 10.6);
+//			NUnit.Framework.Assert.IsTrue(z == 5.1);
+//			NUnit.Framework.Assert.IsTrue(m == 33.1);
+//			geoJsonString = exporterGeoJson.Execute(com.epl.geometry.GeoJsonExportFlags.geoJsonExportPrecision15, spatial_reference, point);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"Point\",\"coordinates\":[30.1,10.6,5.1,33.1],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"ESRI:54051\"}}}"));
+//			geoJsonString = exporterGeoJson.Execute(com.epl.geometry.GeoJsonExportFlags.geoJsonExportPrecision15, com.epl.geometry.SpatialReference.Create(4287), point);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"Point\",\"coordinates\":[30.1,10.6,5.1,33.1],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4287\"}}}"));
+//			geoJsonString = exporterGeoJson.Execute(com.epl.geometry.GeoJsonExportFlags.geoJsonExportPreferMultiGeometry | com.epl.geometry.GeoJsonExportFlags.geoJsonExportPrecision15, null, point);
+//			NUnit.Framework.Assert.IsTrue(geoJsonString.Equals("{\"type\":\"MultiPoint\",\"coordinates\":[[30.1,10.6,5.1,33.1]],\"crs\":null}"));
 //		}
 //
-//		// assertTrue(z == 5.1);
-//		// assertTrue(m == 33.1);
-//		/// <exception cref="org.json.JSONException"/>
+//		[NUnit.Framework.Test]
+//		public static void TestImportExportGeoJsonMalformed()
+//		{
+//			com.epl.geometry.OperatorImportFromGeoJson importerGeoJson = (com.epl.geometry.OperatorImportFromGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromGeoJson);
+//			com.epl.geometry.OperatorExportToGeoJson exporterGeoJson = (com.epl.geometry.OperatorExportToGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToGeoJson);
+//			string geoJsonString;
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[2,2,2],[3,3,3],[4,4,4],[2,2,2]]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"Polygon\",\"coordinates\":[[2,2,2],[3,3,3],[4,4,4],[2,2,2]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"Polygon\",\"coordinates\":[[[2,2,2],[3,3,3],[4,4,4],[2,2,2]],2,4]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"MultiPoint\",\"coordinates\":[[[2,2,2],[3,3,3],[4,4,4],[2,2,2]]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"LineString\",\"coordinates\":[[[2,2,2],[3,3,3],[4,4,4],[2,2,2]]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"MultiPoint\",\"coordinates\":[[2,2,2],[3,3,3],[4,4,4],[2,2,2],[[]]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[2,2,2],[3,3,3],[4,4,4],[2,2,2],[[]]]]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[2,2,2],[3,3,3],[4,4,4],[2,2,2]],[1,1,1],[2,2,2],[3,3,3],[1,1,1]]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"Polygon\",\"coordinates\":[[[2,2,2],[3,3,3],[4,4,4],[2,2,2]],[1,1,1],[2,2,2],[3,3,3],[1,1,1]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[[]]]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[{}]]]}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			try
+//			{
+//				geoJsonString = "{\"type\":\"Point\",\"coordinates\":[30.1,10.6,[],33.1],\"crs\":\"EPSG:3857\"}";
+//				importerGeoJson.Execute(0, com.epl.geometry.Geometry.Type.Unknown, geoJsonString, null);
+//				NUnit.Framework.Assert.IsTrue(false);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//		}
+//
+//		/// <exception cref="System.Exception"/>
 //		[NUnit.Framework.Test]
 //		public static void TestImportGeoJsonSpatialReference()
 //		{

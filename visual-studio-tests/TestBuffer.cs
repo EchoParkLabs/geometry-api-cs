@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -241,6 +260,15 @@ namespace com.epl.geometry
 				NUnit.Framework.Assert.IsTrue(pathCount == 1);
 				int pointCount = poly.GetPointCount();
 				NUnit.Framework.Assert.IsTrue(System.Math.Abs(pointCount - 208.0) < 10);
+				NUnit.Framework.Assert.IsTrue(simplify.IsSimpleAsFeature(result, sr, null));
+			}
+			{
+				inputGeom = new com.epl.geometry.Polyline();
+				inputGeom.StartPath(1.762614, 0.607368);
+				inputGeom.LineTo(1.762414, 0.606655);
+				inputGeom.LineTo(1.763006, 0.607034);
+				inputGeom.LineTo(1.762548, 0.607135);
+				com.epl.geometry.Geometry result = buffer.Execute(inputGeom, sr, 0.005, null);
 				NUnit.Framework.Assert.IsTrue(simplify.IsSimpleAsFeature(result, sr, null));
 			}
 		}

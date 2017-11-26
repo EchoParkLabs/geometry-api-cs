@@ -29,16 +29,12 @@ namespace com.epl.geometry
 	[System.Serializable]
 	public abstract class Geometry
 	{
-		private const long serialVersionUID = 2L;
-
 		internal com.epl.geometry.VertexDescription m_description;
 
 		internal volatile int m_touchFlag;
 
 		internal Geometry()
 		{
-			// Note: We use writeReplace with GeometrySerializer. This field is
-			// irrelevant. Need to be removed after final.
 			m_description = null;
 			m_touchFlag = 0;
 		}
@@ -119,6 +115,19 @@ namespace com.epl.geometry
 			{
 				enumValue = val;
 			}
+
+//			public static com.epl.geometry.Geometry.Type IntToType(int geometryType)
+//			{
+//				com.epl.geometry.Geometry.Type[] v = com.epl.geometry.Geometry.Type.Values();
+//				for (int i = 0; i < v.Length; i++)
+//				{
+//					if (v[i].Value() == geometryType)
+//					{
+//						return v[i];
+//					}
+//				}
+//				throw new System.ArgumentException();
+//			}
 		}
 
 		/// <summary>Returns the geometry type.</summary>
@@ -155,7 +164,7 @@ namespace com.epl.geometry
 		/// Assigns the new VertexDescription by adding or dropping attributes. The
 		/// Geometry will have the src description as a result.
 		/// </remarks>
-		internal virtual void AssignVertexDescription(com.epl.geometry.VertexDescription src)
+		public virtual void AssignVertexDescription(com.epl.geometry.VertexDescription src)
 		{
 			_touch();
 			if (src == m_description)
@@ -176,7 +185,7 @@ namespace com.epl.geometry
 		/// src. The Geometry will have a union of the current and the src
 		/// descriptions.
 		/// </remarks>
-		internal virtual void MergeVertexDescription(com.epl.geometry.VertexDescription src)
+		public virtual void MergeVertexDescription(com.epl.geometry.VertexDescription src)
 		{
 			_touch();
 			if (src == m_description)
@@ -569,16 +578,41 @@ namespace com.epl.geometry
 			enumHot
 		}
 
-		/// <exception cref="java.io.ObjectStreamException"/>
+//		/// <exception cref="java.io.ObjectStreamException"/>
 //		internal virtual object WriteReplace()
 //		{
-//			com.epl.geometry.GeometrySerializer geomSerializer = new com.epl.geometry.GeometrySerializer();
+//			com.epl.geometry.Geometry.Type gt = GetType();
+//			if (gt == com.epl.geometry.Geometry.Type.Point)
+//			{
+//				com.epl.geometry.PtSrlzr pt = new com.epl.geometry.PtSrlzr();
+//				pt.SetGeometryByValue((com.epl.geometry.Point)this);
+//				return pt;
+//			}
+//			else
+//			{
+//				if (gt == com.epl.geometry.Geometry.Type.Envelope)
+//				{
+//					com.epl.geometry.EnvSrlzr e = new com.epl.geometry.EnvSrlzr();
+//					e.SetGeometryByValue((com.epl.geometry.Envelope)this);
+//					return e;
+//				}
+//				else
+//				{
+//					if (gt == com.epl.geometry.Geometry.Type.Line)
+//					{
+//						com.epl.geometry.LnSrlzr ln = new com.epl.geometry.LnSrlzr();
+//						ln.SetGeometryByValue((com.epl.geometry.Line)this);
+//						return ln;
+//					}
+//				}
+//			}
+//			com.epl.geometry.GenericGeometrySerializer geomSerializer = new com.epl.geometry.GenericGeometrySerializer();
 //			geomSerializer.SetGeometryByValue(this);
 //			return geomSerializer;
 //		}
-
-		/// <summary>The output of this method can be only used for debugging.</summary>
-		/// <remarks>The output of this method can be only used for debugging. It is subject to change without notice.</remarks>
+//
+//		/// <summary>The output of this method can be only used for debugging.</summary>
+//		/// <remarks>The output of this method can be only used for debugging. It is subject to change without notice.</remarks>
 //		public override string ToString()
 //		{
 //			string snippet = com.epl.geometry.OperatorExportToJson.Local().Execute(null, this);

@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using Sharpen;
 
 namespace com.epl.geometry.ogc
@@ -139,6 +158,41 @@ namespace com.epl.geometry.ogc
 				offset += arr.Length;
 			}
 			return wkbBuffer;
+		}
+
+		public override string AsGeoJson()
+		{
+			return AsGeoJsonImpl(com.epl.geometry.GeoJsonExportFlags.geoJsonExportDefaults);
+		}
+
+		internal override string AsGeoJsonImpl(int export_flags)
+		{
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			sb.Append("{\"type\":\"GeometryCollection\",\"geometries\":");
+			sb.Append("[");
+			for (int i = 0, n = NumGeometries(); i < n; i++)
+			{
+				if (i > 0)
+				{
+					sb.Append(",");
+				}
+				if (GeometryN(i) != null)
+				{
+					sb.Append(GeometryN(i).AsGeoJsonImpl(com.epl.geometry.GeoJsonExportFlags.geoJsonExportSkipCRS));
+				}
+			}
+			sb.Append("],\"crs\":");
+			if (esriSR != null)
+			{
+				string crs_value = com.epl.geometry.OperatorExportToGeoJson.Local().ExportSpatialReference(0, esriSR);
+				sb.Append(crs_value);
+			}
+			else
+			{
+				sb.Append("\"null\"");
+			}
+			sb.Append("}");
+			return sb.ToString();
 		}
 
 		public override bool IsEmpty()
@@ -339,6 +393,60 @@ namespace com.epl.geometry.ogc
 		public override string AsJson()
 		{
 			throw new System.NotSupportedException();
+		}
+
+		public override bool Equals(object other)
+		{
+			if (other == null)
+			{
+				return false;
+			}
+			if (other == this)
+			{
+				return true;
+			}
+			if (other.GetType() != GetType())
+			{
+				return false;
+			}
+			com.epl.geometry.ogc.OGCConcreteGeometryCollection another = (com.epl.geometry.ogc.OGCConcreteGeometryCollection)other;
+			if (geometries != null)
+			{
+				if (!geometries.Equals(another.geometries))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				if (another.geometries != null)
+				{
+					return false;
+				}
+			}
+			if (esriSR == another.esriSR)
+			{
+				return true;
+			}
+			if (esriSR != null && another.esriSR != null)
+			{
+				return esriSR.Equals(another.esriSR);
+			}
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			int hash = 1;
+			if (geometries != null)
+			{
+				hash = geometries.GetHashCode();
+			}
+			if (esriSR != null)
+			{
+				hash = com.epl.geometry.NumberUtils.HashCombine(hash, esriSR.GetHashCode());
+			}
+			return hash;
 		}
 	}
 }

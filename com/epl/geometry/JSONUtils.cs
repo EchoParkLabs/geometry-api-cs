@@ -26,33 +26,30 @@ namespace com.epl.geometry
 		/// <exception cref="System.Exception"/>
 		internal static bool IsObjectStart(com.epl.geometry.JsonReader parser)
 		{
-			return parser.CurrentToken() == null ? parser.NextToken() == org.codehaus.jackson.JsonToken.START_OBJECT : parser.CurrentToken() == org.codehaus.jackson.JsonToken.START_OBJECT;
+			return parser.CurrentToken() == null ? parser.NextToken() == com.epl.geometry.JsonReader.Token.START_OBJECT : parser.CurrentToken() == com.epl.geometry.JsonReader.Token.START_OBJECT;
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
-		/// <exception cref="System.IO.IOException"/>
-		/// <exception cref="System.Exception"/>
 		internal static double ReadDouble(com.epl.geometry.JsonReader parser)
 		{
-			if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_NUMBER_FLOAT)
+			if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_NUMBER_FLOAT)
 			{
 				return parser.CurrentDoubleValue();
 			}
 			else
 			{
-				if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_NUMBER_INT)
+				if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_NUMBER_INT)
 				{
 					return parser.CurrentIntValue();
 				}
 				else
 				{
-					if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_NULL)
+					if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_NULL)
 					{
 						return com.epl.geometry.NumberUtils.NaN();
 					}
 					else
 					{
-						if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_STRING)
+						if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_STRING)
 						{
 							if (parser.CurrentString().Equals("NaN"))
 							{

@@ -25,7 +25,17 @@ namespace com.epl.geometry
 	{
 		public const int geoJsonImportDefaults = 0;
 
+		[System.Obsolete]
 		public const int geoJsonImportNonTrusted = 2;
+
+		/// <summary>If set, the import will skip CRS.</summary>
+		public const int geoJsonImportSkipCRS = 8;
+
+		/// <summary>
+		/// If set, and the geojson does not have a spatial reference, the result geometry will not have one too, otherwise
+		/// it'll assume WGS84.
+		/// </summary>
+		public const int geoJsonImportNoWGS84Default = 16;
 	}
 
 	public static class GeoJsonImportFlagsConstants

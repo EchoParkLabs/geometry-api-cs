@@ -354,6 +354,22 @@ namespace com.epl.geometry
 		}
 
 		/*
+		* Returns a reference to the envelope at the given handle. Use this for the red/red intersection case.
+		*/
+		internal virtual com.epl.geometry.Envelope2D GetEnvelope(int handle)
+		{
+			return m_envelopes_red[handle];
+		}
+
+		/*
+		* Returns the user element associated with handle. Use this for the red/red intersection case.
+		*/
+		internal virtual int GetElement(int handle)
+		{
+			return m_elements_red.Read(handle);
+		}
+
+		/*
 		* Returns a reference to the red envelope at handle_a.
 		*/
 		internal virtual com.epl.geometry.Envelope2D GetRedEnvelope(int handle_a)
@@ -433,7 +449,7 @@ namespace com.epl.geometry
 
 		private bool m_b_add_red_red;
 
-		internal bool m_b_done;
+		private bool m_b_done;
 
 		private static bool IsTop_(int y_end_point_handle)
 		{
@@ -470,21 +486,18 @@ namespace com.epl.geometry
 			if (m_interval_tree_red == null)
 			{
 				m_interval_tree_red = new com.epl.geometry.IntervalTreeImpl(true);
-				m_iterator_red = m_interval_tree_red.GetIterator();
 				m_sorted_end_indices_red = new com.epl.geometry.AttributeStreamOfInt32(0);
 			}
-			m_interval_tree_red.StartConstruction();
-			for (int i = 0; i < m_envelopes_red.Count; i++)
+			m_interval_tree_red.AddEnvelopesRef(m_envelopes_red);
+			if (m_iterator_red == null)
 			{
-				com.epl.geometry.Envelope2D env = m_envelopes_red[i];
-				m_interval_tree_red.AddInterval(env.xmin, env.xmax);
+				m_iterator_red = m_interval_tree_red.GetIterator();
 			}
-			m_interval_tree_red.EndConstruction();
 			m_sorted_end_indices_red.Reserve(2 * m_envelopes_red.Count);
 			m_sorted_end_indices_red.Resize(0);
-			for (int i_1 = 0; i_1 < 2 * m_envelopes_red.Count; i_1++)
+			for (int i = 0; i < 2 * m_envelopes_red.Count; i++)
 			{
-				m_sorted_end_indices_red.Add(i_1);
+				m_sorted_end_indices_red.Add(i);
 			}
 			SortYEndIndices_(m_sorted_end_indices_red, 0, 2 * m_envelopes_red.Count, true);
 			m_sweep_index_red = 2 * m_envelopes_red.Count;
@@ -506,21 +519,18 @@ namespace com.epl.geometry
 			if (m_interval_tree_red == null)
 			{
 				m_interval_tree_red = new com.epl.geometry.IntervalTreeImpl(true);
-				m_iterator_red = m_interval_tree_red.GetIterator();
 				m_sorted_end_indices_red = new com.epl.geometry.AttributeStreamOfInt32(0);
 			}
-			m_interval_tree_red.StartConstruction();
-			for (int i = 0; i < m_envelopes_red.Count; i++)
+			m_interval_tree_red.AddEnvelopesRef(m_envelopes_red);
+			if (m_iterator_red == null)
 			{
-				com.epl.geometry.Envelope2D env = m_envelopes_red[i];
-				m_interval_tree_red.AddInterval(env.xmin, env.xmax);
+				m_iterator_red = m_interval_tree_red.GetIterator();
 			}
-			m_interval_tree_red.EndConstruction();
 			m_sorted_end_indices_red.Reserve(2 * m_envelopes_red.Count);
 			m_sorted_end_indices_red.Resize(0);
-			for (int i_1 = 0; i_1 < 2 * m_envelopes_red.Count; i_1++)
+			for (int i = 0; i < 2 * m_envelopes_red.Count; i++)
 			{
-				m_sorted_end_indices_red.Add(i_1);
+				m_sorted_end_indices_red.Add(i);
 			}
 			SortYEndIndices_(m_sorted_end_indices_red, 0, m_sorted_end_indices_red.Size(), true);
 			m_sweep_index_red = m_sorted_end_indices_red.Size();
@@ -548,21 +558,18 @@ namespace com.epl.geometry
 			if (m_interval_tree_blue == null)
 			{
 				m_interval_tree_blue = new com.epl.geometry.IntervalTreeImpl(true);
-				m_iterator_blue = m_interval_tree_blue.GetIterator();
 				m_sorted_end_indices_blue = new com.epl.geometry.AttributeStreamOfInt32(0);
 			}
-			m_interval_tree_blue.StartConstruction();
-			for (int i = 0; i < m_envelopes_blue.Count; i++)
+			m_interval_tree_blue.AddEnvelopesRef(m_envelopes_blue);
+			if (m_iterator_blue == null)
 			{
-				com.epl.geometry.Envelope2D env = m_envelopes_blue[i];
-				m_interval_tree_blue.AddInterval(env.xmin, env.xmax);
+				m_iterator_blue = m_interval_tree_blue.GetIterator();
 			}
-			m_interval_tree_blue.EndConstruction();
 			m_sorted_end_indices_blue.Reserve(2 * m_envelopes_blue.Count);
 			m_sorted_end_indices_blue.Resize(0);
-			for (int i_1 = 0; i_1 < 2 * m_envelopes_blue.Count; i_1++)
+			for (int i = 0; i < 2 * m_envelopes_blue.Count; i++)
 			{
-				m_sorted_end_indices_blue.Add(i_1);
+				m_sorted_end_indices_blue.Add(i);
 			}
 			SortYEndIndices_(m_sorted_end_indices_blue, 0, m_sorted_end_indices_blue.Size(), false);
 			m_sweep_index_blue = m_sorted_end_indices_blue.Size();
@@ -590,40 +597,34 @@ namespace com.epl.geometry
 			if (m_interval_tree_red == null)
 			{
 				m_interval_tree_red = new com.epl.geometry.IntervalTreeImpl(true);
-				m_iterator_red = m_interval_tree_red.GetIterator();
 				m_sorted_end_indices_red = new com.epl.geometry.AttributeStreamOfInt32(0);
 			}
 			if (m_interval_tree_blue == null)
 			{
 				m_interval_tree_blue = new com.epl.geometry.IntervalTreeImpl(true);
-				m_iterator_blue = m_interval_tree_blue.GetIterator();
 				m_sorted_end_indices_blue = new com.epl.geometry.AttributeStreamOfInt32(0);
 			}
-			m_interval_tree_red.StartConstruction();
-			for (int i = 0; i < m_envelopes_red.Count; i++)
+			m_interval_tree_red.AddEnvelopesRef(m_envelopes_red);
+			m_interval_tree_blue.AddEnvelopesRef(m_envelopes_blue);
+			if (m_iterator_red == null)
 			{
-				com.epl.geometry.Envelope2D env = m_envelopes_red[i];
-				m_interval_tree_red.AddInterval(env.xmin, env.xmax);
+				m_iterator_red = m_interval_tree_red.GetIterator();
 			}
-			m_interval_tree_red.EndConstruction();
-			m_interval_tree_blue.StartConstruction();
-			for (int i_1 = 0; i_1 < m_envelopes_blue.Count; i_1++)
+			if (m_iterator_blue == null)
 			{
-				com.epl.geometry.Envelope2D env = m_envelopes_blue[i_1];
-				m_interval_tree_blue.AddInterval(env.xmin, env.xmax);
+				m_iterator_blue = m_interval_tree_blue.GetIterator();
 			}
-			m_interval_tree_blue.EndConstruction();
 			m_sorted_end_indices_red.Reserve(2 * m_envelopes_red.Count);
 			m_sorted_end_indices_blue.Reserve(2 * m_envelopes_blue.Count);
 			m_sorted_end_indices_red.Resize(0);
 			m_sorted_end_indices_blue.Resize(0);
-			for (int i_2 = 0; i_2 < 2 * m_envelopes_red.Count; i_2++)
+			for (int i = 0; i < 2 * m_envelopes_red.Count; i++)
 			{
-				m_sorted_end_indices_red.Add(i_2);
+				m_sorted_end_indices_red.Add(i);
 			}
-			for (int i_3 = 0; i_3 < 2 * m_envelopes_blue.Count; i_3++)
+			for (int i_1 = 0; i_1 < 2 * m_envelopes_blue.Count; i_1++)
 			{
-				m_sorted_end_indices_blue.Add(i_3);
+				m_sorted_end_indices_blue.Add(i_1);
 			}
 			SortYEndIndices_(m_sorted_end_indices_red, 0, m_sorted_end_indices_red.Size(), true);
 			SortYEndIndices_(m_sorted_end_indices_blue, 0, m_sorted_end_indices_blue.Size(), false);
@@ -670,9 +671,7 @@ namespace com.epl.geometry
 
 		private bool SweepBruteForce_()
 		{
-			// this isn't really a sweep, it just
-			// walks along the array of red
-			// envelopes backward.
+			// this isn't really a sweep, it just walks along the array of red envelopes backward.
 			if (--m_sweep_index_red == -1)
 			{
 				m_envelope_handle_a = -1;
@@ -688,9 +687,7 @@ namespace com.epl.geometry
 
 		private bool SweepRedBlueBruteForce_()
 		{
-			// this isn't really a sweep, it
-			// just walks along the array of
-			// red envelopes backward.
+			// this isn't really a sweep, it just walks along the array of red envelopes backward.
 			if (--m_sweep_index_red == -1)
 			{
 				m_envelope_handle_a = -1;
@@ -706,9 +703,7 @@ namespace com.epl.geometry
 
 		private bool SweepRedBlue_()
 		{
-			// controls whether we want to sweep the
-			// red envelopes or sweep the blue
-			// envelopes
+			// controls whether we want to sweep the red envelopes or sweep the blue envelopes
 			int y_end_point_handle_red = m_sorted_end_indices_red.Get(m_sweep_index_red - 1);
 			int y_end_point_handle_blue = m_sorted_end_indices_blue.Get(m_sweep_index_blue - 1);
 			double y_red = GetAdjustedValue_(y_end_point_handle_red, true);
@@ -732,8 +727,7 @@ namespace com.epl.geometry
 			return SweepRed_();
 		}
 
-		// arbitrary. can call sweep_blue_ instead and would
-		// also work correctly
+		// arbitrary. can call sweep_blue_ instead and would also work correctly
 		private bool SweepRed_()
 		{
 			int y_end_point_handle_red = m_sorted_end_indices_red.Get(--m_sweep_index_red);

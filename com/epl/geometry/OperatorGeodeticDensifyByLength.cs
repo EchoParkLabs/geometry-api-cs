@@ -40,7 +40,7 @@ namespace com.epl.geometry
 		/// <param name="sr">The SpatialReference of the Geometry.</param>
 		/// <param name="curveType">The interpretation of a line connecting two points.</param>
 		/// <returns>
-		/// Returns the densified geometries (It does nothing to geometries with dim &lt; 1, but simply passes them along).
+		/// Returns the densified geometries (It does nothing to geometries with dim less than 1, but simply passes them along).
 		/// Note the behavior is not determined for any geodetic curve segments that connect two poles, or for loxodrome segments that connect to any pole.
 		/// </returns>
 		public abstract com.epl.geometry.GeometryCursor Execute(com.epl.geometry.GeometryCursor geoms, double maxSegmentLengthMeters, com.epl.geometry.SpatialReference sr, int curveType, com.epl.geometry.ProgressTracker progressTracker);

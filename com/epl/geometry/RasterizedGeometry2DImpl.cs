@@ -159,13 +159,15 @@ namespace com.epl.geometry
 			}
 			com.epl.geometry.SegmentIteratorImpl segIter = polyPath.QuerySegmentIterator();
 			double strokeHalfWidth = m_transform.Transform(tol) + 1.5;
-			double shortSegment = 0.5;
+			double shortSegment = 0.25;
 			com.epl.geometry.Point2D vec = new com.epl.geometry.Point2D();
 			com.epl.geometry.Point2D vecA = new com.epl.geometry.Point2D();
 			com.epl.geometry.Point2D vecB = new com.epl.geometry.Point2D();
-			// TODO check this Java workaroung
 			com.epl.geometry.Point2D ptStart = new com.epl.geometry.Point2D();
 			com.epl.geometry.Point2D ptEnd = new com.epl.geometry.Point2D();
+			com.epl.geometry.Point2D prev_start = new com.epl.geometry.Point2D();
+			com.epl.geometry.Point2D prev_end = new com.epl.geometry.Point2D();
+			double[] helper_xy_10_elm = new double[10];
 			com.epl.geometry.Envelope2D segEnv = new com.epl.geometry.Envelope2D();
 			com.epl.geometry.Point2D ptOld = new com.epl.geometry.Point2D();
 			while (segIter.NextPath())
@@ -178,11 +180,8 @@ namespace com.epl.geometry
 					com.epl.geometry.Segment seg = segIter.NextSegment();
 					ptStart.x = seg.GetStartX();
 					ptStart.y = seg.GetStartY();
-					// Point2D ptStart =
-					// seg.getStartXY();
 					ptEnd.x = seg.GetEndX();
 					ptEnd.y = seg.GetEndY();
-					// Point2D ptEnd = seg.getEndXY();
 					segEnv.SetEmpty();
 					segEnv.Merge(ptStart.x, ptStart.y);
 					segEnv.MergeNE(ptEnd.x, ptEnd.y);
@@ -190,7 +189,9 @@ namespace com.epl.geometry
 					{
 						if (hasFan)
 						{
-							FillConvexPolygon(rasterizer, fan, 4);
+							rasterizer.StartAddingEdges();
+							rasterizer.AddSegmentStroke(prev_start.x, prev_start.y, prev_end.x, prev_end.y, strokeHalfWidth, false, helper_xy_10_elm);
+							rasterizer.RenderEdges(com.epl.geometry.SimpleRasterizer.EVEN_ODD);
 							hasFan = false;
 						}
 						first = true;
@@ -207,40 +208,21 @@ namespace com.epl.geometry
 					{
 						ptStart.SetCoords(ptOld);
 					}
-					vec.Sub(ptEnd, ptStart);
-					double len = vec.Length();
-					bool bShort = len < shortSegment;
-					if (len == 0)
+					prev_start.SetCoords(ptStart);
+					prev_end.SetCoords(ptEnd);
+					rasterizer.StartAddingEdges();
+					hasFan = !rasterizer.AddSegmentStroke(prev_start.x, prev_start.y, prev_end.x, prev_end.y, strokeHalfWidth, true, helper_xy_10_elm);
+					rasterizer.RenderEdges(com.epl.geometry.SimpleRasterizer.EVEN_ODD);
+					if (!hasFan)
 					{
-						vec.SetCoords(1.0, 0);
-						len = 1.0;
-						continue;
-					}
-					if (!bShort)
-					{
-						ptOld.SetCoords(ptEnd);
-					}
-					vec.Scale(strokeHalfWidth / len);
-					vecA.SetCoords(-vec.y, vec.x);
-					vecB.SetCoords(vec.y, -vec.x);
-					ptStart.Sub(vec);
-					ptEnd.Add(vec);
-					fan[0].Add(ptStart, vecA);
-					fan[1].Add(ptStart, vecB);
-					fan[2].Add(ptEnd, vecB);
-					fan[3].Add(ptEnd, vecA);
-					if (!bShort)
-					{
-						FillConvexPolygon(rasterizer, fan, 4);
-					}
-					else
-					{
-						hasFan = true;
+						ptOld.SetCoords(prev_end);
 					}
 				}
 				if (hasFan)
 				{
-					FillConvexPolygon(rasterizer, fan, 4);
+					rasterizer.StartAddingEdges();
+					hasFan = !rasterizer.AddSegmentStroke(prev_start.x, prev_start.y, prev_end.x, prev_end.y, strokeHalfWidth, false, helper_xy_10_elm);
+					rasterizer.RenderEdges(com.epl.geometry.SimpleRasterizer.EVEN_ODD);
 				}
 			}
 		}

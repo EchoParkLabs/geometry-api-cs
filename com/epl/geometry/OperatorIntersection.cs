@@ -54,14 +54,14 @@ namespace com.epl.geometry
 		/// multipoints and lines only, pass (1 &lt;&lt; 0) | (1 &lt;&lt; 1), which is equivalen to 1 | 2, or 3.
 		/// </param>
 		/// <returns>
-		/// Returns the cursor of the intersection result. The cursors' get_geometry_ID method returns the current ID of the input geometry
-		/// being processed. Wh dimensionMask is a bitmask, there will be n result geometries per one input geometry returned, where n is the number
+		/// Returns the cursor of the intersection result. The cursors' getGeometryID method returns the current ID of the input geometry
+		/// being processed. When dimensionMask is a bitmask, there will be n result geometries per one input geometry returned, where n is the number
 		/// of bits set in the bitmask. For example, if the dimensionMask is 5, there will be two geometries per one input geometry.
 		/// The operator intersects every geometry in the input_geometries with the first geometry of the intersector and returns the result.
 		/// Note, when the dimensionMask is -1, then for each intersected pair of geometries,
 		/// the result has the lower of dimentions of the two geometries. That is, the dimension of the Polyline/Polyline intersection
 		/// is always 1 (that is, for polylines it never returns crossing points, but the overlaps only).
-		/// If dimensionMask is 7, the operation will return any possible
+		/// If dimensionMask is 7, the operation will return any possible intersections.
 		/// </returns>
 		public abstract com.epl.geometry.GeometryCursor Execute(com.epl.geometry.GeometryCursor input_geometries, com.epl.geometry.GeometryCursor intersector, com.epl.geometry.SpatialReference sr, com.epl.geometry.ProgressTracker progress_tracker, int dimensionMask);
 

@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -137,8 +156,6 @@ namespace com.epl.geometry
 			return point;
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
-		/// <exception cref="System.IO.IOException"/>
 //		[NUnit.Framework.Test]
 //		public static void TestDistanceWithNullSpatialReference()
 //		{
@@ -146,11 +163,8 @@ namespace com.epl.geometry
 //			// Reference.
 //			string str1 = "{\"paths\":[[[-117.138791850991,34.017492675023],[-117.138762336971,34.0174925550462]]]}";
 //			string str2 = "{\"paths\":[[[-117.138867827972,34.0174854109623],[-117.138850197027,34.0174929160126],[-117.138791850991,34.017492675023]]]}";
-//			org.codehaus.jackson.JsonFactory jsonFactory = new org.codehaus.jackson.JsonFactory();
-//			org.codehaus.jackson.JsonParser jsonParser1 = jsonFactory.CreateJsonParser(str1);
-//			org.codehaus.jackson.JsonParser jsonParser2 = jsonFactory.CreateJsonParser(str2);
-//			com.epl.geometry.MapGeometry geom1 = com.epl.geometry.GeometryEngine.JsonToGeometry(jsonParser1);
-//			com.epl.geometry.MapGeometry geom2 = com.epl.geometry.GeometryEngine.JsonToGeometry(jsonParser2);
+//			com.epl.geometry.MapGeometry geom1 = com.epl.geometry.GeometryEngine.JsonToGeometry(com.epl.geometry.JsonParserReader.CreateFromString(str1));
+//			com.epl.geometry.MapGeometry geom2 = com.epl.geometry.GeometryEngine.JsonToGeometry(com.epl.geometry.JsonParserReader.CreateFromString(str2));
 //			double distance = com.epl.geometry.GeometryEngine.Distance(geom1.GetGeometry(), geom2.GetGeometry(), null);
 //			NUnit.Framework.Assert.IsTrue(distance == 0);
 //		}

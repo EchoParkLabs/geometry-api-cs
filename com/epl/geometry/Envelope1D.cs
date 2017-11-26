@@ -40,11 +40,21 @@ namespace com.epl.geometry
 			SetCoords(_vmin, _vmax);
 		}
 
+		public Envelope1D(com.epl.geometry.Envelope1D other)
+		{
+			SetCoords(other);
+		}
+
 		public void SetCoords(double _vmin, double _vmax)
 		{
 			vmin = _vmin;
 			vmax = _vmax;
 			Normalize();
+		}
+
+		public void SetCoords(com.epl.geometry.Envelope1D other)
+		{
+			SetCoords(other.vmin, other.vmax);
 		}
 
 		public void Normalize()
@@ -74,7 +84,7 @@ namespace com.epl.geometry
 
 		public bool IsEmpty()
 		{
-			return com.epl.geometry.NumberUtils.IsNaN(vmin);
+			return com.epl.geometry.NumberUtils.IsNaN(vmin) || com.epl.geometry.NumberUtils.IsNaN(vmax);
 		}
 
 		public void SetInfinite()

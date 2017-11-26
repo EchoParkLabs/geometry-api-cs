@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -1118,6 +1137,95 @@ namespace com.epl.geometry
 				b = mp.GetPoint(1).Equals(p);
 				NUnit.Framework.Assert.IsTrue(b);
 			}
+		}
+
+//		[NUnit.Framework.Test]
+//		public virtual void TestPolygon2PolygonFails()
+//		{
+//			com.epl.geometry.OperatorFactoryLocal factory = com.epl.geometry.OperatorFactoryLocal.GetInstance();
+//			com.epl.geometry.OperatorExportToGeoJson exporter = (com.epl.geometry.OperatorExportToGeoJson)factory.GetOperator(com.epl.geometry.Operator.Type.ExportToGeoJson);
+//			string result = exporter.Execute(Birmingham());
+//			com.epl.geometry.OperatorImportFromGeoJson importer = (com.epl.geometry.OperatorImportFromGeoJson)factory.GetOperator(com.epl.geometry.Operator.Type.ImportFromGeoJson);
+//			com.epl.geometry.MapGeometry mapGeometry = importer.Execute(com.epl.geometry.GeoJsonImportFlags.geoJsonImportDefaults, com.epl.geometry.Geometry.Type.Polygon, result, null);
+//			com.epl.geometry.Polygon polygon = (com.epl.geometry.Polygon)mapGeometry.GetGeometry();
+//			NUnit.Framework.Assert.AreEqual(Birmingham(), polygon);
+//		}
+//
+//		[NUnit.Framework.Test]
+//		public virtual void TestPolygon2PolygonFails2()
+//		{
+//			string birminghamGeojson = com.epl.geometry.GeometryEngine.GeometryToGeoJson(Birmingham());
+//			com.epl.geometry.MapGeometry returnedGeometry = com.epl.geometry.GeometryEngine.GeoJsonToGeometry(birminghamGeojson, com.epl.geometry.GeoJsonImportFlags.geoJsonImportDefaults, com.epl.geometry.Geometry.Type.Polygon);
+//			com.epl.geometry.Polygon polygon = (com.epl.geometry.Polygon)returnedGeometry.GetGeometry();
+//			NUnit.Framework.Assert.AreEqual(polygon, Birmingham());
+//		}
+//
+//		[NUnit.Framework.Test]
+//		public virtual void TestPolygon2PolygonWorks()
+//		{
+//			string birminghamGeojson = com.epl.geometry.GeometryEngine.GeometryToGeoJson(Birmingham());
+//			com.epl.geometry.MapGeometry returnedGeometry = com.epl.geometry.GeometryEngine.GeoJsonToGeometry(birminghamGeojson, com.epl.geometry.GeoJsonImportFlags.geoJsonImportDefaults, com.epl.geometry.Geometry.Type.Polygon);
+//			com.epl.geometry.Polygon polygon = (com.epl.geometry.Polygon)returnedGeometry.GetGeometry();
+//			NUnit.Framework.Assert.AreEqual(polygon.ToString(), Birmingham().ToString());
+//		}
+//
+//		[NUnit.Framework.Test]
+//		public virtual void TestPolygon2Polygon2Works()
+//		{
+//			string birminghamJson = com.epl.geometry.GeometryEngine.GeometryToJson(4326, Birmingham());
+//			com.epl.geometry.MapGeometry returnedGeometry = com.epl.geometry.GeometryEngine.JsonToGeometry(birminghamJson);
+//			com.epl.geometry.Polygon polygon = (com.epl.geometry.Polygon)returnedGeometry.GetGeometry();
+//			NUnit.Framework.Assert.AreEqual(polygon, Birmingham());
+//			string s = polygon.ToString();
+//		}
+
+		[NUnit.Framework.Test]
+		public virtual void TestSegmentIteratorCrash()
+		{
+			com.epl.geometry.Polygon poly = new com.epl.geometry.Polygon();
+			// clockwise => outer ring
+			poly.StartPath(0, 0);
+			poly.LineTo(-0.5, 0.5);
+			poly.LineTo(0.5, 1);
+			poly.LineTo(1, 0.5);
+			poly.LineTo(0.5, 0);
+			// hole
+			poly.StartPath(0.5, 0.2);
+			poly.LineTo(0.6, 0.5);
+			poly.LineTo(0.2, 0.9);
+			poly.LineTo(-0.2, 0.5);
+			poly.LineTo(0.1, 0.2);
+			poly.LineTo(0.2, 0.3);
+			// island
+			poly.StartPath(0.1, 0.7);
+			poly.LineTo(0.3, 0.7);
+			poly.LineTo(0.3, 0.4);
+			poly.LineTo(0.1, 0.4);
+			NUnit.Framework.Assert.AreEqual(poly.GetSegmentCount(), 15);
+			NUnit.Framework.Assert.AreEqual(poly.GetPathCount(), 3);
+			com.epl.geometry.SegmentIterator segmentIterator = poly.QuerySegmentIterator();
+			int paths = 0;
+			int segments = 0;
+			while (segmentIterator.NextPath())
+			{
+				paths++;
+				com.epl.geometry.Segment segment;
+				while (segmentIterator.HasNextSegment())
+				{
+					segment = segmentIterator.NextSegment();
+					segments++;
+				}
+			}
+			NUnit.Framework.Assert.AreEqual(paths, 3);
+			NUnit.Framework.Assert.AreEqual(segments, 15);
+		}
+
+		private static com.epl.geometry.Polygon Birmingham()
+		{
+			com.epl.geometry.Polygon poly = new com.epl.geometry.Polygon();
+			poly.AddEnvelope(new com.epl.geometry.Envelope(-1.954245, 52.513531, -1.837357, 52.450123), false);
+			poly.AddEnvelope(new com.epl.geometry.Envelope(0, 0, 1, 1), false);
+			return poly;
 		}
 	}
 }

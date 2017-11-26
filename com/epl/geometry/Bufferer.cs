@@ -23,12 +23,30 @@ namespace com.epl.geometry
 {
 	internal class Bufferer
 	{
+		internal Bufferer()
+		{
+			m_buffer_commands = new System.Collections.Generic.List<com.epl.geometry.Bufferer.BufferCommand>(128);
+			m_progress_tracker = null;
+			m_tolerance = 0;
+			m_small_tolerance = 0;
+			m_filter_tolerance = 0;
+			m_distance = 0;
+			m_original_geom_type = com.epl.geometry.Geometry.GeometryType.Unknown;
+			m_abs_distance_reversed = 0;
+			m_abs_distance = 0;
+			m_densify_dist = -1;
+			m_dA = -1;
+			m_b_output_loops = true;
+			m_bfilter = true;
+			m_old_circle_template_size = 0;
+		}
+
 		/// <summary>Result is always a polygon.</summary>
 		/// <remarks>
 		/// Result is always a polygon. For non positive distance and non-areas
 		/// returns an empty polygon. For points returns circles.
 		/// </remarks>
-		internal static com.epl.geometry.Geometry Buffer(com.epl.geometry.Geometry geometry, double distance, com.epl.geometry.SpatialReference sr, double densify_dist, int max_vertex_in_complete_circle, com.epl.geometry.ProgressTracker progress_tracker)
+		internal virtual com.epl.geometry.Geometry Buffer(com.epl.geometry.Geometry geometry, double distance, com.epl.geometry.SpatialReference sr, double densify_dist, int max_vertex_in_complete_circle, com.epl.geometry.ProgressTracker progress_tracker)
 		{
 			if (geometry == null)
 			{
@@ -48,19 +66,17 @@ namespace com.epl.geometry
 			{
 				env2D.Inflate(distance, distance);
 			}
-			com.epl.geometry.Bufferer bufferer = new com.epl.geometry.Bufferer(progress_tracker);
-			bufferer.m_spatialReference = sr;
-			bufferer.m_geometry = geometry;
-			bufferer.m_tolerance = com.epl.geometry.InternalUtils.CalculateToleranceFromGeometry(sr, env2D, true);
+			m_progress_tracker = progress_tracker;
+			m_original_geom_type = geometry.GetType().Value();
+			m_geometry = geometry;
+			m_tolerance = com.epl.geometry.InternalUtils.CalculateToleranceFromGeometry(sr, env2D, true);
 			// conservative to have same effect as simplify
-			bufferer.m_small_tolerance = com.epl.geometry.InternalUtils.CalculateToleranceFromGeometry(null, env2D, true);
+			m_small_tolerance = com.epl.geometry.InternalUtils.CalculateToleranceFromGeometry(null, env2D, true);
 			// conservative
 			// to have
 			// same
 			// effect as
 			// simplify
-			bufferer.m_distance = distance;
-			bufferer.m_original_geom_type = geometry.GetType().Value();
 			if (max_vertex_in_complete_circle <= 0)
 			{
 				max_vertex_in_complete_circle = 96;
@@ -68,17 +84,19 @@ namespace com.epl.geometry
 			// 96 is the value used by SG.
 			// This is the number of
 			// vertices in the full circle.
-			bufferer.m_abs_distance = System.Math.Abs(bufferer.m_distance);
-			bufferer.m_abs_distance_reversed = bufferer.m_abs_distance != 0 ? 1.0 / bufferer.m_abs_distance : 0;
+			m_spatialReference = sr;
+			m_distance = distance;
+			m_abs_distance = System.Math.Abs(m_distance);
+			m_abs_distance_reversed = m_abs_distance != 0 ? 1.0 / m_abs_distance : 0;
 			if (com.epl.geometry.NumberUtils.IsNaN(densify_dist) || densify_dist == 0)
 			{
-				densify_dist = bufferer.m_abs_distance * 1e-5;
+				densify_dist = m_abs_distance * 1e-5;
 			}
 			else
 			{
-				if (densify_dist > bufferer.m_abs_distance * 0.5)
+				if (densify_dist > m_abs_distance * 0.5)
 				{
-					densify_dist = bufferer.m_abs_distance * 0.5;
+					densify_dist = m_abs_distance * 0.5;
 				}
 			}
 			// do not allow too
@@ -111,12 +129,23 @@ namespace com.epl.geometry
 					}
 				}
 			}
-			bufferer.m_densify_dist = densify_dist;
-			bufferer.m_max_vertex_in_complete_circle = max_vertex_in_complete_circle;
+			m_densify_dist = densify_dist;
+			m_max_vertex_in_complete_circle = max_vertex_in_complete_circle;
 			// when filtering close points we do not want the filter to distort
 			// generated buffer too much.
-			bufferer.m_filter_tolerance = System.Math.Min(bufferer.m_small_tolerance, densify_dist * 0.25);
-			return bufferer.Buffer_();
+			m_filter_tolerance = System.Math.Min(m_small_tolerance, densify_dist * 0.25);
+			m_circle_template_size = CalcN_();
+			if (m_circle_template_size != m_old_circle_template_size)
+			{
+				// we have an optimization for this method to be called several
+				// times. Here we detected too many changes and need to regenerate
+				// the data.
+				m_circle_template.Clear();
+				m_old_circle_template_size = m_circle_template_size;
+			}
+			com.epl.geometry.Geometry result_geom = Buffer_();
+			m_geometry = null;
+			return result_geom;
 		}
 
 		private com.epl.geometry.Geometry m_geometry;
@@ -128,10 +157,6 @@ namespace com.epl.geometry
 				public const int enum_line = 1;
 
 				public const int enum_arc = 2;
-
-				public const int enum_dummy = 4;
-
-				public const int enum_concave_dip = 8;
 
 				public const int enum_connection = enum_arc | enum_line;
 			}
@@ -209,7 +234,7 @@ namespace com.epl.geometry
 
 		private bool m_bfilter;
 
-		private System.Collections.Generic.List<com.epl.geometry.Point2D> m_circle_template;
+		private System.Collections.Generic.List<com.epl.geometry.Point2D> m_circle_template = new System.Collections.Generic.List<com.epl.geometry.Point2D>(0);
 
 		private System.Collections.Generic.List<com.epl.geometry.Point2D> m_left_stack;
 
@@ -223,20 +248,17 @@ namespace com.epl.geometry
 
 		private int m_progress_counter;
 
+		private int m_circle_template_size;
+
+		private int m_old_circle_template_size;
+
 		private void GenerateCircleTemplate_()
 		{
-			if (m_circle_template == null)
+			if (!(m_circle_template.Count == 0))
 			{
-				m_circle_template = new System.Collections.Generic.List<com.epl.geometry.Point2D>(0);
+				return;
 			}
-			else
-			{
-				if (!(m_circle_template.Count == 0))
-				{
-					return;
-				}
-			}
-			int N = CalcN_(4);
+			int N = m_circle_template_size;
 			System.Diagnostics.Debug.Assert((N >= 4));
 			int real_size = (N + 3) / 4;
 			double dA = (System.Math.PI * 0.5) / real_size;
@@ -261,6 +283,8 @@ namespace com.epl.geometry
 
 		private sealed class GeometryCursorForMultiPoint : com.epl.geometry.GeometryCursor
 		{
+			private com.epl.geometry.Bufferer m_parent;
+
 			private int m_index;
 
 			private com.epl.geometry.Geometry m_buffered_polygon;
@@ -281,10 +305,11 @@ namespace com.epl.geometry
 
 			private com.epl.geometry.ProgressTracker m_progress_tracker;
 
-			internal GeometryCursorForMultiPoint(com.epl.geometry.MultiPoint mp, double distance, com.epl.geometry.SpatialReference sr, double densify_dist, int max_vertex_in_complete_circle, com.epl.geometry.ProgressTracker progress_tracker)
+			internal GeometryCursorForMultiPoint(com.epl.geometry.Bufferer parent, com.epl.geometry.MultiPoint mp, double distance, com.epl.geometry.SpatialReference sr, double densify_dist, int max_vertex_in_complete_circle, com.epl.geometry.ProgressTracker progress_tracker)
 			{
 				// the template is filled with the index 0 corresponding to the point
 				// (0, 0), following clockwise direction (0, -1), (-1, 0), (1, 0)
+				m_parent = parent;
 				m_index = 0;
 				m_mp = mp;
 				m_x = 0;
@@ -318,7 +343,7 @@ namespace com.epl.geometry
 				{
 					m_x = point.GetX();
 					m_y = point.GetY();
-					m_buffered_polygon = com.epl.geometry.Bufferer.Buffer(point, m_distance, m_spatialReference, m_densify_dist, m_max_vertex_in_complete_circle, m_progress_tracker);
+					m_buffered_polygon = m_parent.Buffer(point, m_distance, m_spatialReference, m_densify_dist, m_max_vertex_in_complete_circle, m_progress_tracker);
 					b_first = true;
 				}
 				com.epl.geometry.Geometry res;
@@ -350,35 +375,40 @@ namespace com.epl.geometry
 			}
 		}
 
-		private sealed class GeometryCursorForPolyline : com.epl.geometry.GeometryCursor
+		private sealed class GlueingCursorForPolyline : com.epl.geometry.GeometryCursor
 		{
-			private com.epl.geometry.Bufferer m_bufferer;
+			private com.epl.geometry.Polyline m_polyline;
 
-			private int m_index;
+			private int m_current_path_index;
 
-			private bool m_bfilter;
-
-			internal GeometryCursorForPolyline(com.epl.geometry.Bufferer bufferer, bool bfilter)
+			internal GlueingCursorForPolyline(com.epl.geometry.Polyline polyline)
 			{
-				m_bufferer = bufferer;
-				m_index = 0;
-				m_bfilter = bfilter;
+				m_polyline = polyline;
+				m_current_path_index = 0;
 			}
 
 			public override com.epl.geometry.Geometry Next()
 			{
-				com.epl.geometry.MultiPathImpl mp = (com.epl.geometry.MultiPathImpl)(m_bufferer.m_geometry._getImpl());
-				if (m_index < mp.GetPathCount())
+				if (m_polyline == null)
 				{
-					int ind = m_index;
-					m_index++;
+					return null;
+				}
+				com.epl.geometry.MultiPathImpl mp = (com.epl.geometry.MultiPathImpl)m_polyline._getImpl();
+				int npaths = mp.GetPathCount();
+				if (m_current_path_index < npaths)
+				{
+					int ind = m_current_path_index;
+					m_current_path_index++;
 					if (!mp.IsClosedPathInXYPlane(ind))
 					{
+						// connect paths that follow one another as an optimization
+						// for buffering (helps when one polyline is split into many
+						// segments).
 						com.epl.geometry.Point2D prev_end = mp.GetXY(mp.GetPathEnd(ind) - 1);
-						while (m_index < mp.GetPathCount())
+						while (m_current_path_index < mp.GetPathCount())
 						{
-							com.epl.geometry.Point2D start = mp.GetXY(mp.GetPathStart(m_index));
-							if (mp.IsClosedPathInXYPlane(m_index))
+							com.epl.geometry.Point2D start = mp.GetXY(mp.GetPathStart(m_current_path_index));
+							if (mp.IsClosedPathInXYPlane(m_current_path_index))
 							{
 								break;
 							}
@@ -386,31 +416,84 @@ namespace com.epl.geometry
 							{
 								break;
 							}
-							prev_end = mp.GetXY(mp.GetPathEnd(m_index) - 1);
-							m_index++;
+							prev_end = mp.GetXY(mp.GetPathEnd(m_current_path_index) - 1);
+							m_current_path_index++;
 						}
 					}
-					if (m_index - ind == 1)
+					if (ind == 0 && m_current_path_index == m_polyline.GetPathCount())
 					{
-						return m_bufferer.BufferPolylinePath_((com.epl.geometry.Polyline)(m_bufferer.m_geometry), ind, m_bfilter);
+						com.epl.geometry.Polyline pol = m_polyline;
+						m_polyline = null;
+						return pol;
 					}
-					else
+					com.epl.geometry.Polyline tmp_polyline = new com.epl.geometry.Polyline(m_polyline.GetDescription());
+					tmp_polyline.AddPath(m_polyline, ind, true);
+					for (int i = ind + 1; i < m_current_path_index; i++)
 					{
-						com.epl.geometry.Polyline tmp_polyline = new com.epl.geometry.Polyline(m_bufferer.m_geometry.GetDescription());
-						tmp_polyline.AddPath((com.epl.geometry.Polyline)(m_bufferer.m_geometry), ind, true);
-						for (int i = ind + 1; i < m_index; i++)
-						{
-							((com.epl.geometry.MultiPathImpl)tmp_polyline._getImpl()).AddSegmentsFromPath((com.epl.geometry.MultiPathImpl)m_bufferer.m_geometry._getImpl(), i, 0, mp.GetSegmentCount(i), false);
-						}
-						// Operator_factory_local::SaveJSONToTextFileDbg("c:/temp/buffer_ppp.txt",
-						// tmp_polyline, nullptr);
-						com.epl.geometry.Polygon res = m_bufferer.BufferPolylinePath_(tmp_polyline, 0, m_bfilter);
-						// Operator_factory_local::SaveJSONToTextFileDbg("c:/temp/buffer_ppp_res.txt",
-						// *res, nullptr);
-						return res;
+						tmp_polyline.AddSegmentsFromPath(m_polyline, i, 0, mp.GetSegmentCount(i), false);
+					}
+//					if (false)
+//					{
+//						com.epl.geometry.OperatorFactoryLocal.SaveGeometryToEsriShapeDbg("c:/temp/_geom.bin", tmp_polyline);
+//					}
+					if (m_current_path_index == m_polyline.GetPathCount())
+					{
+						m_polyline = null;
+					}
+					return tmp_polyline;
+				}
+				else
+				{
+					return null;
+				}
+			}
+
+			public override int GetGeometryID()
+			{
+				return 0;
+			}
+		}
+
+		private sealed class GeometryCursorForPolyline : com.epl.geometry.GeometryCursor
+		{
+			private com.epl.geometry.Bufferer m_bufferer;
+
+			internal com.epl.geometry.GeometryCursor m_geoms;
+
+			internal com.epl.geometry.Geometry m_geometry;
+
+			private int m_index;
+
+			private bool m_bfilter;
+
+			internal GeometryCursorForPolyline(com.epl.geometry.Bufferer bufferer, com.epl.geometry.GeometryCursor geoms, bool bfilter)
+			{
+				m_bufferer = bufferer;
+				m_geoms = geoms;
+				m_index = 0;
+				m_bfilter = bfilter;
+			}
+
+			public override com.epl.geometry.Geometry Next()
+			{
+				if (m_geometry == null)
+				{
+					m_index = 0;
+					m_geometry = m_geoms.Next();
+					if (m_geometry == null)
+					{
+						return null;
 					}
 				}
-				return null;
+				com.epl.geometry.MultiPath mp = (com.epl.geometry.MultiPath)(m_geometry);
+				if (m_index < mp.GetPathCount())
+				{
+					int ind = m_index;
+					m_index++;
+					return m_bufferer.BufferPolylinePath_((com.epl.geometry.Polyline)m_geometry, ind, m_bfilter);
+				}
+				m_geometry = null;
+				return Next();
 			}
 
 			public override int GetGeometryID()
@@ -466,23 +549,6 @@ namespace com.epl.geometry
 			{
 				return 0;
 			}
-		}
-
-		private Bufferer(com.epl.geometry.ProgressTracker progress_tracker)
-		{
-			m_buffer_commands = new System.Collections.Generic.List<com.epl.geometry.Bufferer.BufferCommand>(0);
-			m_progress_tracker = progress_tracker;
-			m_tolerance = 0;
-			m_small_tolerance = 0;
-			m_filter_tolerance = 0;
-			m_distance = 0;
-			m_original_geom_type = com.epl.geometry.Geometry.GeometryType.Unknown;
-			m_abs_distance_reversed = 0;
-			m_abs_distance = 0;
-			m_densify_dist = -1;
-			m_dA = -1;
-			m_b_output_loops = true;
-			m_bfilter = true;
 		}
 
 		private com.epl.geometry.Geometry Buffer_()
@@ -576,9 +642,19 @@ namespace com.epl.geometry
 				return BufferPoint_(point);
 			}
 			System.Diagnostics.Debug.Assert((m_distance > 0));
-			m_geometry = PreparePolyline_((com.epl.geometry.Polyline)(m_geometry));
-			com.epl.geometry.Bufferer.GeometryCursorForPolyline cursor = new com.epl.geometry.Bufferer.GeometryCursorForPolyline(this, m_bfilter);
-			com.epl.geometry.GeometryCursor union_cursor = ((com.epl.geometry.OperatorUnion)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.Union)).Execute(cursor, m_spatialReference, m_progress_tracker);
+			com.epl.geometry.Polyline poly = (com.epl.geometry.Polyline)m_geometry;
+			m_geometry = null;
+			com.epl.geometry.GeometryCursor glueing_cursor = new com.epl.geometry.Bufferer.GlueingCursorForPolyline(poly);
+			//glues paths together if they connect at one point
+			poly = null;
+			com.epl.geometry.GeometryCursor generalized_paths = com.epl.geometry.OperatorGeneralize.Local().Execute(glueing_cursor, m_densify_dist * 0.25, false, m_progress_tracker);
+			com.epl.geometry.GeometryCursor simple_paths = com.epl.geometry.OperatorSimplifyOGC.Local().Execute(generalized_paths, null, true, m_progress_tracker);
+			//make a planar graph.
+			generalized_paths = null;
+			com.epl.geometry.GeometryCursor path_buffering_cursor = new com.epl.geometry.Bufferer.GeometryCursorForPolyline(this, simple_paths, m_bfilter);
+			simple_paths = null;
+			com.epl.geometry.GeometryCursor union_cursor = com.epl.geometry.OperatorUnion.Local().Execute(path_buffering_cursor, m_spatialReference, m_progress_tracker);
+			//(int)Operator_union::Options::enum_disable_edge_dissolver
 			com.epl.geometry.Geometry result = union_cursor.Next();
 			return result;
 		}
@@ -832,7 +908,7 @@ namespace com.epl.geometry
 		private com.epl.geometry.Geometry BufferPoint_(com.epl.geometry.Point point)
 		{
 			System.Diagnostics.Debug.Assert((m_distance > 0));
-			com.epl.geometry.Polygon resultPolygon = new com.epl.geometry.Polygon(m_geometry.GetDescription());
+			com.epl.geometry.Polygon resultPolygon = new com.epl.geometry.Polygon(point.GetDescription());
 			AddCircle_((com.epl.geometry.MultiPathImpl)resultPolygon._getImpl(), point);
 			return SetStrongSimple_(resultPolygon);
 		}
@@ -840,7 +916,7 @@ namespace com.epl.geometry
 		private com.epl.geometry.Geometry BufferMultiPoint_()
 		{
 			System.Diagnostics.Debug.Assert((m_distance > 0));
-			com.epl.geometry.Bufferer.GeometryCursorForMultiPoint mpCursor = new com.epl.geometry.Bufferer.GeometryCursorForMultiPoint((com.epl.geometry.MultiPoint)(m_geometry), m_distance, m_spatialReference, m_densify_dist, m_max_vertex_in_complete_circle, m_progress_tracker);
+			com.epl.geometry.Bufferer.GeometryCursorForMultiPoint mpCursor = new com.epl.geometry.Bufferer.GeometryCursorForMultiPoint(this, (com.epl.geometry.MultiPoint)(m_geometry), m_distance, m_spatialReference, m_densify_dist, m_max_vertex_in_complete_circle, m_progress_tracker);
 			com.epl.geometry.GeometryCursor c = ((com.epl.geometry.OperatorUnion)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.Union)).Execute(mpCursor, m_spatialReference, m_progress_tracker);
 			return c.Next();
 		}
@@ -961,8 +1037,6 @@ namespace com.epl.geometry
 				return (com.epl.geometry.Polygon)(BufferPoint_(point));
 			}
 			com.epl.geometry.Polyline result_polyline = new com.epl.geometry.Polyline(polyline.GetDescription());
-			// result_polyline.reserve((m_circle_template.size() / 10 + 4) *
-			// mp_impl.getPathSize(ipath));
 			com.epl.geometry.MultiPathImpl result_mp = (com.epl.geometry.MultiPathImpl)result_polyline._getImpl();
 			bool b_closed = mp_impl.IsClosedPathInXYPlane(ipath);
 			if (b_closed)
@@ -977,8 +1051,6 @@ namespace com.epl.geometry
 				((com.epl.geometry.MultiPathImpl)tmpPoly._getImpl()).AddSegmentsFromPath((com.epl.geometry.MultiPathImpl)input_multi_path._getImpl(), ipath, 0, input_multi_path.GetSegmentCount(ipath), false);
 				BufferClosedPath_(tmpPoly, 0, result_mp, bfilter, 1);
 			}
-			// Operator_factory_local::SaveJSONToTextFileDbg("c:/temp/buffer_prepare.txt",
-			// *result_polyline, nullptr);
 			return BufferCleanup_(result_polyline, false);
 		}
 
@@ -1002,8 +1074,10 @@ namespace com.epl.geometry
 			return resultPolygon;
 		}
 
-		private int CalcN_(int minN)
+		private int CalcN_()
 		{
+			//this method should be called only once m_circle_template_size is set then;
+			int minN = 4;
 			if (m_densify_dist == 0)
 			{
 				return m_max_vertex_in_complete_circle;
@@ -1112,7 +1186,7 @@ namespace com.epl.geometry
 			if (edit_shape.GetPointCount(geom) < 2)
 			{
 				// Got degenerate output.
-				// Wither bail out or
+				// Either bail out or
 				// produce a circle.
 				if (dir < 0)
 				{
@@ -1136,7 +1210,7 @@ namespace com.epl.geometry
 			if (bfilter)
 			{
 				// try removing the noise that does not contribute to the buffer.
-				int res_filter = FilterPath_(edit_shape, geom, dir, true);
+				int res_filter = FilterPath_(edit_shape, geom, dir, true, m_abs_distance, m_filter_tolerance, m_densify_dist);
 				System.Diagnostics.Debug.Assert((res_filter == 1));
 				// Operator_factory_local::SaveJSONToTextFileDbg("c:/temp/buffer_filter.txt",
 				// *edit_shape.get_geometry(geom), nullptr);
@@ -1347,228 +1421,499 @@ namespace com.epl.geometry
 			return istart;
 		}
 
-		private bool IsGap_(com.epl.geometry.Point2D pt_before, com.epl.geometry.Point2D pt_current, com.epl.geometry.Point2D pt_after)
+		private static void ProtectExtremeVertices_(com.epl.geometry.EditShape edit_shape, int protection_index, int geom, int path)
 		{
-			com.epl.geometry.Point2D v_gap = new com.epl.geometry.Point2D();
-			v_gap.Sub(pt_after, pt_before);
-			double gap_length = v_gap.Length();
-			double sqr_delta = m_abs_distance * m_abs_distance - gap_length * gap_length * 0.25;
-			if (sqr_delta > 0)
+			// detect very narrow corners and preserve them. We cannot reliably
+			// delete these.
+			int vprev = -1;
+			com.epl.geometry.Point2D pt_prev = new com.epl.geometry.Point2D();
+			pt_prev.SetNaN();
+			com.epl.geometry.Point2D pt = new com.epl.geometry.Point2D();
+			pt.SetNaN();
+			com.epl.geometry.Point2D v_before = new com.epl.geometry.Point2D();
+			v_before.SetNaN();
+			com.epl.geometry.Point2D pt_next = new com.epl.geometry.Point2D();
+			com.epl.geometry.Point2D v_after = new com.epl.geometry.Point2D();
+			for (int i = 0, n = edit_shape.GetPathSize(path), v = edit_shape.GetFirstVertex(path); i < n; ++i)
 			{
-				double delta = System.Math.Sqrt(sqr_delta);
-				v_gap.Normalize();
-				v_gap.RightPerpendicular();
-				com.epl.geometry.Point2D p = new com.epl.geometry.Point2D();
-				p.Sub(pt_current, pt_before);
-				double d = p.DotProduct(v_gap);
-				if (d + delta >= m_abs_distance)
+				if (vprev == -1)
 				{
-					return true;
+					edit_shape.GetXY(v, pt);
+					vprev = edit_shape.GetPrevVertex(v);
+					if (vprev != -1)
+					{
+						edit_shape.GetXY(vprev, pt_prev);
+						v_before.Sub(pt, pt_prev);
+						v_before.Normalize();
+					}
 				}
+				int vnext = edit_shape.GetNextVertex(v);
+				if (vnext == -1)
+				{
+					break;
+				}
+				edit_shape.GetXY(vnext, pt_next);
+				v_after.Sub(pt_next, pt);
+				v_after.Normalize();
+				if (vprev != -1)
+				{
+					double d = v_after.DotProduct(v_before);
+					if (d < -0.99 && System.Math.Abs(v_after.CrossProduct(v_before)) < 1e-7)
+					{
+						edit_shape.SetUserIndex(v, protection_index, 1);
+					}
+				}
+				vprev = v;
+				v = vnext;
+				pt_prev.SetCoords(pt);
+				pt.SetCoords(pt_next);
+				v_before.SetCoords(v_after);
 			}
-			return false;
 		}
 
-		private int FilterPath_(com.epl.geometry.EditShape edit_shape, int geom, int dir, bool closed)
+		private static int FilterPath_(com.epl.geometry.EditShape edit_shape, int geom, int dir, bool closed, double abs_distance, double filter_tolerance, double densify_distance)
 		{
-			// **********************!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			// return 1;
-			bool bConvex = true;
-			for (int pass = 0; pass < 1; pass++)
+			int path = edit_shape.GetFirstPath(geom);
+			int concave_index = -1;
+			int fixed_vertices_index = edit_shape.CreateUserIndex();
+			ProtectExtremeVertices_(edit_shape, fixed_vertices_index, geom, path);
+			for (int iter = 0; iter < 100; ++iter)
 			{
-				bool b_filtered = false;
-				int ipath = edit_shape.GetFirstPath(geom);
-				int isize = edit_shape.GetPathSize(ipath);
+				int isize = edit_shape.GetPathSize(path);
 				if (isize == 0)
 				{
-					return 0;
-				}
-				int ncount = isize;
-				if (isize < 3)
-				{
+					edit_shape.RemoveUserIndex(fixed_vertices_index);
 					return 1;
 				}
-				if (closed && !edit_shape.IsClosedPath(ipath))
+				int ivert = edit_shape.GetFirstVertex(path);
+				int nvertices = edit_shape.GetPathSize(path);
+				if (nvertices < 3)
+				{
+					edit_shape.RemoveUserIndex(fixed_vertices_index);
+					return 1;
+				}
+				if (closed && !edit_shape.IsClosedPath(path))
 				{
 					// the path is closed
 					// only virtually
-					ncount = isize - 1;
+					nvertices -= 1;
 				}
-				System.Diagnostics.Debug.Assert((dir == 1 || dir == -1));
-				int ivert = edit_shape.GetFirstVertex(ipath);
-				if (!closed)
+				double abs_d = abs_distance;
+				int nfilter = 64;
+				bool filtered = false;
+				int filtered_in_pass = 0;
+				bool go_back = false;
+				for (int i = 0; i < nvertices && ivert != -1; i++)
 				{
-					edit_shape.GetNextVertex(ivert);
-				}
-				int iprev = dir > 0 ? edit_shape.GetPrevVertex(ivert) : edit_shape.GetNextVertex(ivert);
-				int inext = dir > 0 ? edit_shape.GetNextVertex(ivert) : edit_shape.GetPrevVertex(ivert);
-				int ibefore = iprev;
-				bool reload = true;
-				com.epl.geometry.Point2D pt_current = new com.epl.geometry.Point2D();
-				com.epl.geometry.Point2D pt_after = new com.epl.geometry.Point2D();
-				com.epl.geometry.Point2D pt_before = new com.epl.geometry.Point2D();
-				com.epl.geometry.Point2D pt_before_before = new com.epl.geometry.Point2D();
-				com.epl.geometry.Point2D pt_middle = new com.epl.geometry.Point2D();
-				com.epl.geometry.Point2D pt_gap_last = new com.epl.geometry.Point2D(0, 0);
-				com.epl.geometry.Point2D v_after = new com.epl.geometry.Point2D();
-				com.epl.geometry.Point2D v_before = new com.epl.geometry.Point2D();
-				com.epl.geometry.Point2D v_gap = new com.epl.geometry.Point2D();
-				com.epl.geometry.Point2D temp = new com.epl.geometry.Point2D();
-				double abs_d = m_abs_distance;
-				// When the path is open we cannot process the first and the last
-				// vertices, so we process size - 2.
-				// When the path is closed, we can process all vertices.
-				int iter_count = closed ? ncount : isize - 2;
-				int gap_counter = 0;
-				for (int iter = 0; iter < iter_count; )
-				{
-					edit_shape.GetXY(inext, pt_after);
-					if (reload)
+					int filtered_now = 0;
+					int v = ivert;
+					// filter == 0
+					for (int filter = 1, n = (int)System.Math.Min(nfilter, nvertices - i); filter < n; filter++)
 					{
-						edit_shape.GetXY(ivert, pt_current);
-						edit_shape.GetXY(iprev, pt_before);
-						ibefore = iprev;
-					}
-					v_before.Sub(pt_current, pt_before);
-					v_before.Normalize();
-					v_after.Sub(pt_after, pt_current);
-					v_after.Normalize();
-					if (ibefore == inext)
-					{
-						break;
-					}
-					double cross = v_before.CrossProduct(v_after);
-					double dot = v_before.DotProduct(v_after);
-					bool bDoJoin = cross < 0 || (dot < 0 && cross == 0);
-					bool b_write = true;
-					if (!bDoJoin)
-					{
-						if (IsGap_(pt_before, pt_current, pt_after))
+						v = edit_shape.GetNextVertex(v, dir);
+						if (filter > 1)
 						{
-							pt_gap_last.SetCoords(pt_after);
-							b_write = false;
-							++gap_counter;
-							b_filtered = true;
-						}
-						bConvex = false;
-					}
-					if (b_write)
-					{
-						if (gap_counter > 0)
-						{
-							for (; ; )
+							int num = ClipFilter_(edit_shape, fixed_vertices_index, ivert, v, dir, abs_distance, densify_distance, nfilter);
+							if (num == -1)
 							{
-								// re-test back
-								int ibefore_before = dir > 0 ? edit_shape.GetPrevVertex(ibefore) : edit_shape.GetNextVertex(ibefore);
-								if (ibefore_before == ivert)
-								{
-									break;
-								}
-								edit_shape.GetXY(ibefore_before, pt_before_before);
-								if (IsGap_(pt_before_before, pt_before, pt_gap_last))
-								{
-									pt_before.SetCoords(pt_before_before);
-									ibefore = ibefore_before;
-									b_write = false;
-									++gap_counter;
-									continue;
-								}
-								else
-								{
-									if (ibefore_before != inext && IsGap_(pt_before_before, pt_before, pt_after) && IsGap_(pt_before_before, pt_current, pt_after))
-									{
-										// now the current
-										// point is a part
-										// of the gap also.
-										// We retest it.
-										pt_before.SetCoords(pt_before_before);
-										ibefore = ibefore_before;
-										b_write = false;
-										++gap_counter;
-									}
-								}
 								break;
 							}
+							filtered |= num > 0;
+							filtered_now += num;
+							nvertices -= num;
 						}
-						if (!b_write)
+					}
+					filtered_in_pass += filtered_now;
+					go_back = filtered_now > 0;
+					if (go_back)
+					{
+						int prev = edit_shape.GetPrevVertex(ivert, dir);
+						if (prev != -1)
 						{
+							ivert = prev;
+							nvertices++;
 							continue;
 						}
-						// retest forward
-						if (gap_counter > 0)
-						{
-							// remove all but one gap vertices.
-							int p = dir > 0 ? edit_shape.GetPrevVertex(iprev) : edit_shape.GetNextVertex(iprev);
-							for (int i = 1; i < gap_counter; i++)
-							{
-								int pp = dir > 0 ? edit_shape.GetPrevVertex(p) : edit_shape.GetNextVertex(p);
-								edit_shape.RemoveVertex(p, true);
-								p = pp;
-							}
-							v_gap.Sub(pt_current, pt_before);
-							double gap_length = v_gap.Length();
-							double sqr_delta = abs_d * abs_d - gap_length * gap_length * 0.25;
-							double delta = System.Math.Sqrt(sqr_delta);
-							if (abs_d - delta > m_densify_dist * 0.5)
-							{
-								pt_middle.Add(pt_before, pt_current);
-								pt_middle.Scale(0.5);
-								v_gap.Normalize();
-								v_gap.RightPerpendicular();
-								temp.SetCoords(v_gap);
-								temp.Scale(abs_d - delta);
-								pt_middle.Add(temp);
-								edit_shape.SetXY(iprev, pt_middle);
-							}
-							else
-							{
-								// the gap is too short to be considered. Can close
-								// it with the straight segment;
-								edit_shape.RemoveVertex(iprev, true);
-							}
-							gap_counter = 0;
-						}
-						pt_before.SetCoords(pt_current);
-						ibefore = ivert;
 					}
-					pt_current.SetCoords(pt_after);
-					iprev = ivert;
-					ivert = inext;
-					// reload = false;
-					inext = dir > 0 ? edit_shape.GetNextVertex(ivert) : edit_shape.GetPrevVertex(ivert);
-					iter++;
-					reload = false;
+					ivert = edit_shape.GetNextVertex(ivert, dir);
 				}
-				if (gap_counter > 0)
-				{
-					int p = dir > 0 ? edit_shape.GetPrevVertex(iprev) : edit_shape.GetNextVertex(iprev);
-					for (int i = 1; i < gap_counter; i++)
-					{
-						int pp = dir > 0 ? edit_shape.GetPrevVertex(p) : edit_shape.GetNextVertex(p);
-						edit_shape.RemoveVertex(p, true);
-						p = pp;
-					}
-					pt_middle.Add(pt_before, pt_current);
-					pt_middle.Scale(0.5);
-					v_gap.Sub(pt_current, pt_before);
-					double gap_length = v_gap.Length();
-					double sqr_delta = abs_d * abs_d - gap_length * gap_length * 0.25;
-					System.Diagnostics.Debug.Assert((sqr_delta > 0));
-					double delta = System.Math.Sqrt(sqr_delta);
-					v_gap.Normalize();
-					v_gap.RightPerpendicular();
-					temp.SetCoords(v_gap);
-					temp.Scale(abs_d - delta);
-					pt_middle.Add(temp);
-					edit_shape.SetXY(iprev, pt_middle);
-				}
-				edit_shape.FilterClosePoints(m_filter_tolerance, false, false);
-				if (!b_filtered)
+				if (filtered_in_pass == 0)
 				{
 					break;
 				}
 			}
+			edit_shape.RemoveUserIndex(fixed_vertices_index);
+			edit_shape.FilterClosePoints(filter_tolerance, false, false);
 			return 1;
+		}
+
+		// This function clips out segments connecting from_vertiex to to_vertiex if
+		// they do not contribute to the buffer.
+		private static int ClipFilter_(com.epl.geometry.EditShape edit_shape, int fixed_vertices_index, int from_vertex, int to_vertex, int dir, double abs_distance, double densify_distance, int max_filter)
+		{
+			// Note: vertices marked with fixed_vertices_index cannot be deleted.
+			com.epl.geometry.Point2D pt1 = edit_shape.GetXY(from_vertex);
+			com.epl.geometry.Point2D pt2 = edit_shape.GetXY(to_vertex);
+			if (pt1.Equals(pt2))
+			{
+				return -1;
+			}
+			double densify_distance_delta = densify_distance * 0.25;
+			// distance by
+			// which we can
+			// move the
+			// point closer
+			// to the chord
+			// (introducing
+			// an error into
+			// the buffer).
+			double erase_distance_delta = densify_distance * 0.25;
+			// distance when
+			// we can erase
+			// the point
+			// (introducing
+			// an error into
+			// the buffer).
+			// This function goal is to modify or remove vertices between
+			// from_vertex and to_vertex in such a way that the result would not
+			// affect buffer to the left of the
+			// chain.
+			com.epl.geometry.Point2D v_gap = new com.epl.geometry.Point2D();
+			v_gap.Sub(pt2, pt1);
+			double gap_length = v_gap.Length();
+			double h2_4 = gap_length * gap_length * 0.25;
+			double sqr_center_to_chord = abs_distance * abs_distance - h2_4;
+			// squared
+			// distance
+			// from
+			// the
+			// chord
+			// to
+			// the
+			// circle
+			// center
+			if (sqr_center_to_chord <= h2_4)
+			{
+				return -1;
+			}
+			// center to chord distance is less than half gap, that
+			// means the gap is too wide for useful filtering (maybe
+			// this).
+			double center_to_chord = System.Math.Sqrt(sqr_center_to_chord);
+			// distance
+			// from
+			// circle
+			// center to
+			// the
+			// chord.
+			v_gap.Normalize();
+			com.epl.geometry.Point2D v_gap_norm = new com.epl.geometry.Point2D(v_gap);
+			v_gap_norm.RightPerpendicular();
+			double chord_to_corner = h2_4 / center_to_chord;
+			// cos(a) =
+			// center_to_chord /
+			// distance;
+			// chord_to_corner =
+			// distance / cos(a)
+			// -
+			// center_to_chord;
+			bool can_erase_corner_point = chord_to_corner <= erase_distance_delta;
+			com.epl.geometry.Point2D chord_midpoint = new com.epl.geometry.Point2D();
+			com.epl.geometry.MathUtils.Lerp(pt2, pt1, 0.5, chord_midpoint);
+			com.epl.geometry.Point2D corner = new com.epl.geometry.Point2D(v_gap_norm);
+			double corrected_chord_to_corner = chord_to_corner - densify_distance_delta;
+			// using slightly smaller than needed
+			// distance let us filter more.
+			corner.ScaleAdd(System.Math.Max(0.0, corrected_chord_to_corner), chord_midpoint);
+			// corner = (p1 + p2) * 0.5 + v_gap_norm * chord_to_corner;
+			com.epl.geometry.Point2D center = new com.epl.geometry.Point2D(v_gap_norm);
+			center.Negate();
+			center.ScaleAdd(center_to_chord, chord_midpoint);
+			double allowed_distance = abs_distance - erase_distance_delta;
+			double sqr_allowed_distance = com.epl.geometry.MathUtils.Sqr(allowed_distance);
+			double sqr_large_distance = sqr_allowed_distance * (1.9 * 1.9);
+			com.epl.geometry.Point2D co_p1 = new com.epl.geometry.Point2D();
+			co_p1.Sub(corner, pt1);
+			com.epl.geometry.Point2D co_p2 = new com.epl.geometry.Point2D();
+			co_p2.Sub(corner, pt2);
+			bool large_distance = false;
+			// set to true when distance
+			int cnt = 0;
+			char[] locations = new char[64];
+			{
+				// check all vertices in the gap verifying that the gap can be
+				// clipped.
+				//
+				com.epl.geometry.Point2D pt = new com.epl.geometry.Point2D();
+				// firstly remove any duplicate vertices in the end.
+				for (int v = edit_shape.GetPrevVertex(to_vertex, dir); v != from_vertex; )
+				{
+					if (edit_shape.GetUserIndex(v, fixed_vertices_index) == 1)
+					{
+						return -1;
+					}
+					// this range contains protected vertex
+					edit_shape.GetXY(v, pt);
+					if (pt.Equals(pt2))
+					{
+						int v1 = edit_shape.GetPrevVertex(v, dir);
+						edit_shape.RemoveVertex(v, false);
+						v = v1;
+						continue;
+					}
+					else
+					{
+						break;
+					}
+				}
+				com.epl.geometry.Point2D prev_prev_pt = new com.epl.geometry.Point2D();
+				prev_prev_pt.SetNaN();
+				com.epl.geometry.Point2D prev_pt = new com.epl.geometry.Point2D();
+				prev_pt.SetCoords(pt1);
+				locations[cnt++] = (char)1;
+				int prev_v = from_vertex;
+				com.epl.geometry.Point2D dummyPt = new com.epl.geometry.Point2D();
+				for (int v_1 = edit_shape.GetNextVertex(from_vertex, dir); v_1 != to_vertex; )
+				{
+					if (edit_shape.GetUserIndex(v_1, fixed_vertices_index) == 1)
+					{
+						return -1;
+					}
+					// this range contains protected vertex
+					edit_shape.GetXY(v_1, pt);
+					if (pt.Equals(prev_pt))
+					{
+						int v1 = edit_shape.GetNextVertex(v_1, dir);
+						edit_shape.RemoveVertex(v_1, false);
+						v_1 = v1;
+						continue;
+					}
+					locations[cnt++] = (char)0;
+					com.epl.geometry.Point2D v1_1 = new com.epl.geometry.Point2D();
+					v1_1.Sub(pt, pt1);
+					if (v1_1.DotProduct(v_gap_norm) < 0)
+					{
+						// we are crossing on the
+						// wrong site of the chord.
+						// Just bail out earlier.
+						// Maybe we could continue
+						// clipping though here, but
+						// it seems to be
+						// unnecessary complicated.
+						return 0;
+					}
+					if (com.epl.geometry.Point2D.SqrDistance(pt, pt1) > sqr_large_distance || com.epl.geometry.Point2D.SqrDistance(pt, pt2) > sqr_large_distance)
+					{
+						large_distance = true;
+					}
+					// too far from points, may
+					// contribute to the outline (in
+					// case of a large loop)
+					char next_location = (char)0;
+					dummyPt.Sub(pt, pt1);
+					double cs1 = dummyPt.CrossProduct(co_p1);
+					if (cs1 >= 0)
+					{
+						next_location = (char)1;
+					}
+					dummyPt.Sub(pt, pt2);
+					double cs2 = dummyPt.CrossProduct(co_p2);
+					if (cs2 <= 0)
+					{
+						next_location |= (char)2;
+					}
+					if (next_location == 0)
+					{
+						return 0;
+					}
+					locations[cnt - 1] = next_location;
+					prev_prev_pt.SetCoords(prev_pt);
+					prev_pt.SetCoords(pt);
+					prev_v = v_1;
+					v_1 = edit_shape.GetNextVertex(v_1, dir);
+				}
+				if (cnt == 1)
+				{
+					return 0;
+				}
+				System.Diagnostics.Debug.Assert((!pt2.Equals(prev_pt)));
+				locations[cnt++] = (char)2;
+			}
+			bool can_clip_all = true;
+			// we can remove all points and replace them with a single corner point
+			// if we are moving from location 1 via location 3 to location 2
+			for (int i = 1, k = 0; i < cnt; i++)
+			{
+				if (locations[i] != locations[i - 1])
+				{
+					k++;
+					can_clip_all = k < 3 && ((k == 1 && locations[i] == 3) || (k == 2 && locations[i] == 2));
+					if (!can_clip_all)
+					{
+						return 0;
+					}
+				}
+			}
+			if (cnt > 2 && can_clip_all && (cnt == 3 || !large_distance))
+			{
+				int clip_count = 0;
+				int v = edit_shape.GetNextVertex(from_vertex, dir);
+				if (!can_erase_corner_point)
+				{
+					edit_shape.SetXY(v, corner);
+					v = edit_shape.GetNextVertex(v, dir);
+				}
+				// we can remove all vertices between from and to, because they
+				// don't contribute
+				while (v != to_vertex)
+				{
+					int v1 = edit_shape.GetNextVertex(v, dir);
+					edit_shape.RemoveVertex(v, false);
+					v = v1;
+					++clip_count;
+				}
+				return clip_count;
+			}
+			if (cnt == 3)
+			{
+				bool case1 = (locations[0] == 1 && locations[1] == 2 && locations[2] == 2);
+				bool case2 = (locations[0] == 1 && locations[1] == 1 && locations[2] == 2);
+				if (case1 || case2)
+				{
+					// special case, when we cannot clip, but we can move the point
+					com.epl.geometry.Point2D p1 = edit_shape.GetXY(from_vertex);
+					int v = edit_shape.GetNextVertex(from_vertex, dir);
+					com.epl.geometry.Point2D p2 = edit_shape.GetXY(v);
+					com.epl.geometry.Point2D p3 = edit_shape.GetXY(edit_shape.GetNextVertex(v, dir));
+					if (case2)
+					{
+						com.epl.geometry.Point2D temp = p1;
+						p1 = p3;
+						p3 = temp;
+					}
+					com.epl.geometry.Point2D vec = new com.epl.geometry.Point2D();
+					vec.Sub(p1, p2);
+					p3.Sub(p2);
+					double veclen = vec.Length();
+					double w = p3.Length();
+					double wcosa = vec.DotProduct(p3) / veclen;
+					double wsina = System.Math.Abs(p3.CrossProduct(vec) / veclen);
+					double z = 2 * abs_distance - wsina;
+					if (z < 0)
+					{
+						return 0;
+					}
+					double x = wcosa + System.Math.Sqrt(wsina * z);
+					if (x > veclen)
+					{
+						return 0;
+					}
+					com.epl.geometry.Point2D hvec = new com.epl.geometry.Point2D();
+					hvec.ScaleAdd(-x / veclen, vec, p3);
+					// hvec = p3 - vec * (x /
+					// veclen);
+					double h = hvec.Length();
+					double y = -(h * h * veclen) / (2 * hvec.DotProduct(vec));
+					double t = (x - y) / veclen;
+					com.epl.geometry.MathUtils.Lerp(p2, p1, t, p2);
+					edit_shape.SetXY(v, p2);
+					return 0;
+				}
+			}
+			if (large_distance && cnt > 3)
+			{
+				// we are processing more than 3 points and there are some points
+				// further than the
+				return 0;
+			}
+			int v_prev = -1;
+			com.epl.geometry.Point2D pt_prev = new com.epl.geometry.Point2D();
+			int v_cur = from_vertex;
+			com.epl.geometry.Point2D pt_cur = new com.epl.geometry.Point2D(pt1);
+			int cur_location = 1;
+			int prev_location = -1;
+			// 1 - semiplane to the right of [f,c]. 3 -
+			// semiplane to the right of [c,t], 2 - both
+			// above fc and ct, 0 - cannot clip, -1 -
+			// unknown
+			int v_next = v_cur;
+			int clip_count_1 = 0;
+			cnt = 1;
+			while (v_next != to_vertex)
+			{
+				v_next = edit_shape.GetNextVertex(v_next, dir);
+				int next_location = locations[cnt++];
+				if (next_location == 0)
+				{
+					if (v_next == to_vertex)
+					{
+						break;
+					}
+					continue;
+				}
+				com.epl.geometry.Point2D pt_next = edit_shape.GetXY(v_next);
+				if (prev_location != -1)
+				{
+					int common_location = (prev_location & cur_location & next_location);
+					if ((common_location & 3) != 0)
+					{
+						// prev and next are on the same semiplane as the current we
+						// can safely remove the current point.
+						edit_shape.RemoveVertex(v_cur, true);
+						clip_count_1++;
+						// do not change prev point.
+						v_cur = v_next;
+						pt_cur.SetCoords(pt_next);
+						cur_location = next_location;
+						continue;
+					}
+					if (cur_location == 3 && prev_location != 0 && next_location != 0)
+					{
+						System.Diagnostics.Debug.Assert(((prev_location & next_location) == 0));
+						// going from
+						// one semi
+						// plane to
+						// another
+						// via the
+						// mid.
+						pt_cur.SetCoords(corner);
+						if (can_erase_corner_point || pt_cur.Equals(pt_prev))
+						{
+							// this
+							// point
+							// can
+							// be
+							// removed
+							edit_shape.RemoveVertex(v_cur, true);
+							clip_count_1++;
+							// do not change prev point.
+							v_cur = v_next;
+							pt_cur.SetCoords(pt_next);
+							cur_location = next_location;
+							continue;
+						}
+						else
+						{
+							edit_shape.SetXY(v_cur, pt_cur);
+						}
+					}
+					else
+					{
+						// snap to the corner
+						if (next_location == 0 && cur_location != 0 || next_location != 0 && cur_location == 0 || ((next_location | cur_location) == 3 && next_location != 3 && cur_location != 3))
+						{
+						}
+					}
+				}
+				// clip
+				prev_location = cur_location;
+				v_prev = v_cur;
+				pt_prev.SetCoords(pt_cur);
+				v_cur = v_next;
+				cur_location = next_location;
+				pt_cur.SetCoords(pt_next);
+			}
+			return clip_count_1;
 		}
 
 		private bool IsDegeneratePath_(com.epl.geometry.MultiPathImpl mp_impl, int ipath)
@@ -1650,7 +1995,7 @@ namespace com.epl.geometry
 			}
 			// avoid unnecessary memory allocation for the circle template. Just do
 			// the point here.
-			int N = CalcN_(4);
+			int N = m_circle_template_size;
 			int real_size = (N + 3) / 4;
 			double dA = (System.Math.PI * 0.5) / real_size;
 			// result_mp.reserve(real_size * 4);

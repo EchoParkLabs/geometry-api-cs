@@ -61,172 +61,172 @@ namespace com.epl.geometry
 
 		private com.epl.geometry.Geometry ImportFromESRIShape( System.IO.BinaryReader shapeBuffer)
 		{
-			// read type
-			shapeBuffer.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);int shapetype = shapeBuffer.ReadInt32();
-			// Extract general type and modifiers
-			int generaltype;
-			int modifiers;
-			switch (shapetype & com.epl.geometry.ShapeModifiers.ShapeBasicTypeMask)
-			{
-				case com.epl.geometry.ShapeType.ShapePolygon:
-				{
-					// Polygon
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
-					modifiers = 0;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePolygonZM:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs | com.epl.geometry.ShapeModifiers.ShapeHasMs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePolygonM:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasMs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePolygonZ:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeGeneralPolygon:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
-					modifiers = shapetype & com.epl.geometry.ShapeModifiers.ShapeModifierMask;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePolyline:
-				{
-					// Polyline
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
-					modifiers = 0;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePolylineZM:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs | (int)com.epl.geometry.ShapeModifiers.ShapeHasMs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePolylineM:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasMs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePolylineZ:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeGeneralPolyline:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
-					modifiers = shapetype & com.epl.geometry.ShapeModifiers.ShapeModifierMask;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeMultiPoint:
-				{
-					// MultiPoint
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
-					modifiers = 0;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeMultiPointZM:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
-					modifiers = (int)com.epl.geometry.ShapeModifiers.ShapeHasZs | (int)com.epl.geometry.ShapeModifiers.ShapeHasMs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeMultiPointM:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasMs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeMultiPointZ:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeGeneralMultiPoint:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
-					modifiers = shapetype & com.epl.geometry.ShapeModifiers.ShapeModifierMask;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePoint:
-				{
-					// Point
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
-					modifiers = 0;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePointZM:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs | (int)com.epl.geometry.ShapeModifiers.ShapeHasMs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePointM:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasMs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapePointZ:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
-					modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeGeneralPoint:
-				{
-					generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
-					modifiers = shapetype & com.epl.geometry.ShapeModifiers.ShapeModifierMask;
-					break;
-				}
-
-				case com.epl.geometry.ShapeType.ShapeNull:
-				{
-					// Null Geometry
-					return null;
-				}
-
-				default:
-				{
-					throw new com.epl.geometry.GeometryException("invalid shape type");
-				}
-			}
 			//java.nio.ByteOrder initialOrder = shapeBuffer.Order();
 			//shapeBuffer.Order(java.nio.ByteOrder.LITTLE_ENDIAN);
 			try
 			{
+				// read type
+				shapeBuffer.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);int shapetype = shapeBuffer.ReadInt32();
+				// Extract general type and modifiers
+				int generaltype;
+				int modifiers;
+				switch (shapetype & com.epl.geometry.ShapeModifiers.ShapeBasicTypeMask)
+				{
+					case com.epl.geometry.ShapeType.ShapePolygon:
+					{
+						// Polygon
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
+						modifiers = 0;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePolygonZM:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs | com.epl.geometry.ShapeModifiers.ShapeHasMs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePolygonM:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasMs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePolygonZ:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeGeneralPolygon:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolygon;
+						modifiers = shapetype & com.epl.geometry.ShapeModifiers.ShapeModifierMask;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePolyline:
+					{
+						// Polyline
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
+						modifiers = 0;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePolylineZM:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs | (int)com.epl.geometry.ShapeModifiers.ShapeHasMs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePolylineM:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasMs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePolylineZ:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeGeneralPolyline:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPolyline;
+						modifiers = shapetype & com.epl.geometry.ShapeModifiers.ShapeModifierMask;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeMultiPoint:
+					{
+						// MultiPoint
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
+						modifiers = 0;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeMultiPointZM:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
+						modifiers = (int)com.epl.geometry.ShapeModifiers.ShapeHasZs | (int)com.epl.geometry.ShapeModifiers.ShapeHasMs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeMultiPointM:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasMs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeMultiPointZ:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeGeneralMultiPoint:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralMultiPoint;
+						modifiers = shapetype & com.epl.geometry.ShapeModifiers.ShapeModifierMask;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePoint:
+					{
+						// Point
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
+						modifiers = 0;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePointZM:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs | (int)com.epl.geometry.ShapeModifiers.ShapeHasMs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePointM:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasMs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapePointZ:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
+						modifiers = com.epl.geometry.ShapeModifiers.ShapeHasZs;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeGeneralPoint:
+					{
+						generaltype = com.epl.geometry.ShapeType.ShapeGeneralPoint;
+						modifiers = shapetype & com.epl.geometry.ShapeModifiers.ShapeModifierMask;
+						break;
+					}
+
+					case com.epl.geometry.ShapeType.ShapeNull:
+					{
+						// Null Geometry
+						return null;
+					}
+
+					default:
+					{
+						throw new com.epl.geometry.GeometryException("invalid shape type");
+					}
+				}
 				switch (generaltype)
 				{
 					case com.epl.geometry.ShapeType.ShapeGeneralPolygon:

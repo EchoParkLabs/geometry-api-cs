@@ -73,13 +73,19 @@ namespace com.epl.geometry
 		/// information, or the parser does not point to an object start.
 		/// </returns>
 		/// <exception cref="System.Exception">if parsing has failed</exception>
-//		public static com.epl.geometry.SpatialReference FromJson(org.codehaus.jackson.JsonParser parser)
+//		public static com.epl.geometry.SpatialReference FromJson(com.fasterxml.jackson.core.JsonParser parser)
 //		{
-//			return FromJson(new com.epl.geometry.JsonParserReader(parser));
+////			return FromJson(new com.epl.geometry.JsonParserReader(parser));
+////		}
+//
+//		/// <exception cref="System.Exception"/>
+//		public static com.epl.geometry.SpatialReference FromJson(string @string)
+//		{
+//			return FromJson(com.epl.geometry.JsonParserReader.CreateFromString(@string));
 //		}
-
-		/// <exception cref="System.Exception"/>
-//		internal static com.epl.geometry.SpatialReference FromJson(com.epl.geometry.JsonReader parser)
+//
+//		/// <exception cref="System.Exception"/>
+//		public static com.epl.geometry.SpatialReference FromJson(com.epl.geometry.JsonReader parser)
 //		{
 //			// Note this class is processed specially: it is expected that the
 //			// iterator points to the first element of the SR object.
@@ -93,14 +99,14 @@ namespace com.epl.geometry
 //			int vcs_wkid = -1;
 //			int latestVcsWkid = -1;
 //			string wkt = null;
-//			while (parser.NextToken() != org.codehaus.jackson.JsonToken.END_OBJECT)
+//			while (parser.NextToken() != com.epl.geometry.JsonReader.Token.END_OBJECT)
 //			{
 //				string name = parser.CurrentString();
 //				parser.NextToken();
 //				if (!bFoundWkid && name.Equals("wkid"))
 //				{
 //					bFoundWkid = true;
-//					if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_NUMBER_INT)
+//					if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_NUMBER_INT)
 //					{
 //						wkid = parser.CurrentIntValue();
 //					}
@@ -110,7 +116,7 @@ namespace com.epl.geometry
 //					if (!bFoundLatestWkid && name.Equals("latestWkid"))
 //					{
 //						bFoundLatestWkid = true;
-//						if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_NUMBER_INT)
+//						if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_NUMBER_INT)
 //						{
 //							latestWkid = parser.CurrentIntValue();
 //						}
@@ -120,7 +126,7 @@ namespace com.epl.geometry
 //						if (!bFoundWkt && name.Equals("wkt"))
 //						{
 //							bFoundWkt = true;
-//							if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_STRING)
+//							if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_STRING)
 //							{
 //								wkt = parser.CurrentString();
 //							}
@@ -130,7 +136,7 @@ namespace com.epl.geometry
 //							if (!bFoundVcsWkid && name.Equals("vcsWkid"))
 //							{
 //								bFoundVcsWkid = true;
-//								if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_NUMBER_INT)
+//								if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_NUMBER_INT)
 //								{
 //									vcs_wkid = parser.CurrentIntValue();
 //								}
@@ -140,7 +146,7 @@ namespace com.epl.geometry
 //								if (!bFoundLatestVcsWkid && name.Equals("latestVcsWkid"))
 //								{
 //									bFoundLatestVcsWkid = true;
-//									if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_NUMBER_INT)
+//									if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_NUMBER_INT)
 //									{
 //										latestVcsWkid = parser.CurrentIntValue();
 //									}

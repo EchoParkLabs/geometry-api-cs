@@ -27,28 +27,27 @@ namespace com.epl.geometry
 	{
 		public override com.epl.geometry.JsonCursor Execute(com.epl.geometry.SpatialReference spatialReference, com.epl.geometry.GeometryCursor geometryCursor)
 		{
-			return new com.epl.geometry.OperatorExportToGeoJsonCursor(false, spatialReference, geometryCursor);
+			return new com.epl.geometry.OperatorExportToGeoJsonCursor(com.epl.geometry.GeoJsonExportFlags.geoJsonExportDefaults, spatialReference, geometryCursor);
 		}
 
 		public override string Execute(com.epl.geometry.SpatialReference spatialReference, com.epl.geometry.Geometry geometry)
 		{
-			com.epl.geometry.SimpleGeometryCursor gc = new com.epl.geometry.SimpleGeometryCursor(geometry);
-			com.epl.geometry.JsonCursor cursor = new com.epl.geometry.OperatorExportToGeoJsonCursor(false, spatialReference, gc);
-			return cursor.Next();
+			return com.epl.geometry.OperatorExportToGeoJsonCursor.ExportToGeoJson(com.epl.geometry.GeoJsonExportFlags.geoJsonExportDefaults, geometry, spatialReference);
 		}
 
 		public override string Execute(int exportFlags, com.epl.geometry.SpatialReference spatialReference, com.epl.geometry.Geometry geometry)
 		{
-			com.epl.geometry.SimpleGeometryCursor gc = new com.epl.geometry.SimpleGeometryCursor(geometry);
-			com.epl.geometry.JsonCursor cursor = new com.epl.geometry.OperatorExportToGeoJsonCursor(exportFlags == com.epl.geometry.GeoJsonExportFlags.geoJsonExportPreferMultiGeometry, spatialReference, gc);
-			return cursor.Next();
+			return com.epl.geometry.OperatorExportToGeoJsonCursor.ExportToGeoJson(exportFlags, geometry, spatialReference);
 		}
 
 		public override string Execute(com.epl.geometry.Geometry geometry)
 		{
-			com.epl.geometry.SimpleGeometryCursor gc = new com.epl.geometry.SimpleGeometryCursor(geometry);
-			com.epl.geometry.JsonCursor cursor = new com.epl.geometry.OperatorExportToGeoJsonCursor(gc);
-			return cursor.Next();
+			return com.epl.geometry.OperatorExportToGeoJsonCursor.ExportToGeoJson(com.epl.geometry.GeoJsonExportFlags.geoJsonExportSkipCRS, geometry, null);
+		}
+
+		public override string ExportSpatialReference(int export_flags, com.epl.geometry.SpatialReference spatial_reference)
+		{
+			return com.epl.geometry.OperatorExportToGeoJsonCursor.ExportSpatialReference(export_flags, spatial_reference);
 		}
 	}
 }

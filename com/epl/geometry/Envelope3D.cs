@@ -41,18 +41,22 @@ namespace com.epl.geometry
 
 		public static com.epl.geometry.Envelope3D Construct(double _xmin, double _ymin, double _zmin, double _xmax, double _ymax, double _zmax)
 		{
-			com.epl.geometry.Envelope3D env = new com.epl.geometry.Envelope3D();
-			env.xmin = _xmin;
-			env.ymin = _ymin;
-			env.zmin = _zmin;
-			env.xmax = _xmax;
-			env.ymax = _ymax;
-			env.zmax = _zmax;
+			com.epl.geometry.Envelope3D env = new com.epl.geometry.Envelope3D(_xmin, _ymin, _zmin, _xmax, _ymax, _zmax);
 			return env;
+		}
+
+		public Envelope3D(double _xmin, double _ymin, double _zmin, double _xmax, double _ymax, double _zmax)
+		{
+			SetCoords(_xmin, _ymin, _zmin, _xmax, _ymax, _zmax);
 		}
 
 		public Envelope3D()
 		{
+		}
+
+		public Envelope3D(com.epl.geometry.Envelope3D other)
+		{
+			SetCoords(other);
 		}
 
 		public void SetInfinite()
@@ -68,7 +72,11 @@ namespace com.epl.geometry
 		public void SetEmpty()
 		{
 			xmin = com.epl.geometry.NumberUtils.NaN();
+			ymin = com.epl.geometry.NumberUtils.NaN();
 			zmin = com.epl.geometry.NumberUtils.NaN();
+			xmax = 0;
+			ymax = 0;
+			zmax = 0;
 		}
 
 		public bool IsEmpty()
@@ -99,6 +107,7 @@ namespace com.epl.geometry
 			xmax = _xmax;
 			ymax = _ymax;
 			zmax = _zmax;
+			Normalize();
 		}
 
 		public void SetCoords(double _x, double _y, double _z)
@@ -119,6 +128,27 @@ namespace com.epl.geometry
 			ymax = ymin + height;
 			zmin = center.z - depth * 0.5;
 			zmax = zmin + depth;
+			Normalize();
+		}
+
+		public void SetCoords(com.epl.geometry.Envelope3D envSrc)
+		{
+			SetCoords(envSrc.xmin, envSrc.ymin, envSrc.zmin, envSrc.xmax, envSrc.ymax, envSrc.zmax);
+		}
+
+		public double GetWidth()
+		{
+			return xmax - xmin;
+		}
+
+		public double GetHeight()
+		{
+			return ymax - ymin;
+		}
+
+		public double GetDepth()
+		{
+			return zmax - zmin;
 		}
 
 		public void Move(com.epl.geometry.Point3D vector)
@@ -129,6 +159,26 @@ namespace com.epl.geometry
 			xmax += vector.x;
 			ymax += vector.y;
 			zmax += vector.z;
+		}
+
+		public void Normalize()
+		{
+			if (IsEmpty())
+			{
+				return;
+			}
+			double min = System.Math.Min(xmin, xmax);
+			double max = System.Math.Max(xmin, xmax);
+			xmin = min;
+			xmax = max;
+			min = System.Math.Min(ymin, ymax);
+			max = System.Math.Max(ymin, ymax);
+			ymin = min;
+			ymax = max;
+			min = System.Math.Min(zmin, zmax);
+			max = System.Math.Max(zmin, zmax);
+			zmin = min;
+			zmax = max;
 		}
 
 		public void CopyTo(com.epl.geometry.Envelope2D env)
@@ -220,6 +270,112 @@ namespace com.epl.geometry
 		{
 			Merge(x1, y1, z1);
 			Merge(x2, y2, z2);
+		}
+
+		public void Inflate(double dx, double dy, double dz)
+		{
+			if (IsEmpty())
+			{
+				return;
+			}
+			xmin -= dx;
+			xmax += dx;
+			ymin -= dy;
+			ymax += dy;
+			zmin -= dz;
+			zmax += dz;
+			if (xmin > xmax || ymin > ymax || zmin > zmax)
+			{
+				SetEmpty();
+			}
+		}
+
+		/// <summary>Checks if this envelope intersects the other.</summary>
+		/// <returns>True if this envelope intersects the other.</returns>
+		public bool IsIntersecting(com.epl.geometry.Envelope3D other)
+		{
+			return !IsEmpty() && !other.IsEmpty() && ((xmin <= other.xmin) ? xmax >= other.xmin : other.xmax >= xmin) && ((ymin <= other.ymin) ? ymax >= other.ymin : other.ymax >= ymin) && ((zmin <= other.zmin) ? zmax >= other.zmin : other.zmax >= zmin);
+		}
+
+		// check that x projections overlap
+		// check that y projections overlap
+		// check that z projections overlap
+		/// <summary>
+		/// Intersects this envelope with the other and stores result in this
+		/// envelope.
+		/// </summary>
+		/// <returns>
+		/// True if this envelope intersects the other, otherwise sets this
+		/// envelope to empty state and returns False.
+		/// </returns>
+		public bool Intersect(com.epl.geometry.Envelope3D other)
+		{
+			if (IsEmpty() || other.IsEmpty())
+			{
+				return false;
+			}
+			if (other.xmin > xmin)
+			{
+				xmin = other.xmin;
+			}
+			if (other.xmax < xmax)
+			{
+				xmax = other.xmax;
+			}
+			if (other.ymin > ymin)
+			{
+				ymin = other.ymin;
+			}
+			if (other.ymax < ymax)
+			{
+				ymax = other.ymax;
+			}
+			if (other.zmin > zmin)
+			{
+				zmin = other.zmin;
+			}
+			if (other.zmax < zmax)
+			{
+				zmax = other.zmax;
+			}
+			bool bIntersecting = xmin <= xmax && ymin <= ymax && zmin <= zmax;
+			if (!bIntersecting)
+			{
+				SetEmpty();
+			}
+			return bIntersecting;
+		}
+
+		/// <summary>
+		/// Returns True if the envelope contains the other envelope (boundary
+		/// inclusive).
+		/// </summary>
+		public bool Contains(com.epl.geometry.Envelope3D other)
+		{
+			// Note: Will return False, if either envelope is empty.
+			return other.xmin >= xmin && other.xmax <= xmax && other.ymin >= ymin && other.ymax <= ymax && other.zmin >= zmin && other.zmax <= zmax;
+		}
+
+		public override bool Equals(object _other)
+		{
+			if (_other == this)
+			{
+				return true;
+			}
+			if (!(_other is com.epl.geometry.Envelope3D))
+			{
+				return false;
+			}
+			com.epl.geometry.Envelope3D other = (com.epl.geometry.Envelope3D)_other;
+			if (IsEmpty() && other.IsEmpty())
+			{
+				return true;
+			}
+			if (xmin != other.xmin || ymin != other.ymin || zmin != other.zmin || xmax != other.xmax || ymax != other.ymax || zmax != other.zmax)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		public void Construct(com.epl.geometry.Envelope1D xinterval, com.epl.geometry.Envelope1D yinterval, com.epl.geometry.Envelope1D zinterval)

@@ -25,11 +25,6 @@ namespace com.epl.geometry
 	[System.Serializable]
 	public sealed class Line : com.epl.geometry.Segment
 	{
-		private const long serialVersionUID = 2L;
-
-		// TODO:remove as we use
-		// writeReplace and
-		// GeometrySerializer
 		public override com.epl.geometry.Geometry.Type GetType()
 		{
 			return com.epl.geometry.Geometry.Type.Line;
@@ -80,7 +75,7 @@ namespace com.epl.geometry
 			m_description = vd;
 		}
 
-		internal Line(double x1, double y1, double x2, double y2)
+		public Line(double x1, double y1, double x2, double y2)
 		{
 			m_description = com.epl.geometry.VertexDescriptionDesignerImpl.GetDefaultDescriptor2D();
 			SetStartXY(x1, y1);
@@ -188,7 +183,7 @@ namespace com.epl.geometry
 			return com.epl.geometry.MathUtils.Lerp(m_yStart, m_yEnd, t);
 		}
 
-		internal override void GetCoord2D(double t, com.epl.geometry.Point2D pt)
+		public override void GetCoord2D(double t, com.epl.geometry.Point2D pt)
 		{
 			// We want:
 			// 1. When t == 0, get exactly Start
@@ -198,7 +193,7 @@ namespace com.epl.geometry
 			com.epl.geometry.MathUtils.Lerp(m_xStart, m_yStart, m_xEnd, m_yEnd, t, pt);
 		}
 
-		internal override com.epl.geometry.Segment Cut(double t1, double t2)
+		public override com.epl.geometry.Segment Cut(double t1, double t2)
 		{
 			com.epl.geometry.SegmentBuffer segmentBuffer = new com.epl.geometry.SegmentBuffer();
 			Cut(t1, t2, segmentBuffer);
@@ -271,7 +266,7 @@ namespace com.epl.geometry
 			throw com.epl.geometry.GeometryException.GeometryInternalError();
 		}
 
-		internal override double GetClosestCoordinate(com.epl.geometry.Point2D inputPt, bool bExtrapolate)
+		public override double GetClosestCoordinate(com.epl.geometry.Point2D inputPt, bool bExtrapolate)
 		{
 			double vx = m_xEnd - m_xStart;
 			double vy = m_yEnd - m_yStart;
@@ -403,7 +398,7 @@ namespace com.epl.geometry
 		/// Returns True if point and the segment intersect (not disjoint) for the
 		/// given tolerance.
 		/// </summary>
-		internal override bool IsIntersecting(com.epl.geometry.Point2D pt, double tolerance)
+		public override bool IsIntersecting(com.epl.geometry.Point2D pt, double tolerance)
 		{
 			return _isIntersectingPoint(pt, tolerance, false);
 		}

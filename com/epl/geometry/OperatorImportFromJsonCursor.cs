@@ -23,13 +23,13 @@ namespace com.epl.geometry
 {
 	internal class OperatorImportFromJsonCursor : com.epl.geometry.MapGeometryCursor
 	{
-		internal com.epl.geometry.JsonParserCursor m_inputJsonParsers;
+		internal com.epl.geometry.JsonReaderCursor m_inputJsonParsers;
 
 		internal int m_type;
 
 		internal int m_index;
 
-		public OperatorImportFromJsonCursor(int type, com.epl.geometry.JsonParserCursor jsonParsers)
+		public OperatorImportFromJsonCursor(int type, com.epl.geometry.JsonReaderCursor jsonParsers)
 		{
 			m_index = -1;
 			if (jsonParsers == null)
@@ -47,11 +47,11 @@ namespace com.epl.geometry
 
 		public override com.epl.geometry.MapGeometry Next()
 		{
-			org.codehaus.jackson.JsonParser jsonParser;
+			com.epl.geometry.JsonReader jsonParser;
 			if ((jsonParser = m_inputJsonParsers.Next()) != null)
 			{
 				m_index = m_inputJsonParsers.GetID();
-				return ImportFromJsonParser(m_type, new com.epl.geometry.JsonParserReader(jsonParser));
+				return ImportFromJsonParser(m_type, jsonParser);
 			}
 			return null;
 		}
@@ -101,20 +101,20 @@ namespace com.epl.geometry
 				com.epl.geometry.AttributeStreamOfDbl bs = (com.epl.geometry.AttributeStreamOfDbl)com.epl.geometry.AttributeStreamBase.CreateDoubleStream(0);
 				com.epl.geometry.Geometry geometry = null;
 				com.epl.geometry.SpatialReference spatial_reference = null;
-				while (parser.NextToken() != org.codehaus.jackson.JsonToken.END_OBJECT)
+				while (parser.NextToken() != com.epl.geometry.JsonReader.Token.END_OBJECT)
 				{
 					string name = parser.CurrentString();
 					parser.NextToken();
 					if (!bFoundSpatial_reference && name.Equals("spatialReference"))
 					{
 						bFoundSpatial_reference = true;
-						if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.START_OBJECT)
+						if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.START_OBJECT)
 						{
 							spatial_reference = com.epl.geometry.SpatialReference.FromJson(parser);
 						}
 						else
 						{
-							if (parser.CurrentToken() != org.codehaus.jackson.JsonToken.VALUE_NULL)
+							if (parser.CurrentToken() != com.epl.geometry.JsonReader.Token.VALUE_NULL)
 							{
 								throw new com.epl.geometry.GeometryException("failed to parse spatial reference: object or null is expected");
 							}
@@ -125,14 +125,14 @@ namespace com.epl.geometry
 						if (!bFoundHasZ && name.Equals("hasZ"))
 						{
 							bFoundHasZ = true;
-							bHasZ = (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_TRUE);
+							bHasZ = (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_TRUE);
 						}
 						else
 						{
 							if (!bFoundHasM && name.Equals("hasM"))
 							{
 								bFoundHasM = true;
-								bHasM = (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_TRUE);
+								bHasM = (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_TRUE);
 							}
 							else
 							{
@@ -329,9 +329,8 @@ namespace com.epl.geometry
 				}
 				mp = new com.epl.geometry.MapGeometry(geometry, spatial_reference);
 			}
-			catch (System.Exception e)
+			catch (System.Exception)
 			{
-				e.PrintStackTrace();
 				return null;
 			}
 			return mp;
@@ -373,18 +372,14 @@ namespace com.epl.geometry
 			return ImportFromJsonParser(com.epl.geometry.Geometry.GeometryType.MultiPoint, parser);
 		}
 
-		/// <exception cref="System.Exception"/>
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
 		private static void Windup(com.epl.geometry.JsonReader parser)
 		{
 			parser.SkipChildren();
 		}
 
-		/// <exception cref="System.Exception"/>
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
 		private static double ReadDouble(com.epl.geometry.JsonReader parser)
 		{
-			if (parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_NULL || parser.CurrentToken() == org.codehaus.jackson.JsonToken.VALUE_STRING && parser.CurrentString().Equals("NaN"))
+			if (parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_NULL || parser.CurrentToken() == com.epl.geometry.JsonReader.Token.VALUE_STRING && parser.CurrentString().Equals("NaN"))
 			{
 				return com.epl.geometry.NumberUtils.NaN();
 			}
@@ -397,7 +392,7 @@ namespace com.epl.geometry
 		/// <exception cref="System.Exception"/>
 		private static com.epl.geometry.Geometry ImportFromJsonMultiPoint(com.epl.geometry.JsonReader parser, com.epl.geometry.AttributeStreamOfDbl @as, com.epl.geometry.AttributeStreamOfDbl bs)
 		{
-			if (parser.CurrentToken() != org.codehaus.jackson.JsonToken.START_ARRAY)
+			if (parser.CurrentToken() != com.epl.geometry.JsonReader.Token.START_ARRAY)
 			{
 				throw new com.epl.geometry.GeometryException("failed to parse multipoint: array of vertices is expected");
 			}
@@ -408,14 +403,14 @@ namespace com.epl.geometry
 			// At start of rings
 			int sz;
 			double[] buf = new double[4];
-			while (parser.NextToken() != org.codehaus.jackson.JsonToken.END_ARRAY)
+			while (parser.NextToken() != com.epl.geometry.JsonReader.Token.END_ARRAY)
 			{
-				if (parser.CurrentToken() != org.codehaus.jackson.JsonToken.START_ARRAY)
+				if (parser.CurrentToken() != com.epl.geometry.JsonReader.Token.START_ARRAY)
 				{
 					throw new com.epl.geometry.GeometryException("failed to parse multipoint: array is expected, multipoint vertices consist of arrays of cooridinates");
 				}
 				sz = 0;
-				while (parser.NextToken() != org.codehaus.jackson.JsonToken.END_ARRAY)
+				while (parser.NextToken() != com.epl.geometry.JsonReader.Token.END_ARRAY)
 				{
 					buf[sz++] = ReadDouble(parser);
 				}
@@ -497,7 +492,7 @@ namespace com.epl.geometry
 		/// <exception cref="System.Exception"/>
 		private static com.epl.geometry.Geometry ImportFromJsonMultiPath(bool b_polygon, com.epl.geometry.JsonReader parser, com.epl.geometry.AttributeStreamOfDbl @as, com.epl.geometry.AttributeStreamOfDbl bs)
 		{
-			if (parser.CurrentToken() != org.codehaus.jackson.JsonToken.START_ARRAY)
+			if (parser.CurrentToken() != com.epl.geometry.JsonReader.Token.START_ARRAY)
 			{
 				throw new com.epl.geometry.GeometryException("failed to parse multipath: array of array of vertices is expected");
 			}
@@ -521,9 +516,9 @@ namespace com.epl.geometry
 			byte pathFlag = b_polygon ? unchecked((byte)com.epl.geometry.PathFlags.enumClosed) : 0;
 			int requiredSize = b_polygon ? 3 : 2;
 			// At start of rings
-			while (parser.NextToken() != org.codehaus.jackson.JsonToken.END_ARRAY)
+			while (parser.NextToken() != com.epl.geometry.JsonReader.Token.END_ARRAY)
 			{
-				if (parser.CurrentToken() != org.codehaus.jackson.JsonToken.START_ARRAY)
+				if (parser.CurrentToken() != com.epl.geometry.JsonReader.Token.START_ARRAY)
 				{
 					throw new com.epl.geometry.GeometryException("failed to parse multipath: ring/path array is expected");
 				}
@@ -532,14 +527,14 @@ namespace com.epl.geometry
 				int sz = 0;
 				int szstart = 0;
 				parser.NextToken();
-				while (parser.CurrentToken() != org.codehaus.jackson.JsonToken.END_ARRAY)
+				while (parser.CurrentToken() != com.epl.geometry.JsonReader.Token.END_ARRAY)
 				{
-					if (parser.CurrentToken() != org.codehaus.jackson.JsonToken.START_ARRAY)
+					if (parser.CurrentToken() != com.epl.geometry.JsonReader.Token.START_ARRAY)
 					{
 						throw new com.epl.geometry.GeometryException("failed to parse multipath: array is expected, rings/paths vertices consist of arrays of cooridinates");
 					}
 					sz = 0;
-					while (parser.NextToken() != org.codehaus.jackson.JsonToken.END_ARRAY)
+					while (parser.NextToken() != com.epl.geometry.JsonReader.Token.END_ARRAY)
 					{
 						buf[sz++] = ReadDouble(parser);
 					}
@@ -638,7 +633,7 @@ namespace com.epl.geometry
 						point_count++;
 						pathPointCount++;
 					}
-					while (pathPointCount < requiredSize && parser.CurrentToken() == org.codehaus.jackson.JsonToken.END_ARRAY);
+					while (pathPointCount < requiredSize && parser.CurrentToken() == com.epl.geometry.JsonReader.Token.END_ARRAY);
 				}
 				if (b_polygon && pathPointCount > requiredSize && sz == szstart && start[0] == buf[0] && start[1] == buf[1] && start[2] == buf[2] && start[3] == buf[3])
 				{

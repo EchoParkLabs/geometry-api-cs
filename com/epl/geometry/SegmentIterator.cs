@@ -21,7 +21,19 @@ email: info@echoparklabs.io
 
 namespace com.epl.geometry
 {
-	/// <summary>This class provides functionality to iterate over multipath segments.</summary>
+	/// <summary>This class provides functionality to iterate over MultiPath segments.</summary>
+	/// <remarks>
+	/// This class provides functionality to iterate over MultiPath segments.
+	/// Example:
+	/// <pre><code>
+	/// SegmentIterator iterator = polygon.querySegmentIterator();
+	/// while (iterator.nextPath()) {
+	/// while (iterator.hasNextSegment()) {
+	/// Segment segment = iterator.nextSegment();
+	/// }
+	/// }
+	/// </code></pre>
+	/// </remarks>
 	public class SegmentIterator
 	{
 		private com.epl.geometry.SegmentIteratorImpl m_impl;

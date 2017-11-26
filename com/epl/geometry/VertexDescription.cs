@@ -36,68 +36,55 @@ namespace com.epl.geometry
 	/// table. You may look the vertices of a Geometry as if they are stored in a
 	/// database table, and the VertexDescription defines the fields of the table.
 	/// </remarks>
-	public class VertexDescription
+	public sealed class VertexDescription
 	{
-		private double[] m_defaultPointAttributes;
-
-		private int[] m_pointAttributeOffsets;
-
-		internal int m_attributeCount;
-
-		internal int m_total_component_count;
-
-		internal int[] m_semantics;
-
-		internal int[] m_semanticsToIndexMap;
-
-		internal int m_hash;
-
-		internal static double[] _defaultValues = new double[] { 0, 0, com.epl.geometry.NumberUtils.NaN(), 0, 0, 0, 0, 0, 0 };
-
-		internal static int[] _interpolation = new int[] { com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.NONE, 
-			com.epl.geometry.VertexDescription.Interpolation.ANGULAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation
-			.NONE };
-
-		internal static int[] _persistence = new int[] { com.epl.geometry.VertexDescription.Persistence.enumDouble, com.epl.geometry.VertexDescription.Persistence.enumDouble, com.epl.geometry.VertexDescription.Persistence.enumDouble, com.epl.geometry.VertexDescription.Persistence.enumInt32
-			, com.epl.geometry.VertexDescription.Persistence.enumFloat, com.epl.geometry.VertexDescription.Persistence.enumFloat, com.epl.geometry.VertexDescription.Persistence.enumFloat, com.epl.geometry.VertexDescription.Persistence.enumFloat, com.epl.geometry.VertexDescription.Persistence
-			.enumInt32 };
-
-		internal static int[] _persistencesize = new int[] { 4, 8, 4, 8, 1, 2 };
-
-		internal static int[] _components = new int[] { 2, 1, 1, 1, 3, 1, 2, 3, 2 };
-
-		internal VertexDescription()
+		/// <summary>
+		/// Describes the attribute and, in case of predefined attributes, provides a
+		/// hint of the attribute use.
+		/// </summary>
+		public abstract class Semantics
 		{
-			m_attributeCount = 0;
-			m_total_component_count = 0;
+			public const int POSITION = 0;
+
+			public const int Z = 1;
+
+			public const int M = 2;
+
+			public const int ID = 3;
+
+			public const int NORMAL = 4;
+
+			public const int TEXTURE1D = 5;
+
+			public const int TEXTURE2D = 6;
+
+			public const int TEXTURE3D = 7;
+
+			public const int ID2 = 8;
+
+			public const int MAXSEMANTICS = 8;
+			// xy coordinates of a point (2D
+			// vector of double, linear
+			// interpolation)
+			// z coordinates of a point (double,
+			// linear interpolation)
+			// m attribute (double, linear
+			// interpolation)
+			// id (int, no interpolation)
+			// xyz coordinates of normal vector
+			// (float, angular interpolation)
+			// u coordinates of texture
+			// (float, linear interpolation)
+			// uv coordinates of texture
+			// (float, linear interpolation)
+			// uvw coordinates of texture
+			// (float, linear interpolation)
+			// two component ID
+			// the max semantics value
 		}
 
-		internal VertexDescription(int hashValue, com.epl.geometry.VertexDescription other)
+		public static class SemanticsConstants
 		{
-			m_attributeCount = other.m_attributeCount;
-			m_total_component_count = other.m_total_component_count;
-			m_semantics = (int [])other.m_semantics.Clone();
-			m_semanticsToIndexMap = (int [])other.m_semanticsToIndexMap.Clone();
-			m_hash = other.m_hash;
-			// Prepare default values for the Point geometry.
-			m_pointAttributeOffsets = new int[GetAttributeCount()];
-			int offset = 0;
-			for (int i = 0; i < GetAttributeCount(); i++)
-			{
-				m_pointAttributeOffsets[i] = offset;
-				offset += GetComponentCount(m_semantics[i]);
-			}
-			m_total_component_count = offset;
-			m_defaultPointAttributes = new double[offset];
-			for (int i_1 = 0; i_1 < GetAttributeCount(); i_1++)
-			{
-				int components = GetComponentCount(GetSemantics(i_1));
-				double dv = GetDefaultValue(GetSemantics(i_1));
-				for (int icomp = 0; icomp < components; icomp++)
-				{
-					m_defaultPointAttributes[m_pointAttributeOffsets[i_1] + icomp] = dv;
-				}
-			}
 		}
 
 		/// <summary>Specifies how the attribute is interpolated along the segments.</summary>
@@ -141,55 +128,6 @@ namespace com.epl.geometry
 		{
 		}
 
-		/// <summary>
-		/// Describes the attribute and, in case of predefined attributes, provides a
-		/// hint of the attribute use.
-		/// </summary>
-		public abstract class Semantics
-		{
-			public const int POSITION = 0;
-
-			public const int Z = 1;
-
-			public const int M = 2;
-
-			public const int ID = 3;
-
-			public const int NORMAL = 4;
-
-			public const int TEXTURE1D = 5;
-
-			public const int TEXTURE2D = 6;
-
-			public const int TEXTURE3D = 7;
-
-			public const int ID2 = 8;
-
-			public const int MAXSEMANTICS = 10;
-			// xy coordinates of a point (2D
-			// vector of double, linear
-			// interpolation)
-			// z coordinates of a point (double,
-			// linear interpolation)
-			// m attribute (double, linear
-			// interpolation)
-			// id (int, no interpolation)
-			// xyz coordinates of normal vector
-			// (float, angular interpolation)
-			// u coordinates of texture
-			// (float, linear interpolation)
-			// uv coordinates of texture
-			// (float, linear interpolation)
-			// uvw coordinates of texture
-			// (float, linear interpolation)
-			// two component ID
-			// the max semantics value
-		}
-
-		public static class SemanticsConstants
-		{
-		}
-
 		/// <summary>Returns the attribute count of this description.</summary>
 		/// <remarks>
 		/// Returns the attribute count of this description. The value is always
@@ -203,15 +141,11 @@ namespace com.epl.geometry
 		/// <summary>Returns the semantics of the given attribute.</summary>
 		/// <param name="attributeIndex">
 		/// The index of the attribute in the description. Max value is
-		/// GetAttributeCount() - 1.
+		/// getAttributeCount() - 1.
 		/// </param>
 		public int GetSemantics(int attributeIndex)
 		{
-			if (attributeIndex < 0 || attributeIndex > m_attributeCount)
-			{
-				throw new System.ArgumentException();
-			}
-			return m_semantics[attributeIndex];
+			return m_indexToSemantics[attributeIndex];
 		}
 
 		/// <summary>Returns the index the given attribute in the vertex description.</summary>
@@ -260,39 +194,41 @@ namespace com.epl.geometry
 			return _components[semantics];
 		}
 
-		/// <summary>Returns True for integer persistence type.</summary>
-		internal static bool IsIntegerPersistence(int persistence)
-		{
-			return persistence < com.epl.geometry.VertexDescription.Persistence.enumInt32;
-		}
-
-		/// <summary>Returns True for integer semantics type.</summary>
-		internal static bool IsIntegerSemantics(int semantics)
-		{
-			return IsIntegerPersistence(GetPersistence(semantics));
-		}
-
 		/// <summary>Returns True if the attribute with the given name and given set exists.</summary>
 		/// <param name="semantics">The semantics of the attribute.</param>
-		public virtual bool HasAttribute(int semantics)
+		public bool HasAttribute(int semantics)
 		{
-			return m_semanticsToIndexMap[semantics] >= 0;
+			return (m_semanticsBitArray & (1 << semantics)) != 0;
+		}
+
+		/// <summary>
+		/// Returns True if this vertex description includes all attributes from the
+		/// src.
+		/// </summary>
+		/// <param name="src">The Vertex_description to compare with.</param>
+		/// <returns>
+		/// The function returns false, only when this description does not
+		/// have some of the attribute that src has.
+		/// </returns>
+		public bool HasAttributesFrom(com.epl.geometry.VertexDescription src)
+		{
+			return (m_semanticsBitArray & src.m_semanticsBitArray) == src.m_semanticsBitArray;
 		}
 
 		/// <summary>Returns True, if the vertex has Z attribute.</summary>
-		public virtual bool HasZ()
+		public bool HasZ()
 		{
 			return HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z);
 		}
 
 		/// <summary>Returns True, if the vertex has M attribute.</summary>
-		public virtual bool HasM()
+		public bool HasM()
 		{
 			return HasAttribute(com.epl.geometry.VertexDescription.Semantics.M);
 		}
 
 		/// <summary>Returns True, if the vertex has ID attribute.</summary>
-		public virtual bool HasID()
+		public bool HasID()
 		{
 			return HasAttribute(com.epl.geometry.VertexDescription.Semantics.ID);
 		}
@@ -306,15 +242,15 @@ namespace com.epl.geometry
 			return _defaultValues[semantics];
 		}
 
-		internal virtual int GetPointAttributeOffset_(int attribute_index)
+		internal int GetPointAttributeOffset_(int attributeIndex)
 		{
-			return m_pointAttributeOffsets[attribute_index];
+			return m_pointAttributeOffsets[attributeIndex];
 		}
 
 		/// <summary>Returns the total component count.</summary>
-		public virtual int GetTotalComponentCount()
+		public int GetTotalComponentCount()
 		{
-			return m_total_component_count;
+			return m_totalComponentCount;
 		}
 
 		/// <summary>Checks if the given value is the default one.</summary>
@@ -328,23 +264,14 @@ namespace com.epl.geometry
 			return com.epl.geometry.NumberUtils.DoubleToInt64Bits(_defaultValues[semantics]) == com.epl.geometry.NumberUtils.DoubleToInt64Bits(v);
 		}
 
-		internal static int GetPersistenceFromInt(int size)
+		internal static bool IsIntegerPersistence(int persistence)
 		{
-			if (size == 4)
-			{
-				return com.epl.geometry.VertexDescription.Persistence.enumInt32;
-			}
-			else
-			{
-				if (size == 8)
-				{
-					return com.epl.geometry.VertexDescription.Persistence.enumInt64;
-				}
-				else
-				{
-					throw new System.ArgumentException();
-				}
-			}
+			return persistence >= com.epl.geometry.VertexDescription.Persistence.enumInt32;
+		}
+
+		internal static bool IsIntegerSemantics(int semantics)
+		{
+			return IsIntegerPersistence(GetPersistence(semantics));
 		}
 
 		public override bool Equals(object _other)
@@ -352,27 +279,16 @@ namespace com.epl.geometry
 			return (object)this == _other;
 		}
 
-		internal virtual int CalculateHashImpl()
-		{
-			int v = com.epl.geometry.NumberUtils.Hash(m_semantics[0]);
-			for (int i = 1; i < m_attributeCount; i++)
-			{
-				v = com.epl.geometry.NumberUtils.Hash(v, m_semantics[i]);
-			}
-			return v;
-		}
-
-		// if attribute size is 1, it returns 0
 		/// <summary>
 		/// Returns a packed array of double representation of all ordinates of
 		/// attributes of a point, i.e.: X, Y, Z, ID, TEXTURE2D.u, TEXTURE2D.v
 		/// </summary>
-		internal virtual double[] _getDefaultPointAttributes()
+		internal double[] _getDefaultPointAttributes()
 		{
 			return m_defaultPointAttributes;
 		}
 
-		internal virtual double _getDefaultPointAttributeValue(int attributeIndex, int ordinate)
+		internal double _getDefaultPointAttributeValue(int attributeIndex, int ordinate)
 		{
 			return m_defaultPointAttributes[_getPointAttributeOffset(attributeIndex) + ordinate];
 		}
@@ -383,19 +299,14 @@ namespace com.epl.geometry
 		/// method is used for the cases when one wants to have a packed array of
 		/// ordinates of all attributes, i.e.: X, Y, Z, ID, TEXTURE2D.u, TEXTURE2D.v
 		/// </remarks>
-		internal virtual int _getPointAttributeOffset(int attributeIndex)
+		internal int _getPointAttributeOffset(int attributeIndex)
 		{
 			return m_pointAttributeOffsets[attributeIndex];
 		}
 
-		internal virtual int _getPointAttributeOffsetFromSemantics(int semantics)
+		internal int _getPointAttributeOffsetFromSemantics(int semantics)
 		{
 			return m_pointAttributeOffsets[GetAttributeIndex(semantics)];
-		}
-
-		internal virtual int _getTotalComponents()
-		{
-			return m_defaultPointAttributes.Length;
 		}
 
 		public override int GetHashCode()
@@ -403,10 +314,85 @@ namespace com.epl.geometry
 			return m_hash;
 		}
 
-		internal virtual int _getSemanticsImpl(int attributeIndex)
+		internal int _getSemanticsImpl(int attributeIndex)
 		{
-			return m_semantics[attributeIndex];
+			return m_indexToSemantics[attributeIndex];
 		}
-		// TODO: clone, equald, hashcode - whats really needed?
+
+		internal VertexDescription(int bitMask)
+		{
+			m_semanticsBitArray = bitMask;
+			m_attributeCount = 0;
+			m_totalComponentCount = 0;
+			m_semanticsToIndexMap = new int[com.epl.geometry.VertexDescription.Semantics.MAXSEMANTICS + 1];
+			java.util.Arrays.Fill(m_semanticsToIndexMap, -1);
+			for (int i = 0, flag = 1, n = com.epl.geometry.VertexDescription.Semantics.MAXSEMANTICS + 1; i < n; i++)
+			{
+				if ((bitMask & flag) != 0)
+				{
+					m_semanticsToIndexMap[i] = m_attributeCount;
+					m_attributeCount++;
+					int comps = GetComponentCount(i);
+					m_totalComponentCount += comps;
+				}
+				flag <<= 1;
+			}
+			m_indexToSemantics = new int[m_attributeCount];
+			for (int i_1 = 0, n = com.epl.geometry.VertexDescription.Semantics.MAXSEMANTICS + 1; i_1 < n; i_1++)
+			{
+				int attrib = m_semanticsToIndexMap[i_1];
+				if (attrib >= 0)
+				{
+					m_indexToSemantics[attrib] = i_1;
+				}
+			}
+			m_defaultPointAttributes = new double[m_totalComponentCount];
+			m_pointAttributeOffsets = new int[m_attributeCount];
+			int offset = 0;
+			for (int i_2 = 0, n = m_attributeCount; i_2 < n; i_2++)
+			{
+				int semantics = GetSemantics(i_2);
+				int comps = GetComponentCount(semantics);
+				double v = GetDefaultValue(semantics);
+				m_pointAttributeOffsets[i_2] = offset;
+				for (int icomp = 0; icomp < comps; icomp++)
+				{
+					m_defaultPointAttributes[offset] = v;
+					offset++;
+				}
+			}
+			m_hash = com.epl.geometry.NumberUtils.Hash(m_semanticsBitArray);
+		}
+
+		private int m_attributeCount;
+
+		internal int m_semanticsBitArray;
+
+		private int m_totalComponentCount;
+
+		private int m_hash;
+
+		private int[] m_semanticsToIndexMap;
+
+		private int[] m_indexToSemantics;
+
+		private int[] m_pointAttributeOffsets;
+
+		private double[] m_defaultPointAttributes;
+
+		internal static readonly double[] _defaultValues = new double[] { 0, 0, com.epl.geometry.NumberUtils.NaN(), 0, 0, 0, 0, 0, 0 };
+
+		internal static readonly int[] _interpolation = new int[] { com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation
+			.NONE, com.epl.geometry.VertexDescription.Interpolation.ANGULAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation.LINEAR, com.epl.geometry.VertexDescription.Interpolation
+			.NONE };
+
+		internal static readonly int[] _persistence = new int[] { com.epl.geometry.VertexDescription.Persistence.enumDouble, com.epl.geometry.VertexDescription.Persistence.enumDouble, com.epl.geometry.VertexDescription.Persistence.enumDouble, com.epl.geometry.VertexDescription.Persistence
+			.enumInt32, com.epl.geometry.VertexDescription.Persistence.enumFloat, com.epl.geometry.VertexDescription.Persistence.enumFloat, com.epl.geometry.VertexDescription.Persistence.enumFloat, com.epl.geometry.VertexDescription.Persistence.enumFloat, com.epl.geometry.VertexDescription.Persistence
+			.enumInt32 };
+
+		internal static readonly int[] _persistencesize = new int[] { 4, 8, 4, 8, 1, 2 };
+
+		internal static readonly int[] _components = new int[] { 2, 1, 1, 1, 3, 1, 2, 3, 2 };
+		//the main component
 	}
 }

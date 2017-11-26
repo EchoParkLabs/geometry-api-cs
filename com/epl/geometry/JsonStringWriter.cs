@@ -31,14 +31,14 @@ namespace com.epl.geometry
 
 		internal override void StartObject()
 		{
-			Next_(com.epl.geometry.JsonWriter.Action.addContainer);
+			Next_(com.epl.geometry.JsonWriter.Action.addObject);
 			m_jsonString.Append('{');
 			m_functionStack.Add(com.epl.geometry.JsonWriter.State.objectStart);
 		}
 
 		internal override void StartArray()
 		{
-			Next_(com.epl.geometry.JsonWriter.Action.addContainer);
+			Next_(com.epl.geometry.JsonWriter.Action.addArray);
 			m_jsonString.Append('[');
 			m_functionStack.Add(com.epl.geometry.JsonWriter.State.arrayStart);
 		}
@@ -53,6 +53,12 @@ namespace com.epl.geometry
 		{
 			Next_(com.epl.geometry.JsonWriter.Action.popArray);
 			m_jsonString.Append(']');
+		}
+
+		internal override void AddFieldName(string fieldName)
+		{
+			Next_(com.epl.geometry.JsonWriter.Action.addKey);
+			AppendQuote_(fieldName);
 		}
 
 		internal override void AddPairObject(string fieldName)
@@ -87,12 +93,12 @@ namespace com.epl.geometry
 			AddValueDouble_(v);
 		}
 
-		internal override void AddPairDoubleF(string fieldName, double v, int decimals)
+		internal override void AddPairDouble(string fieldName, double v, int precision, bool bFixedPoint)
 		{
 			Next_(com.epl.geometry.JsonWriter.Action.addPair);
 			AppendQuote_(fieldName);
 			m_jsonString.Append(":");
-			AddValueDoubleF_(v, decimals);
+			AddValueDouble_(v, precision, bFixedPoint);
 		}
 
 		internal override void AddPairInt(string fieldName, int v)
@@ -121,13 +127,13 @@ namespace com.epl.geometry
 
 		internal override void AddValueObject()
 		{
-			Next_(com.epl.geometry.JsonWriter.Action.addContainer);
+			Next_(com.epl.geometry.JsonWriter.Action.addObject);
 			AddValueObject_();
 		}
 
 		internal override void AddValueArray()
 		{
-			Next_(com.epl.geometry.JsonWriter.Action.addContainer);
+			Next_(com.epl.geometry.JsonWriter.Action.addArray);
 			AddValueArray_();
 		}
 
@@ -143,10 +149,10 @@ namespace com.epl.geometry
 			AddValueDouble_(v);
 		}
 
-		internal override void AddValueDoubleF(double v, int decimals)
+		internal override void AddValueDouble(double v, int precision, bool bFixedPoint)
 		{
 			Next_(com.epl.geometry.JsonWriter.Action.addTerminal);
-			AddValueDoubleF_(v, decimals);
+			AddValueDouble_(v, precision, bFixedPoint);
 		}
 
 		internal override void AddValueInt(int v)
@@ -206,14 +212,21 @@ namespace com.epl.geometry
 			com.epl.geometry.StringUtils.AppendDouble(v, 17, m_jsonString);
 		}
 
-		private void AddValueDoubleF_(double v, int decimals)
+		private void AddValueDouble_(double v, int precision, bool bFixedPoint)
 		{
 			if (com.epl.geometry.NumberUtils.IsNaN(v))
 			{
 				AddValueNull_();
 				return;
 			}
-			com.epl.geometry.StringUtils.AppendDoubleF(v, decimals, m_jsonString);
+			if (bFixedPoint)
+			{
+				com.epl.geometry.StringUtils.AppendDoubleF(v, precision, m_jsonString);
+			}
+			else
+			{
+				com.epl.geometry.StringUtils.AppendDouble(v, precision, m_jsonString);
+			}
 		}
 
 		private void AddValueInt_(int v)
@@ -278,6 +291,12 @@ namespace com.epl.geometry
 					break;
 				}
 
+				case com.epl.geometry.JsonWriter.State.fieldNameEnd:
+				{
+					FieldNameEnd_(action);
+					break;
+				}
+
 				default:
 				{
 					throw new com.epl.geometry.GeometryException("internal error");
@@ -295,7 +314,7 @@ namespace com.epl.geometry
 
 		private void Start_(int action)
 		{
-			if (action == com.epl.geometry.JsonWriter.Action.addContainer)
+			if ((action & com.epl.geometry.JsonWriter.Action.addContainer) != 0)
 			{
 				m_functionStack.RemoveLast();
 			}
@@ -307,6 +326,10 @@ namespace com.epl.geometry
 
 		private void ObjectStart_(int action)
 		{
+			if (action != com.epl.geometry.JsonWriter.Action.popObject && action != com.epl.geometry.JsonWriter.Action.addPair && action != com.epl.geometry.JsonWriter.Action.addKey)
+			{
+				throw new com.epl.geometry.GeometryException("invalid call");
+			}
 			m_functionStack.RemoveLast();
 			if (action == com.epl.geometry.JsonWriter.Action.addPair)
 			{
@@ -314,9 +337,10 @@ namespace com.epl.geometry
 			}
 			else
 			{
-				if (action != com.epl.geometry.JsonWriter.Action.popObject)
+				if (action == com.epl.geometry.JsonWriter.Action.addKey)
 				{
-					throw new com.epl.geometry.GeometryException("invalid call");
+					m_functionStack.Add(com.epl.geometry.JsonWriter.State.pairEnd);
+					m_functionStack.Add(com.epl.geometry.JsonWriter.State.fieldNameEnd);
 				}
 			}
 		}
@@ -329,30 +353,35 @@ namespace com.epl.geometry
 			}
 			else
 			{
-				if (action == com.epl.geometry.JsonWriter.Action.popObject)
+				if (action == com.epl.geometry.JsonWriter.Action.addKey)
 				{
-					m_functionStack.RemoveLast();
+					m_jsonString.Append(',');
+					m_functionStack.Add(com.epl.geometry.JsonWriter.State.fieldNameEnd);
 				}
 				else
 				{
-					throw new com.epl.geometry.GeometryException("invalid call");
+					if (action == com.epl.geometry.JsonWriter.Action.popObject)
+					{
+						m_functionStack.RemoveLast();
+					}
+					else
+					{
+						throw new com.epl.geometry.GeometryException("invalid call");
+					}
 				}
 			}
 		}
 
 		private void ArrayStart_(int action)
 		{
+			if ((action & com.epl.geometry.JsonWriter.Action.addValue) == 0 && action != com.epl.geometry.JsonWriter.Action.popArray)
+			{
+				throw new com.epl.geometry.GeometryException("invalid call");
+			}
 			m_functionStack.RemoveLast();
 			if ((action & com.epl.geometry.JsonWriter.Action.addValue) != 0)
 			{
 				m_functionStack.Add(com.epl.geometry.JsonWriter.State.elementEnd);
-			}
-			else
-			{
-				if (action != com.epl.geometry.JsonWriter.Action.popArray)
-				{
-					throw new com.epl.geometry.GeometryException("invalid call");
-				}
 			}
 		}
 
@@ -373,6 +402,16 @@ namespace com.epl.geometry
 					throw new com.epl.geometry.GeometryException("invalid call");
 				}
 			}
+		}
+
+		private void FieldNameEnd_(int action)
+		{
+			if ((action & com.epl.geometry.JsonWriter.Action.addValue) == 0)
+			{
+				throw new com.epl.geometry.GeometryException("invalid call");
+			}
+			m_functionStack.RemoveLast();
+			m_jsonString.Append(':');
 		}
 
 		private void AppendQuote_(string @string)

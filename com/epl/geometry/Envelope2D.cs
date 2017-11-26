@@ -55,6 +55,13 @@ namespace com.epl.geometry
 			return env;
 		}
 
+		public static com.epl.geometry.Envelope2D Construct(com.epl.geometry.Envelope2D other)
+		{
+			com.epl.geometry.Envelope2D env = new com.epl.geometry.Envelope2D();
+			env.SetCoords(other);
+			return env;
+		}
+
 		public Envelope2D()
 		{
 			SetEmpty();
@@ -66,6 +73,11 @@ namespace com.epl.geometry
 			ymin = _ymin;
 			xmax = _xmax;
 			ymax = _ymax;
+		}
+
+		public Envelope2D(com.epl.geometry.Envelope2D other)
+		{
+			SetCoords(other);
 		}
 
 		public void SetCoords(double _x, double _y)
@@ -154,7 +166,7 @@ namespace com.epl.geometry
 
 		public bool IsEmpty()
 		{
-			return com.epl.geometry.NumberUtils.IsNaN(xmin);
+			return com.epl.geometry.NumberUtils.IsNaN(xmin) || com.epl.geometry.NumberUtils.IsNaN(ymin) || com.epl.geometry.NumberUtils.IsNaN(xmax) || com.epl.geometry.NumberUtils.IsNaN(ymax);
 		}
 
 		public void SetCoords(com.epl.geometry.Envelope1D xinterval, com.epl.geometry.Envelope1D yinterval)
@@ -304,7 +316,9 @@ namespace com.epl.geometry
 		/// <returns>True if this envelope intersects the other.</returns>
 		public bool IsIntersecting(com.epl.geometry.Envelope2D other)
 		{
-			return !IsEmpty() && !other.IsEmpty() && ((xmin <= other.xmin) ? xmax >= other.xmin : other.xmax >= xmin) && ((ymin <= other.ymin) ? ymax >= other.ymin : other.ymax >= ymin);
+			// No need to check if empty, this will work for empty envelopes too
+			// (IEEE math)
+			return ((xmin <= other.xmin) ? xmax >= other.xmin : other.xmax >= xmin) && ((ymin <= other.ymin) ? ymax >= other.ymin : other.ymax >= ymin);
 		}
 
 		// check that x projections overlap
@@ -326,6 +340,23 @@ namespace com.epl.geometry
 		// check that x projections overlap
 		// check
 		// that
+		// y
+		// projections
+		// overlap
+		/// <summary>Checks if this envelope intersects the other.</summary>
+		/// <returns>True if this envelope intersects the other.</returns>
+		public bool IsIntersecting(double xmin_, double ymin_, double xmax_, double ymax_)
+		{
+			// No need to check if empty, this will work for empty geoms too (IEEE
+			// math)
+			return ((xmin <= xmin_) ? xmax >= xmin_ : xmax_ >= xmin) && ((ymin <= ymin_) ? ymax >= ymin_ : ymax_ >= ymin);
+		}
+
+		// check
+		// that x
+		// projections
+		// overlap
+		// check that
 		// y
 		// projections
 		// overlap
@@ -370,10 +401,14 @@ namespace com.epl.geometry
 		/// <summary>Queries a corner of the envelope.</summary>
 		/// <param name="index">
 		/// Indicates a corner of the envelope.
-		/// <p> 0 =&gt; lower left or (xmin, ymin)
-		/// <p> 1 =&gt; upper left or (xmin, ymax)
-		/// <p> 2 =&gt; upper right or (xmax, ymax)
-		/// <p> 3 =&gt; lower right or (xmax, ymin)
+		/// <p>
+		/// 0 means lower left or (xmin, ymin)
+		/// <p>
+		/// 1 means upper left or (xmin, ymax)
+		/// <p>
+		/// 2 means upper right or (xmax, ymax)
+		/// <p>
+		/// 3 means lower right or (xmax, ymin)
 		/// </param>
 		/// <returns>Point at a corner of the envelope.</returns>
 		public com.epl.geometry.Point2D QueryCorner(int index)
@@ -1343,6 +1378,68 @@ namespace com.epl.geometry
 			return dx * dx + dy * dy;
 		}
 
+		/// <summary>Calculates minimum squared distance from this envelope to the other.</summary>
+		/// <remarks>
+		/// Calculates minimum squared distance from this envelope to the other.
+		/// Returns 0 for empty envelopes.
+		/// </remarks>
+		public double SqrDistance(double xmin_, double ymin_, double xmax_, double ymax_)
+		{
+			double dx = 0;
+			double dy = 0;
+			double nn;
+			nn = xmin - xmax_;
+			if (nn > dx)
+			{
+				dx = nn;
+			}
+			nn = ymin - ymax_;
+			if (nn > dy)
+			{
+				dy = nn;
+			}
+			nn = xmin_ - xmax;
+			if (nn > dx)
+			{
+				dx = nn;
+			}
+			nn = ymin_ - ymax;
+			if (nn > dy)
+			{
+				dy = nn;
+			}
+			return dx * dx + dy * dy;
+		}
+
+		/// <summary>Returns squared max distance between two bounding boxes.</summary>
+		/// <remarks>Returns squared max distance between two bounding boxes. This is furthest distance between points on the two envelopes.</remarks>
+		/// <param name="other">The bounding box to calculate the max distance two.</param>
+		/// <returns>Squared distance value.</returns>
+		public double SqrMaxDistance(com.epl.geometry.Envelope2D other)
+		{
+			if (IsEmpty() || other.IsEmpty())
+			{
+				return com.epl.geometry.NumberUtils.TheNaN;
+			}
+			double dist = 0;
+			com.epl.geometry.Point2D[] points = new com.epl.geometry.Point2D[4];
+			QueryCorners(points);
+			com.epl.geometry.Point2D[] points_o = new com.epl.geometry.Point2D[4];
+			other.QueryCorners(points_o);
+			for (int i = 0; i < 4; i++)
+			{
+				for (int j = 0; j < 4; j++)
+				{
+					double d = com.epl.geometry.Point2D.SqrDistance(points[i], points_o[j]);
+					if (d > dist)
+					{
+						dist = d;
+					}
+				}
+			}
+			return dist;
+		}
+
 		/// <summary>Calculates minimum squared distance from this envelope to the point.</summary>
 		/// <remarks>
 		/// Calculates minimum squared distance from this envelope to the point.
@@ -1400,7 +1497,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		/// <exception cref="System.IO.IOException"/>
+//		/// <exception cref="System.IO.IOException"/>
 //		private void WriteObject(java.io.ObjectOutputStream @out)
 //		{
 //			@out.DefaultWriteObject();

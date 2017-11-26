@@ -26,8 +26,6 @@ namespace com.epl.geometry
 	[System.Serializable]
 	public abstract class Segment : com.epl.geometry.Geometry
 	{
-		private const long serialVersionUID = 1L;
-
 		internal double m_xStart;
 
 		internal double m_yStart;
@@ -38,45 +36,44 @@ namespace com.epl.geometry
 
 		internal double[] m_attributes;
 
-		// UPDATED PORT TO MATCH NATIVE AS OF JAN 30 2011
 		// Header Definitions
 		/// <summary>Returns XY coordinates of the start point.</summary>
-		internal virtual com.epl.geometry.Point2D GetStartXY()
+		public virtual com.epl.geometry.Point2D GetStartXY()
 		{
 			return com.epl.geometry.Point2D.Construct(m_xStart, m_yStart);
 		}
 
-		internal virtual void GetStartXY(com.epl.geometry.Point2D pt)
+		public virtual void GetStartXY(com.epl.geometry.Point2D pt)
 		{
 			pt.x = m_xStart;
 			pt.y = m_yStart;
 		}
 
 		/// <summary>Sets the XY coordinates of the start point.</summary>
-		internal virtual void SetStartXY(com.epl.geometry.Point2D pt)
+		public virtual void SetStartXY(com.epl.geometry.Point2D pt)
 		{
 			_setXY(0, pt);
 		}
 
-		internal virtual void SetStartXY(double x, double y)
+		public virtual void SetStartXY(double x, double y)
 		{
 			_setXY(0, com.epl.geometry.Point2D.Construct(x, y));
 		}
 
 		/// <summary>Returns XYZ coordinates of the start point.</summary>
 		/// <remarks>Returns XYZ coordinates of the start point. Z if 0 if Z is missing.</remarks>
-		internal virtual com.epl.geometry.Point3D GetStartXYZ()
+		public virtual com.epl.geometry.Point3D GetStartXYZ()
 		{
 			return _getXYZ(0);
 		}
 
 		/// <summary>Sets the XYZ coordinates of the start point.</summary>
-		internal virtual void SetStartXYZ(com.epl.geometry.Point3D pt)
+		public virtual void SetStartXYZ(com.epl.geometry.Point3D pt)
 		{
 			_setXYZ(0, pt);
 		}
 
-		internal virtual void SetStartXYZ(double x, double y, double z)
+		public virtual void SetStartXYZ(double x, double y, double z)
 		{
 			_setXYZ(0, com.epl.geometry.Point3D.Construct(x, y, z));
 		}
@@ -173,12 +170,12 @@ namespace com.epl.geometry
 
 		/// <summary>Returns XY coordinates of the end point.</summary>
 		/// <returns>The XY coordinates of the end point.</returns>
-		internal virtual com.epl.geometry.Point2D GetEndXY()
+		public virtual com.epl.geometry.Point2D GetEndXY()
 		{
 			return com.epl.geometry.Point2D.Construct(m_xEnd, m_yEnd);
 		}
 
-		internal virtual void GetEndXY(com.epl.geometry.Point2D pt)
+		public virtual void GetEndXY(com.epl.geometry.Point2D pt)
 		{
 			pt.x = m_xEnd;
 			pt.y = m_yEnd;
@@ -186,12 +183,12 @@ namespace com.epl.geometry
 
 		/// <summary>Sets the XY coordinates of the end point.</summary>
 		/// <param name="pt">The end point of the segment.</param>
-		internal virtual void SetEndXY(com.epl.geometry.Point2D pt)
+		public virtual void SetEndXY(com.epl.geometry.Point2D pt)
 		{
 			_setXY(1, pt);
 		}
 
-		internal virtual void SetEndXY(double x, double y)
+		public virtual void SetEndXY(double x, double y)
 		{
 			_setXY(1, com.epl.geometry.Point2D.Construct(x, y));
 		}
@@ -199,18 +196,18 @@ namespace com.epl.geometry
 		/// <summary>Returns XYZ coordinates of the end point.</summary>
 		/// <remarks>Returns XYZ coordinates of the end point. Z if 0 if Z is missing.</remarks>
 		/// <returns>The XYZ coordinates of the end point.</returns>
-		internal virtual com.epl.geometry.Point3D GetEndXYZ()
+		public virtual com.epl.geometry.Point3D GetEndXYZ()
 		{
 			return _getXYZ(1);
 		}
 
 		/// <summary>Sets the XYZ coordinates of the end point.</summary>
-		internal virtual void SetEndXYZ(com.epl.geometry.Point3D pt)
+		public virtual void SetEndXYZ(com.epl.geometry.Point3D pt)
 		{
 			_setXYZ(1, pt);
 		}
 
-		internal virtual void SetEndXYZ(double x, double y, double z)
+		public virtual void SetEndXYZ(double x, double y, double z)
 		{
 			_setXYZ(1, com.epl.geometry.Point3D.Construct(x, y, z));
 		}
@@ -332,7 +329,7 @@ namespace com.epl.geometry
 		/// Returns TRUE if this segment intersects with the other segment with the
 		/// given tolerance.
 		/// </summary>
-		internal virtual bool IsIntersecting(com.epl.geometry.Segment other, double tolerance)
+		public virtual bool IsIntersecting(com.epl.geometry.Segment other, double tolerance)
 		{
 			return _isIntersecting(other, tolerance, false) != 0;
 		}
@@ -341,7 +338,7 @@ namespace com.epl.geometry
 		/// Returns TRUE if the point and segment intersect (not disjoint) for the
 		/// given tolerance.
 		/// </summary>
-		internal virtual bool IsIntersecting(com.epl.geometry.Point2D pt, double tolerance)
+		public virtual bool IsIntersecting(com.epl.geometry.Point2D pt, double tolerance)
 		{
 			return _isIntersectingPoint(pt, tolerance, false);
 		}
@@ -485,7 +482,7 @@ namespace com.epl.geometry
 				return;
 			}
 			int[] mapping = com.epl.geometry.VertexDescriptionDesignerImpl.MapAttributes(newDescription, m_description);
-			double[] newAttributes = new double[(newDescription._getTotalComponents() - 2) * 2];
+			double[] newAttributes = new double[(newDescription.GetTotalComponentCount() - 2) * 2];
 			int old_offset0 = _getEndPointOffset(m_description, 0);
 			int old_offset1 = _getEndPointOffset(m_description, 1);
 			int new_offset0 = _getEndPointOffset(newDescription, 0);
@@ -594,7 +591,7 @@ namespace com.epl.geometry
 			{
 				if (m_attributes != null)
 				{
-					_resizeAttributes(m_description._getTotalComponents() - 2);
+					_resizeAttributes(m_description.GetTotalComponentCount() - 2);
 				}
 				return m_attributes[_getEndPointOffset(m_description, endPoint) + m_description._getPointAttributeOffset(attributeIndex) - 2 + ordinate];
 			}
@@ -655,7 +652,7 @@ namespace com.epl.geometry
 			}
 			if (m_attributes == null)
 			{
-				_resizeAttributes(m_description._getTotalComponents() - 2);
+				_resizeAttributes(m_description.GetTotalComponentCount() - 2);
 			}
 			m_attributes[_getEndPointOffset(m_description, endPoint) + m_description._getPointAttributeOffset(attributeIndex) - 2 + ordinate] = value;
 		}
@@ -673,8 +670,8 @@ namespace com.epl.geometry
 			}
 			com.epl.geometry.Segment segDst = (com.epl.geometry.Segment)dst;
 			segDst.m_description = m_description;
-			segDst._resizeAttributes(m_description._getTotalComponents() - 2);
-			_attributeCopy(m_attributes, 0, segDst.m_attributes, 0, (m_description._getTotalComponents() - 2) * 2);
+			segDst._resizeAttributes(m_description.GetTotalComponentCount() - 2);
+			_attributeCopy(m_attributes, 0, segDst.m_attributes, 0, (m_description.GetTotalComponentCount() - 2) * 2);
 			segDst.m_xStart = m_xStart;
 			segDst.m_yStart = m_yStart;
 			segDst.m_xEnd = m_xEnd;
@@ -723,7 +720,7 @@ namespace com.epl.geometry
 			{
 				return false;
 			}
-			for (int i = 0; i < (m_description._getTotalComponents() - 2) * 2; i++)
+			for (int i = 0; i < (m_description.GetTotalComponentCount() - 2) * 2; i++)
 			{
 				if (m_attributes[i] != other.m_attributes[i])
 				{
@@ -751,10 +748,6 @@ namespace com.epl.geometry
 		internal virtual void Reverse()
 		{
 			_reverseImpl();
-			// because java doesn't support passing value types
-			// by reference numberutils swap won't work
-			// NumberUtils.swap(m_xStart, m_xEnd);
-			// NumberUtils.swap(m_yStart, m_yEnd);
 			double origxStart = m_xStart;
 			double origxEnd = m_xEnd;
 			m_xStart = origxEnd;
@@ -841,14 +834,14 @@ namespace com.epl.geometry
 
 		internal static int _getEndPointOffset(com.epl.geometry.VertexDescription vd, int endPoint)
 		{
-			return endPoint * (vd._getTotalComponents() - 2);
+			return endPoint * (vd.GetTotalComponentCount() - 2);
 		}
 
 		/// <summary>
 		/// Returns the coordinate of the point on this segment for the given
 		/// parameter value.
 		/// </summary>
-		internal virtual com.epl.geometry.Point2D GetCoord2D(double t)
+		public virtual com.epl.geometry.Point2D GetCoord2D(double t)
 		{
 			com.epl.geometry.Point2D pt = new com.epl.geometry.Point2D();
 			GetCoord2D(t, pt);
@@ -864,7 +857,7 @@ namespace com.epl.geometry
 		/// Value of 0 returns the start point, 1 returns end point.
 		/// </param>
 		/// <param name="dst">the coordinate where result will be placed.</param>
-		internal abstract void GetCoord2D(double t, com.epl.geometry.Point2D dst);
+		public abstract void GetCoord2D(double t, com.epl.geometry.Point2D dst);
 
 		/// <summary>Finds a closest coordinate on this segment.</summary>
 		/// <param name="inputPoint">The 2D point to find the closest coordinate on this segment.</param>
@@ -879,7 +872,7 @@ namespace com.epl.geometry
 		/// obtain the 2D coordinate on the segment from t. To find the
 		/// distance, call (inputPoint.sub(seg.getCoord2D(t))).length();
 		/// </returns>
-		internal abstract double GetClosestCoordinate(com.epl.geometry.Point2D inputPoint, bool bExtrapolate);
+		public abstract double GetClosestCoordinate(com.epl.geometry.Point2D inputPoint, bool bExtrapolate);
 
 		/// <summary>
 		/// Splits this segment into Y monotonic parts and places them into the input
@@ -963,7 +956,7 @@ namespace com.epl.geometry
 		/// Returns subsegment between parameters t1 and t2. The attributes are
 		/// interpolated along the length of the curve.
 		/// </remarks>
-		internal abstract com.epl.geometry.Segment Cut(double t1, double t2);
+		public abstract com.epl.geometry.Segment Cut(double t1, double t2);
 
 		/// <summary>
 		/// Calculates the subsegment between parameters t1 and t2, and stores the
@@ -1008,9 +1001,8 @@ namespace com.epl.geometry
 
 		internal abstract double LengthToT(double len);
 
-		internal virtual double Distance(com.epl.geometry.Segment otherSegment, bool bSegmentsKnownDisjoint)
+		public virtual double Distance(com.epl.geometry.Segment otherSegment, bool bSegmentsKnownDisjoint)
 		{
-			/* const */
 			/* const */
 			// if the segments are not known to be disjoint, and
 			// the segments are found to touch in any way, then return 0.0

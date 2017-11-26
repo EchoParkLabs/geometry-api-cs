@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -27,6 +46,8 @@ namespace com.epl.geometry
 			NUnit.Framework.Assert.IsTrue(p.Y() == 2);
 			NUnit.Framework.Assert.IsTrue(g.Equals(com.epl.geometry.ogc.OGCGeometry.FromText("POINT(1 2)")));
 			NUnit.Framework.Assert.IsTrue(!g.Equals(com.epl.geometry.ogc.OGCGeometry.FromText("POINT(1 3)")));
+			NUnit.Framework.Assert.IsTrue(g.Equals((object)com.epl.geometry.ogc.OGCGeometry.FromText("POINT(1 2)")));
+			NUnit.Framework.Assert.IsTrue(!g.Equals((object)com.epl.geometry.ogc.OGCGeometry.FromText("POINT(1 3)")));
 			com.epl.geometry.ogc.OGCGeometry buf = g.Buffer(10);
 			NUnit.Framework.Assert.IsTrue(buf.GeometryType().Equals("Polygon"));
 			com.epl.geometry.ogc.OGCPolygon poly = (com.epl.geometry.ogc.OGCPolygon)buf.Envelope();
@@ -34,6 +55,7 @@ namespace com.epl.geometry
 			NUnit.Framework.Assert.IsTrue(System.Math.Abs(a - 400) < 1e-1);
 		}
 
+		/// <exception cref="System.Exception"/>
 		[NUnit.Framework.Test]
 		public virtual void TestPolygon()
 		{
@@ -48,13 +70,22 @@ namespace com.epl.geometry
 			com.epl.geometry.ogc.OGCLineString lsi = p.InteriorRingN(0);
 			b = lsi.Equals(com.epl.geometry.ogc.OGCGeometry.FromText("LINESTRING(-5 -5, -5 5, 5 5, 5 -5, -5 -5)"));
 			NUnit.Framework.Assert.IsTrue(b);
+			b = lsi.Equals((object)com.epl.geometry.ogc.OGCGeometry.FromText("LINESTRING(-5 -5, -5 5, 5 5, 5 -5, -5 -5)"));
 			NUnit.Framework.Assert.IsTrue(!lsi.Equals(ls));
 			com.epl.geometry.ogc.OGCMultiCurve boundary = ((com.epl.geometry.ogc.OGCMultiCurve)p.Boundary());
 			string s = boundary.AsText();
 			NUnit.Framework.Assert.IsTrue(s.Equals("MULTILINESTRING ((-10 -10, 10 -10, 10 10, -10 10, -10 -10), (-5 -5, -5 5, 5 5, 5 -5, -5 -5))"));
+			{
+				com.epl.geometry.ogc.OGCGeometry g2 = com.epl.geometry.ogc.OGCGeometry.FromGeoJson("{\"type\": \"Polygon\", \"coordinates\": [[[1.00000001,1.00000001], [4.00000001,1.00000001], [4.00000001,4.00000001], [1.00000001,4.00000001]]]}");
+				com.epl.geometry.ogc.OGCGeometry.FromGeoJson("{\"type\": \"LineString\", \"coordinates\": [[1.00000001,1.00000001], [7.00000001,8.00000001]]}").Intersects(g2);
+				com.epl.geometry.ogc.OGCGeometry.FromGeoJson("{\"type\": \"LineString\", \"coordinates\": [[2.449,4.865], [7.00000001,8.00000001]]}").Intersects(g2);
+				com.epl.geometry.ogc.OGCGeometry g3 = com.epl.geometry.ogc.OGCGeometry.FromGeoJson("{\"type\": \"Polygon\", \"coordinates\": [[[1.00000001,1.00000001], [4.00000001,1.00000001], [4.00000001,4.00000001], [1.00000001,4.00000001]]]}");
+				bool bb = g2.Equals((object)g3);
+				NUnit.Framework.Assert.IsTrue(bb);
+			}
 		}
 
-		/// <exception cref="org.json.JSONException"/>
+		/// <exception cref="System.Exception"/>
 		[NUnit.Framework.Test]
 		public virtual void TestGeometryCollection()
 		{
@@ -115,6 +146,8 @@ namespace com.epl.geometry
 			wktString = g.AsText();
 			NUnit.Framework.Assert.IsTrue(wktString.Equals("GEOMETRYCOLLECTION (POLYGON EMPTY, POINT (1 1), GEOMETRYCOLLECTION EMPTY, LINESTRING EMPTY, GEOMETRYCOLLECTION (POLYGON EMPTY, POINT (1 1), LINESTRING EMPTY, MULTIPOLYGON EMPTY, MULTILINESTRING EMPTY, MULTIPOINT EMPTY), MULTIPOLYGON EMPTY, MULTILINESTRING EMPTY)"
 				));
+			NUnit.Framework.Assert.IsTrue(g.Equals((object)com.epl.geometry.ogc.OGCGeometry.FromText(wktString)));
+			NUnit.Framework.Assert.IsTrue(g.GetHashCode() == com.epl.geometry.ogc.OGCGeometry.FromText(wktString).GetHashCode());
 		}
 
 		[NUnit.Framework.Test]
@@ -750,8 +783,7 @@ namespace com.epl.geometry
 			string s = rslt.AsText();
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
-		/// <exception cref="System.IO.IOException"/>
+		/// <exception cref="System.Exception"/>
 		[NUnit.Framework.Test]
 		public virtual void TestIsectTriaJson1()
 		{
@@ -821,20 +853,7 @@ namespace com.epl.geometry
 		{
 			string restJson = "{\"rings\": [[[-100, -100], [-100, 100], [100, 100], [100, -100], [-100, -100]], [[-90, -90], [90, 90], [-90, 90], [90, -90], [-90, -90]],	[[-10, -10], [-10, 10], [10, 10], [10, -10], [-10, -10]]]}";
 			com.epl.geometry.MapGeometry g = null;
-			try
-			{
-				g = com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, restJson);
-			}
-			catch (org.codehaus.jackson.JsonParseException e)
-			{
-				// TODO Auto-generated catch block
-				e.PrintStackTrace();
-			}
-			catch (System.IO.IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.PrintStackTrace();
-			}
+			g = com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, restJson);
 			string wkt = com.epl.geometry.OperatorExportToWkt.Local().Execute(0, g.GetGeometry(), null);
 			NUnit.Framework.Assert.IsTrue(wkt.Equals("MULTIPOLYGON (((-100 -100, 100 -100, 100 100, -100 100, -100 -100), (-90 -90, 90 -90, -90 90, 90 90, -90 -90)), ((-10 -10, 10 -10, 10 10, -10 10, -10 -10)))"));
 		}
@@ -860,8 +879,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
-		/// <exception cref="System.IO.IOException"/>
+		/// <exception cref="System.Exception"/>
 		[NUnit.Framework.Test]
 		public virtual void TestPolylineSimplifyIssueGithub52()
 		{

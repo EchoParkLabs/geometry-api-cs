@@ -27,6 +27,21 @@ namespace com.epl.geometry
 
 		private double m_eps;
 
+		internal ECoordinate()
+		{
+			Set(0.0, 0.0);
+		}
+
+		internal ECoordinate(double v)
+		{
+			Set(v);
+		}
+
+		internal ECoordinate(com.epl.geometry.ECoordinate v)
+		{
+			Set(v);
+		}
+
 		internal virtual double EpsCoordinate()
 		{
 			return com.epl.geometry.NumberUtils.DoubleEps();
@@ -183,7 +198,7 @@ namespace com.epl.geometry
 
 		internal virtual void Mul(com.epl.geometry.ECoordinate v_1, com.epl.geometry.ECoordinate v_2)
 		{
-			double r = System.Math.Abs(v_1.m_value) * System.Math.Abs(v_2.m_value);
+			double r = v_1.m_value * v_2.m_value;
 			m_eps = v_1.m_eps * System.Math.Abs(v_2.m_value) + v_2.m_eps * System.Math.Abs(v_1.m_value) + v_1.m_eps * v_2.m_eps + EpsCoordinate() * System.Math.Abs(r);
 			m_value = r;
 		}

@@ -21,19 +21,15 @@ email: info@echoparklabs.io
 
 namespace com.epl.geometry
 {
-	/// <brief>
-	/// The 3D affine transformation Vector is a row: |m11 m12 0| | x y 1|
-	/// |m21 m22 0| = |m11 * x + m21 * y + m31 m12 * x + m22 * y + m32 1| |m31
-	/// m32 1| Then elements of the Transformation2D are as follows: |xx yx 0|
-	/// | x y 1| * |xy yy 0| = |xx * x + xy * y + xd yx * x + yy * y + yd 1|
-	/// |xd yd 1|
-	/// We use matrices for transformations of the vectors as rows (case 2).
-	/// That means the math expressions on the Geometry matrix operations
-	/// should be writen like this: v' = v * M1 * M2 * M3 = ( (v * M1) * M2 )
-	/// * M3, where v is a vector, Mn are the matrices. This is equivalent to
-	/// the following line of code: ResultVector =
-	/// (M1.Mul(M2).Mul(M3)).Transform(Vector)
-	/// </brief>
+	/// <summary>The 3D affine transformation class.</summary>
+	/// <remarks>
+	/// The 3D affine transformation class.
+	/// We use matrices for transformations of the vectors as rows. That means the
+	/// math expressions on the Geometry matrix operations should be writen like
+	/// this: v' = v * M1 * M2 * M3 = ( (v * M1) * M2 ) * M3, where v is a vector, Mn
+	/// are the matrices. This is equivalent to the following line of code:
+	/// ResultVector = (M1.Mul(M2).Mul(M3)).Transform(Vector)
+	/// </remarks>
 	internal sealed class Transformation3D
 	{
 		public double xx;
@@ -236,14 +232,13 @@ namespace com.epl.geometry
 
 		/// <summary>Calculates the Inverse transformation.</summary>
 		/// <param name="src">The input transformation.</param>
-		/// <param name="dst">The inverse of the input transformation.</param>
-		/// <exception cref="Throws">
-		/// the GeometryException("math_singularity") exception if the
-		/// Inverse can not be calculated.
-		/// </exception>
+		/// <param name="result">
+		/// The inverse of the input transformation. Throws the
+		/// GeometryException("math singularity") exception if the Inverse
+		/// can not be calculated.
+		/// </param>
 		public static void Inverse(com.epl.geometry.Transformation3D src, com.epl.geometry.Transformation3D result)
 		{
-			// static
 			double det = src.xx * (src.yy * src.zz - src.zy * src.yz) - src.yx * (src.xy * src.zz - src.zy * src.xz) + src.zx * (src.xy * src.yz - src.yy * src.xz);
 			if (det != 0)
 			{

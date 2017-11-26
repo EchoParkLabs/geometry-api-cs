@@ -37,12 +37,20 @@ namespace com.epl.geometry
 		{
 		}
 
+		public Point3D(com.epl.geometry.Point3D other)
+		{
+			SetCoords(other);
+		}
+
+		public Point3D(double x, double y, double z)
+		{
+			SetCoords(x, y, z);
+		}
+
 		public static com.epl.geometry.Point3D Construct(double x, double y, double z)
 		{
 			com.epl.geometry.Point3D pt = new com.epl.geometry.Point3D();
-			pt.x = x;
-			pt.y = y;
-			pt.z = z;
+			pt.SetCoords(x, y, z);
 			return pt;
 		}
 
@@ -51,6 +59,11 @@ namespace com.epl.geometry
 			this.x = x;
 			this.y = y;
 			this.z = z;
+		}
+
+		public void SetCoords(com.epl.geometry.Point3D other)
+		{
+			SetCoords(other.x, other.y, other.z);
 		}
 
 		public void SetZero()
@@ -63,13 +76,28 @@ namespace com.epl.geometry
 		public void Normalize()
 		{
 			double len = Length();
-			if (len != 0)
+			if (len == 0)
 			{
-				return;
+				x = 1.0;
+				y = 0.0;
+				z = 0.0;
 			}
-			x /= len;
-			y /= len;
-			z /= len;
+			else
+			{
+				x /= len;
+				y /= len;
+				z /= len;
+			}
+		}
+
+		public double DotProduct(com.epl.geometry.Point3D other)
+		{
+			return x * other.x + y * other.y + z * other.z;
+		}
+
+		public double SqrLength()
+		{
+			return x * x + y * y + z * z;
 		}
 
 		public double Length()
@@ -77,31 +105,44 @@ namespace com.epl.geometry
 			return System.Math.Sqrt(x * x + y * y + z * z);
 		}
 
-		public Point3D(double x, double y, double z)
+		public void Sub(com.epl.geometry.Point3D other)
 		{
-			this.x = x;
-			this.y = y;
-			this.z = z;
+			x -= other.x;
+			y -= other.y;
+			z -= other.z;
 		}
 
-		public com.epl.geometry.Point3D Sub(com.epl.geometry.Point3D other)
+		public void Sub(com.epl.geometry.Point3D p1, com.epl.geometry.Point3D p2)
 		{
-			return new com.epl.geometry.Point3D(x - other.x, y - other.y, z - other.z);
+			x = p1.x - p2.x;
+			y = p1.y - p2.y;
+			z = p1.z - p2.z;
 		}
 
-		public com.epl.geometry.Point3D Mul(double factor)
+		public void Scale(double f, com.epl.geometry.Point3D other)
 		{
-			return new com.epl.geometry.Point3D(x * factor, y * factor, z * factor);
+			x = f * other.x;
+			y = f * other.y;
+			z = f * other.z;
+		}
+
+		public void Mul(double factor)
+		{
+			x *= factor;
+			y *= factor;
+			z *= factor;
 		}
 
 		internal void _setNan()
 		{
 			x = com.epl.geometry.NumberUtils.NaN();
+			y = com.epl.geometry.NumberUtils.NaN();
+			z = com.epl.geometry.NumberUtils.NaN();
 		}
 
 		internal bool _isNan()
 		{
-			return com.epl.geometry.NumberUtils.IsNaN(x);
+			return com.epl.geometry.NumberUtils.IsNaN(x) || com.epl.geometry.NumberUtils.IsNaN(y) || com.epl.geometry.NumberUtils.IsNaN(z);
 		}
 	}
 }

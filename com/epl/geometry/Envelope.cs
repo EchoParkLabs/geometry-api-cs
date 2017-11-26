@@ -23,10 +23,8 @@ namespace com.epl.geometry
 {
 	/// <summary>An envelope is an axis-aligned rectangle.</summary>
 	[System.Serializable]
-	public sealed class Envelope : com.epl.geometry.Geometry
+	public class Envelope : com.epl.geometry.Geometry
 	{
-		private const long serialVersionUID = 2L;
-
 		internal com.epl.geometry.Envelope2D m_envelope = new com.epl.geometry.Envelope2D();
 
 		internal double[] m_attributes;
@@ -37,6 +35,8 @@ namespace com.epl.geometry
 		/// <param name="height">The height of the envelope.</param>
 		public Envelope(com.epl.geometry.Point center, double width, double height)
 		{
+			//We are using writeReplace instead.
+			//private static final long serialVersionUID = 2L;
 			// use doubles to store everything
 			m_description = com.epl.geometry.VertexDescriptionDesignerImpl.GetDefaultDescriptor2D();
 			m_envelope.SetEmpty();
@@ -47,14 +47,14 @@ namespace com.epl.geometry
 			_setFromPoint(center, width, height);
 		}
 
-		internal Envelope(com.epl.geometry.Envelope2D env2D)
+		public Envelope(com.epl.geometry.Envelope2D env2D)
 		{
 			m_description = com.epl.geometry.VertexDescriptionDesignerImpl.GetDefaultDescriptor2D();
 			m_envelope.SetCoords(env2D);
 			m_envelope.Normalize();
 		}
 
-		internal Envelope(com.epl.geometry.VertexDescription vd)
+		public Envelope(com.epl.geometry.VertexDescription vd)
 		{
 			if (vd == null)
 			{
@@ -64,7 +64,7 @@ namespace com.epl.geometry
 			m_envelope.SetEmpty();
 		}
 
-		internal Envelope(com.epl.geometry.VertexDescription vd, com.epl.geometry.Envelope2D env2D)
+		public Envelope(com.epl.geometry.VertexDescription vd, com.epl.geometry.Envelope2D env2D)
 		{
 			if (vd == null)
 			{
@@ -115,7 +115,7 @@ namespace com.epl.geometry
 		/// <param name="ymin">The minimum y-coordinate of the envelope.</param>
 		/// <param name="xmax">The maximum x-coordinate of the envelope.</param>
 		/// <param name="ymax">The maximum y-coordinate of the envelope.</param>
-		public void SetCoords(double xmin, double ymin, double xmax, double ymax)
+		public virtual void SetCoords(double xmin, double ymin, double xmax, double ymax)
 		{
 			_touch();
 			m_envelope.SetCoords(xmin, ymin, xmax, ymax);
@@ -128,7 +128,7 @@ namespace com.epl.geometry
 		/// length, the envelope will be empty.
 		/// </remarks>
 		/// <param name="points">The point array.</param>
-		internal void SetCoords(com.epl.geometry.Point[] points)
+		internal virtual void SetCoords(com.epl.geometry.Point[] points)
 		{
 			_touch();
 			SetEmpty();
@@ -138,7 +138,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		internal void SetEnvelope2D(com.epl.geometry.Envelope2D e2d)
+		internal virtual void SetEnvelope2D(com.epl.geometry.Envelope2D e2d)
 		{
 			_touch();
 			if (!e2d.IsValid())
@@ -164,40 +164,40 @@ namespace com.epl.geometry
 
 		/// <summary>The width of the envelope.</summary>
 		/// <returns>The width of the envelope.</returns>
-		public double GetWidth()
+		public virtual double GetWidth()
 		{
 			return m_envelope.GetWidth();
 		}
 
 		/// <summary>The height of the envelope.</summary>
 		/// <returns>The height of the envelope.</returns>
-		public double GetHeight()
+		public virtual double GetHeight()
 		{
 			return m_envelope.GetHeight();
 		}
 
 		/// <summary>The x-coordinate of the center of the envelope.</summary>
 		/// <returns>The x-coordinate of the center of the envelope.</returns>
-		public double GetCenterX()
+		public virtual double GetCenterX()
 		{
 			return m_envelope.GetCenterX();
 		}
 
 		/// <summary>The y-coordinate of center of the envelope.</summary>
 		/// <returns>The y-coordinate of center of the envelope.</returns>
-		public double GetCenterY()
+		public virtual double GetCenterY()
 		{
 			return m_envelope.GetCenterY();
 		}
 
 		/// <summary>The x and y-coordinates of the center of the envelope.</summary>
 		/// <returns>A point whose x and y-coordinates are that of the center of the envelope.</returns>
-		internal com.epl.geometry.Point2D GetCenterXY()
+		public virtual com.epl.geometry.Point2D GetCenterXY()
 		{
 			return m_envelope.GetCenter();
 		}
 
-		internal void GetCenter(com.epl.geometry.Point point_out)
+		public virtual void GetCenter(com.epl.geometry.Point point_out)
 		{
 			point_out.AssignVertexDescription(m_description);
 			if (IsEmpty())
@@ -219,7 +219,7 @@ namespace com.epl.geometry
 			point_out.SetXY(m_envelope.GetCenter());
 		}
 
-		internal void Merge(com.epl.geometry.Point2D pt)
+		public virtual void Merge(com.epl.geometry.Point2D pt)
 		{
 			_touch();
 			m_envelope.Merge(pt);
@@ -232,7 +232,7 @@ namespace com.epl.geometry
 		/// are assigned. If the given envelope is empty, this envelope is unchanged.
 		/// </remarks>
 		/// <param name="other">The envelope to merge.</param>
-		public void Merge(com.epl.geometry.Envelope other)
+		public virtual void Merge(com.epl.geometry.Envelope other)
 		{
 			_touch();
 			if (other.IsEmpty())
@@ -267,7 +267,7 @@ namespace com.epl.geometry
 		/// envelope is unchanged.
 		/// </remarks>
 		/// <param name="point">The point to be merged.</param>
-		public void Merge(com.epl.geometry.Point point)
+		public virtual void Merge(com.epl.geometry.Point point)
 		{
 			_touch();
 			if (point.IsEmptyImpl())
@@ -299,7 +299,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		internal void _setFromPoint(com.epl.geometry.Point centerPoint, double width, double height)
+		internal virtual void _setFromPoint(com.epl.geometry.Point centerPoint, double width, double height)
 		{
 			m_envelope.SetCoords(centerPoint.GetXY(), width, height);
 			com.epl.geometry.VertexDescription pointVD = centerPoint.m_description;
@@ -315,7 +315,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		internal void _setFromPoint(com.epl.geometry.Point centerPoint)
+		internal virtual void _setFromPoint(com.epl.geometry.Point centerPoint)
 		{
 			m_envelope.SetCoords(centerPoint.m_attributes[0], centerPoint.m_attributes[1]);
 			com.epl.geometry.VertexDescription pointVD = centerPoint.m_description;
@@ -331,13 +331,13 @@ namespace com.epl.geometry
 			}
 		}
 
-		internal void Merge(com.epl.geometry.Envelope2D other)
+		public virtual void Merge(com.epl.geometry.Envelope2D other)
 		{
 			_touch();
 			m_envelope.Merge(other);
 		}
 
-		public void SetInterval(int semantics, int ordinate, double vmin, double vmax)
+		public virtual void SetInterval(int semantics, int ordinate, double vmin, double vmax)
 		{
 			SetInterval(semantics, ordinate, new com.epl.geometry.Envelope1D(vmin, vmax));
 		}
@@ -345,7 +345,7 @@ namespace com.epl.geometry
 		/// <summary>Re-aspects this envelope to fit within the specified width and height.</summary>
 		/// <param name="arWidth">The width within which to fit the envelope.</param>
 		/// <param name="arHeight">The height within which to fit the envelope.</param>
-		public void Reaspect(double arWidth, double arHeight)
+		public virtual void Reaspect(double arWidth, double arHeight)
 		{
 			_touch();
 			m_envelope.Reaspect(arWidth, arHeight);
@@ -359,7 +359,7 @@ namespace com.epl.geometry
 		/// </remarks>
 		/// <param name="dx">The inflation along the x-axis.</param>
 		/// <param name="dy">The inflation along the y-axis.</param>
-		public void Inflate(double dx, double dy)
+		public virtual void Inflate(double dx, double dy)
 		{
 			_touch();
 			m_envelope.Inflate(dx, dy);
@@ -407,7 +407,7 @@ namespace com.epl.geometry
 			if (m_attributes != null)
 			{
 				envDst._ensureAttributes();
-				System.Array.Copy(m_attributes, 0, envDst.m_attributes, 0, (m_description._getTotalComponents() - 2) * 2);
+				System.Array.Copy(m_attributes, 0, envDst.m_attributes, 0, (m_description.GetTotalComponentCount() - 2) * 2);
 			}
 		}
 
@@ -465,7 +465,7 @@ namespace com.epl.geometry
 			return env;
 		}
 
-		public void SetInterval(int semantics, int ordinate, com.epl.geometry.Envelope1D env)
+		public virtual void SetInterval(int semantics, int ordinate, com.epl.geometry.Envelope1D env)
 		{
 			_touch();
 			if (semantics == com.epl.geometry.VertexDescription.Semantics.POSITION)
@@ -495,7 +495,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		internal void QueryCoordinates(com.epl.geometry.Point2D[] dst)
+		public virtual void QueryCoordinates(com.epl.geometry.Point2D[] dst)
 		{
 			if (dst == null || dst.Length < 4 || m_envelope.IsEmpty())
 			{
@@ -523,7 +523,7 @@ namespace com.epl.geometry
 		/// The point whose coordinates are used to set the envelope's
 		/// coordinate at a specified corner.
 		/// </param>
-		public void QueryCornerByVal(int index, com.epl.geometry.Point ptDst)
+		public virtual void QueryCornerByVal(int index, com.epl.geometry.Point ptDst)
 		{
 			ptDst.AssignVertexDescription(m_description);
 			int nattrib = GetDescription().GetAttributeCount() - 1;
@@ -596,18 +596,18 @@ namespace com.epl.geometry
 			}
 		}
 
-		internal void QueryCorner(int index, com.epl.geometry.Point2D ptDst)
+		public virtual void QueryCorner(int index, com.epl.geometry.Point2D ptDst)
 		{
 			com.epl.geometry.Point2D p = m_envelope.QueryCorner(index);
 			ptDst.SetCoords(p.x, p.y);
 		}
 
-		internal int GetEndPointOffset(com.epl.geometry.VertexDescription descr, int end_point)
+		internal virtual int GetEndPointOffset(com.epl.geometry.VertexDescription descr, int end_point)
 		{
 			return end_point * (descr.GetTotalComponentCount() - 2);
 		}
 
-		internal double GetAttributeAsDblImpl_(int end_point, int semantics, int ordinate)
+		internal virtual double GetAttributeAsDblImpl_(int end_point, int semantics, int ordinate)
 		{
 			if (m_envelope.IsEmpty())
 			{
@@ -639,7 +639,7 @@ namespace com.epl.geometry
 			return com.epl.geometry.VertexDescription.GetDefaultValue(semantics);
 		}
 
-		internal void SetAttributeAsDblImpl_(int end_point, int semantics, int ordinate, double value)
+		internal virtual void SetAttributeAsDblImpl_(int end_point, int semantics, int ordinate, double value)
 		{
 			System.Diagnostics.Debug.Assert((end_point == 0 || end_point == 1));
 			if (semantics == com.epl.geometry.VertexDescription.Semantics.POSITION)
@@ -679,12 +679,12 @@ namespace com.epl.geometry
 			m_attributes[GetEndPointOffset(m_description, end_point) + m_description.GetPointAttributeOffset_(attribute_index) - 2 + ordinate] = value;
 		}
 
-		internal void _ensureAttributes()
+		internal virtual void _ensureAttributes()
 		{
 			_touch();
-			if (m_attributes == null && m_description._getTotalComponents() > 2)
+			if (m_attributes == null && m_description.GetTotalComponentCount() > 2)
 			{
-				m_attributes = new double[(m_description._getTotalComponents() - 2) * 2];
+				m_attributes = new double[(m_description.GetTotalComponentCount() - 2) * 2];
 				int offset0 = _getEndPointOffset(m_description, 0);
 				int offset1 = _getEndPointOffset(m_description, 1);
 				int j = 0;
@@ -710,10 +710,10 @@ namespace com.epl.geometry
 				m_description = newDescription;
 				return;
 			}
-			if (newDescription._getTotalComponents() > 2)
+			if (newDescription.GetTotalComponentCount() > 2)
 			{
 				int[] mapping = com.epl.geometry.VertexDescriptionDesignerImpl.MapAttributes(newDescription, m_description);
-				double[] newAttributes = new double[(newDescription._getTotalComponents() - 2) * 2];
+				double[] newAttributes = new double[(newDescription.GetTotalComponentCount() - 2) * 2];
 				int old_offset0 = _getEndPointOffset(m_description, 0);
 				int old_offset1 = _getEndPointOffset(m_description, 1);
 				int new_offset0 = _getEndPointOffset(newDescription, 0);
@@ -755,7 +755,7 @@ namespace com.epl.geometry
 			m_description = newDescription;
 		}
 
-		internal double _getAttributeAsDbl(int endPoint, int semantics, int ordinate)
+		internal virtual double _getAttributeAsDbl(int endPoint, int semantics, int ordinate)
 		{
 			if (m_envelope.IsEmpty())
 			{
@@ -790,7 +790,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		internal void _setAttributeAsDbl(int endPoint, int semantics, int ordinate, double value)
+		internal virtual void _setAttributeAsDbl(int endPoint, int semantics, int ordinate, double value)
 		{
 			_touch();
 			// _ASSERT(endPoint == 0 || endPoint == 1);
@@ -838,17 +838,17 @@ namespace com.epl.geometry
 			m_attributes[_getEndPointOffset(m_description, endPoint) + m_description._getPointAttributeOffset(attributeIndex) - 2 + ordinate] = value;
 		}
 
-		internal int _getAttributeAsInt(int endPoint, int semantics, int ordinate)
+		internal virtual int _getAttributeAsInt(int endPoint, int semantics, int ordinate)
 		{
 			return (int)_getAttributeAsDbl(endPoint, semantics, ordinate);
 		}
 
 		internal static int _getEndPointOffset(com.epl.geometry.VertexDescription vd, int endPoint)
 		{
-			return endPoint * (vd._getTotalComponents() - 2);
+			return endPoint * (vd.GetTotalComponentCount() - 2);
 		}
 
-		internal bool IsIntersecting(com.epl.geometry.Envelope2D other)
+		public virtual bool IsIntersecting(com.epl.geometry.Envelope2D other)
 		{
 			return m_envelope.IsIntersecting(other);
 		}
@@ -859,7 +859,7 @@ namespace com.epl.geometry
 		/// </summary>
 		/// <param name="other">The envelope to intersect.</param>
 		/// <returns>Returns true if the result is not empty.</returns>
-		public bool Intersect(com.epl.geometry.Envelope other)
+		public virtual bool Intersect(com.epl.geometry.Envelope other)
 		{
 			_touch();
 			com.epl.geometry.Envelope2D e2d = new com.epl.geometry.Envelope2D();
@@ -870,7 +870,7 @@ namespace com.epl.geometry
 		/// <summary>Returns true if the envelope and the other given envelope intersect.</summary>
 		/// <param name="other">The envelope to with which to test intersection.</param>
 		/// <returns>Returns true if the two envelopes intersect.</returns>
-		public bool IsIntersecting(com.epl.geometry.Envelope other)
+		public virtual bool IsIntersecting(com.epl.geometry.Envelope other)
 		{
 			// TODO: attributes.
 			return m_envelope.IsIntersecting(other.m_envelope);
@@ -883,7 +883,7 @@ namespace com.epl.geometry
 		/// <param name="c">The point around which to center the envelope.</param>
 		/// <param name="w">The width to be set for the envelope.</param>
 		/// <param name="h">The height to be set for this envelope.</param>
-		public void CenterAt(com.epl.geometry.Point c, double w, double h)
+		public virtual void CenterAt(com.epl.geometry.Point c, double w, double h)
 		{
 			_touch();
 			if (c.IsEmpty())
@@ -897,7 +897,7 @@ namespace com.epl.geometry
 		/// <summary>Offsets the envelope by the specified distances along x and y-coordinates.</summary>
 		/// <param name="dx">The X offset to be applied.</param>
 		/// <param name="dy">The Y offset to be applied.</param>
-		public void Offset(double dx, double dy)
+		public virtual void Offset(double dx, double dy)
 		{
 			_touch();
 			m_envelope.Offset(dx, dy);
@@ -907,7 +907,7 @@ namespace com.epl.geometry
 		/// Normalizes envelopes if the minimum dimension is larger than the
 		/// maximum dimension.
 		/// </summary>
-		public void Normalize()
+		public virtual void Normalize()
 		{
 			// TODO: attributes
 			_touch();
@@ -920,14 +920,14 @@ namespace com.epl.geometry
 		/// + XMax) / 2, (YMin + YMax) / 2).
 		/// </remarks>
 		/// <returns>The center point of the envelope.</returns>
-		internal com.epl.geometry.Point2D GetCenter2D()
+		public virtual com.epl.geometry.Point2D GetCenter2D()
 		{
 			return m_envelope.GetCenter();
 		}
 
 		/// <summary>Returns the center point of the envelope.</summary>
 		/// <returns>The center point of the envelope.</returns>
-		public com.epl.geometry.Point GetCenter()
+		public virtual com.epl.geometry.Point GetCenter()
 		{
 			com.epl.geometry.Point pointOut = new com.epl.geometry.Point(m_description);
 			if (IsEmpty())
@@ -954,7 +954,7 @@ namespace com.epl.geometry
 		/// width and height.
 		/// </summary>
 		/// <param name="c">The new center point.</param>
-		public void CenterAt(com.epl.geometry.Point c)
+		public virtual void CenterAt(com.epl.geometry.Point c)
 		{
 			_touch();
 			if (c.IsEmpty())
@@ -967,28 +967,28 @@ namespace com.epl.geometry
 
 		/// <summary>Returns the envelope's lower left corner point.</summary>
 		/// <returns>Returns the lower left corner point.</returns>
-		public com.epl.geometry.Point GetLowerLeft()
+		public virtual com.epl.geometry.Point GetLowerLeft()
 		{
 			return new com.epl.geometry.Point(m_envelope.GetLowerLeft());
 		}
 
 		/// <summary>Returns the envelope's upper right corner point.</summary>
 		/// <returns>Returns the upper right corner point.</returns>
-		public com.epl.geometry.Point GetUpperRight()
+		public virtual com.epl.geometry.Point GetUpperRight()
 		{
 			return new com.epl.geometry.Point(m_envelope.GetUpperRight());
 		}
 
 		/// <summary>Returns the envelope's lower right corner point.</summary>
 		/// <returns>Returns the lower right corner point.</returns>
-		public com.epl.geometry.Point GetLowerRight()
+		public virtual com.epl.geometry.Point GetLowerRight()
 		{
 			return new com.epl.geometry.Point(m_envelope.GetLowerRight());
 		}
 
 		/// <summary>Returns the envelope's upper left corner point.</summary>
 		/// <returns>Returns the upper left corner point.</returns>
-		public com.epl.geometry.Point GetUpperLeft()
+		public virtual com.epl.geometry.Point GetUpperLeft()
 		{
 			return new com.epl.geometry.Point(m_envelope.GetUpperLeft());
 		}
@@ -996,7 +996,7 @@ namespace com.epl.geometry
 		/// <summary>Checks if this envelope contains (covers) the specified point.</summary>
 		/// <param name="p">The Point to be tested for coverage.</param>
 		/// <returns>TRUE if this envelope contains (covers) the specified point.</returns>
-		public bool Contains(com.epl.geometry.Point p)
+		public virtual bool Contains(com.epl.geometry.Point p)
 		{
 			if (p.IsEmpty())
 			{
@@ -1008,7 +1008,7 @@ namespace com.epl.geometry
 		/// <summary>Checks if this envelope contains (covers) other envelope.</summary>
 		/// <param name="env">The envelope to be tested for coverage.</param>
 		/// <returns>TRUE if this envelope contains (covers) the specified envelope.</returns>
-		public bool Contains(com.epl.geometry.Envelope env)
+		public virtual bool Contains(com.epl.geometry.Envelope env)
 		{
 			return m_envelope.Contains(env.m_envelope);
 		}
@@ -1047,7 +1047,7 @@ namespace com.epl.geometry
 			{
 				return false;
 			}
-			for (int i = 0, n = (m_description._getTotalComponents() - 2) * 2; i < n; i++)
+			for (int i = 0, n = (m_description.GetTotalComponentCount() - 2) * 2; i < n; i++)
 			{
 				if (m_attributes[i] != other.m_attributes[i])
 				{
@@ -1065,7 +1065,7 @@ namespace com.epl.geometry
 			hashCode = com.epl.geometry.NumberUtils.Hash(hashCode, m_envelope.GetHashCode());
 			if (!IsEmpty() && m_attributes != null)
 			{
-				for (int i = 0, n = (m_description._getTotalComponents() - 2) * 2; i < n; i++)
+				for (int i = 0, n = (m_description.GetTotalComponentCount() - 2) * 2; i < n; i++)
 				{
 					hashCode = com.epl.geometry.NumberUtils.Hash(hashCode, m_attributes[i]);
 				}
@@ -1103,7 +1103,7 @@ namespace com.epl.geometry
 
 		/// <summary>Sets the left X coordinate.</summary>
 		/// <param name="x">The X coordinate of the left corner</param>
-		public void SetXMin(double x)
+		public virtual void SetXMin(double x)
 		{
 			_touch();
 			m_envelope.xmin = x;
@@ -1111,7 +1111,7 @@ namespace com.epl.geometry
 
 		/// <summary>Sets the right X coordinate.</summary>
 		/// <param name="x">The X coordinate of the right corner.</param>
-		public void SetXMax(double x)
+		public virtual void SetXMax(double x)
 		{
 			_touch();
 			m_envelope.xmax = x;
@@ -1119,7 +1119,7 @@ namespace com.epl.geometry
 
 		/// <summary>Sets the bottom Y coordinate.</summary>
 		/// <param name="y">the Y coordinate of the bottom corner.</param>
-		public void SetYMin(double y)
+		public virtual void SetYMin(double y)
 		{
 			_touch();
 			m_envelope.ymin = y;
@@ -1127,7 +1127,7 @@ namespace com.epl.geometry
 
 		/// <summary>Sets the top Y coordinate.</summary>
 		/// <param name="y">The Y coordinate of the top corner.</param>
-		public void SetYMax(double y)
+		public virtual void SetYMax(double y)
 		{
 			_touch();
 			m_envelope.ymax = y;

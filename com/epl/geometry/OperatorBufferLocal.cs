@@ -25,15 +25,7 @@ namespace com.epl.geometry
 	{
 		public override com.epl.geometry.GeometryCursor Execute(com.epl.geometry.GeometryCursor inputGeometries, com.epl.geometry.SpatialReference sr, double[] distances, bool bUnion, com.epl.geometry.ProgressTracker progressTracker)
 		{
-			if (bUnion)
-			{
-				com.epl.geometry.OperatorBufferCursor cursor = new com.epl.geometry.OperatorBufferCursor(inputGeometries, sr, distances, false, progressTracker);
-				return ((com.epl.geometry.OperatorUnion)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.Union)).Execute(cursor, sr, progressTracker);
-			}
-			else
-			{
-				return new com.epl.geometry.OperatorBufferCursor(inputGeometries, sr, distances, false, progressTracker);
-			}
+			return Execute(inputGeometries, sr, distances, com.epl.geometry.NumberUtils.NaN(), 96, bUnion, progressTracker);
 		}
 
 		public override com.epl.geometry.Geometry Execute(com.epl.geometry.Geometry inputGeometry, com.epl.geometry.SpatialReference sr, double distance, com.epl.geometry.ProgressTracker progressTracker)
@@ -43,6 +35,21 @@ namespace com.epl.geometry
 			distances[0] = distance;
 			com.epl.geometry.GeometryCursor outputCursor = Execute(inputCursor, sr, distances, false, progressTracker);
 			return outputCursor.Next();
+		}
+
+		internal override com.epl.geometry.GeometryCursor Execute(com.epl.geometry.GeometryCursor inputGeometries, com.epl.geometry.SpatialReference sr, double[] distances, double max_deviation, int max_vertices_in_full_circle, bool b_union, com.epl.geometry.ProgressTracker progressTracker
+			)
+		{
+			if (b_union)
+			{
+				com.epl.geometry.OperatorBufferCursor cursor = new com.epl.geometry.OperatorBufferCursor(inputGeometries, sr, distances, max_deviation, max_vertices_in_full_circle, false, progressTracker);
+				return com.epl.geometry.OperatorUnion.Local().Execute(cursor, sr, progressTracker);
+			}
+			else
+			{
+				// (int)Operator_union::Options::enum_disable_edge_dissolver
+				return new com.epl.geometry.OperatorBufferCursor(inputGeometries, sr, distances, max_deviation, max_vertices_in_full_circle, false, progressTracker);
+			}
 		}
 	}
 }

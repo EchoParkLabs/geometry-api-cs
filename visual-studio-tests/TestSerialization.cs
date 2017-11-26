@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -35,24 +54,34 @@ namespace com.epl.geometry
 			{
 				Fail("Point serialization failure");
 			}
-			// try
-			// {
-			// FileOutputStream streamOut = new FileOutputStream(m_thisDirectory +
-			// "savedPoint.txt");
-			// ObjectOutputStream oo = new ObjectOutputStream(streamOut);
-			// Point pt = new Point(10, 40);
-			// oo.writeObject(pt);
-			// }
-			// catch(Exception ex)
-			// {
-			// fail("Point serialization failure");
-			// }
+			//try
+			//{
+			//FileOutputStream streamOut = new FileOutputStream("c:/temp/savedPoint1.txt");
+			//ObjectOutputStream oo = new ObjectOutputStream(streamOut);
+			//Point pt = new Point(10, 40, 2);
+			//oo.writeObject(pt);
+			//}
+			//catch(Exception ex)
+			//{
+			//fail("Point serialization failure");
+			//}
 			try
 			{
 				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedPoint.txt");
 				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
 				com.epl.geometry.Point ptRes = (com.epl.geometry.Point)ii.ReadObject();
 				NUnit.Framework.Assert.IsTrue(ptRes.GetX() == 10 && ptRes.GetY() == 40);
+			}
+			catch (System.Exception)
+			{
+				Fail("Point serialization failure");
+			}
+			try
+			{
+				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedPoint1.txt");
+				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
+				com.epl.geometry.Point ptRes = (com.epl.geometry.Point)ii.ReadObject();
+				NUnit.Framework.Assert.IsTrue(ptRes.GetX() == 10 && ptRes.GetY() == 40 && ptRes.GetZ() == 2);
 			}
 			catch (System.Exception)
 			{
@@ -100,25 +129,35 @@ namespace com.epl.geometry
 			{
 				Fail("Polygon serialization failure");
 			}
-			// try
-			// {
-			// FileOutputStream streamOut = new FileOutputStream(m_thisDirectory +
-			// "savedPolygon.txt");
-			// ObjectOutputStream oo = new ObjectOutputStream(streamOut);
-			// Polygon pt = new Polygon();
-			// pt.startPath(10, 10);
-			// pt.lineTo(100, 100);
-			// pt.lineTo(200, 100);
-			// pt = (Polygon)GeometryEngine.simplify(pt, null);
-			// oo.writeObject(pt);
-			// }
-			// catch(Exception ex)
-			// {
-			// fail("Polygon serialization failure");
-			// }
+			//try
+			//{
+			//FileOutputStream streamOut = new FileOutputStream("c:/temp/savedPolygon1.txt");
+			//ObjectOutputStream oo = new ObjectOutputStream(streamOut);
+			//Polygon pt = new Polygon();
+			//pt.startPath(10, 10);
+			//pt.lineTo(100, 100);
+			//pt.lineTo(200, 100);
+			//pt = (Polygon)GeometryEngine.simplify(pt, null);
+			//oo.writeObject(pt);
+			//}
+			//catch(Exception ex)
+			//{
+			//fail("Polygon serialization failure");
+			//}
 			try
 			{
 				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedPolygon.txt");
+				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
+				com.epl.geometry.Polygon ptRes = (com.epl.geometry.Polygon)ii.ReadObject();
+				NUnit.Framework.Assert.IsTrue(ptRes != null);
+			}
+			catch (System.Exception)
+			{
+				Fail("Polygon serialization failure");
+			}
+			try
+			{
+				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedPolygon1.txt");
 				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
 				com.epl.geometry.Polygon ptRes = (com.epl.geometry.Polygon)ii.ReadObject();
 				NUnit.Framework.Assert.IsTrue(ptRes != null);
@@ -150,24 +189,34 @@ namespace com.epl.geometry
 			{
 				Fail("Polyline serialization failure");
 			}
-			// try
-			// {
-			// FileOutputStream streamOut = new FileOutputStream(m_thisDirectory +
-			// "savedPolyline.txt");
-			// ObjectOutputStream oo = new ObjectOutputStream(streamOut);
-			// Polyline pt = new Polyline();
-			// pt.startPath(10, 10);
-			// pt.lineTo(100, 100);
-			// pt.lineTo(200, 100);
-			// oo.writeObject(pt);
-			// }
-			// catch(Exception ex)
-			// {
-			// fail("Polyline serialization failure");
-			// }
+			//try
+			//{
+			//FileOutputStream streamOut = new FileOutputStream("c:/temp/savedPolyline1.txt");
+			//ObjectOutputStream oo = new ObjectOutputStream(streamOut);
+			//Polyline pt = new Polyline();
+			//pt.startPath(10, 10);
+			//pt.lineTo(100, 100);
+			//pt.lineTo(200, 100);
+			//oo.writeObject(pt);
+			//}
+			//catch(Exception ex)
+			//{
+			//fail("Polyline serialization failure");
+			//}
 			try
 			{
 				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedPolyline.txt");
+				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
+				com.epl.geometry.Polyline ptRes = (com.epl.geometry.Polyline)ii.ReadObject();
+				NUnit.Framework.Assert.IsTrue(ptRes != null);
+			}
+			catch (System.Exception)
+			{
+				Fail("Polyline serialization failure");
+			}
+			try
+			{
+				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedPolyline1.txt");
 				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
 				com.epl.geometry.Polyline ptRes = (com.epl.geometry.Polyline)ii.ReadObject();
 				NUnit.Framework.Assert.IsTrue(ptRes != null);
@@ -196,21 +245,31 @@ namespace com.epl.geometry
 			{
 				Fail("Envelope serialization failure");
 			}
-			// try
-			// {
-			// FileOutputStream streamOut = new FileOutputStream(m_thisDirectory +
-			// "savedEnvelope.txt");
-			// ObjectOutputStream oo = new ObjectOutputStream(streamOut);
-			// Envelope pt = new Envelope(10, 10, 400, 300);
-			// oo.writeObject(pt);
-			// }
-			// catch(Exception ex)
-			// {
-			// fail("Envelope serialization failure");
-			// }
+			//try
+			//{
+			//FileOutputStream streamOut = new FileOutputStream("c:/temp/savedEnvelope1.txt");
+			//ObjectOutputStream oo = new ObjectOutputStream(streamOut);
+			//Envelope pt = new Envelope(10, 10, 400, 300);
+			//oo.writeObject(pt);
+			//}
+			//catch(Exception ex)
+			//{
+			//fail("Envelope serialization failure");
+			//}
 			try
 			{
 				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedEnvelope.txt");
+				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
+				com.epl.geometry.Envelope ptRes = (com.epl.geometry.Envelope)ii.ReadObject();
+				NUnit.Framework.Assert.IsTrue(ptRes.GetXMax() == 400);
+			}
+			catch (System.Exception)
+			{
+				Fail("Envelope serialization failure");
+			}
+			try
+			{
+				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedEnvelope1.txt");
 				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
 				com.epl.geometry.Envelope ptRes = (com.epl.geometry.Envelope)ii.ReadObject();
 				NUnit.Framework.Assert.IsTrue(ptRes.GetXMax() == 400);
@@ -241,23 +300,33 @@ namespace com.epl.geometry
 			{
 				Fail("MultiPoint serialization failure");
 			}
-			// try
-			// {
-			// FileOutputStream streamOut = new FileOutputStream(m_thisDirectory +
-			// "savedMultiPoint.txt");
-			// ObjectOutputStream oo = new ObjectOutputStream(streamOut);
-			// MultiPoint pt = new MultiPoint();
-			// pt.add(10, 30);
-			// pt.add(120, 40);
-			// oo.writeObject(pt);
-			// }
-			// catch(Exception ex)
-			// {
-			// fail("MultiPoint serialization failure");
-			// }
+			//try
+			//{
+			//FileOutputStream streamOut = new FileOutputStream("c:/temp/savedMultiPoint1.txt");
+			//ObjectOutputStream oo = new ObjectOutputStream(streamOut);
+			//MultiPoint pt = new MultiPoint();
+			//pt.add(10, 30);
+			//pt.add(120, 40);
+			//oo.writeObject(pt);
+			//}
+			//catch(Exception ex)
+			//{
+			//fail("MultiPoint serialization failure");
+			//}
 			try
 			{
 				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedMultiPoint.txt");
+				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
+				com.epl.geometry.MultiPoint ptRes = (com.epl.geometry.MultiPoint)ii.ReadObject();
+				NUnit.Framework.Assert.IsTrue(ptRes.GetPoint(1).GetY() == 40);
+			}
+			catch (System.Exception)
+			{
+				Fail("MultiPoint serialization failure");
+			}
+			try
+			{
+				java.io.InputStream s = typeof(com.epl.geometry.TestSerialization).GetResourceAsStream("savedMultiPoint1.txt");
 				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(s);
 				com.epl.geometry.MultiPoint ptRes = (com.epl.geometry.MultiPoint)ii.ReadObject();
 				NUnit.Framework.Assert.IsTrue(ptRes.GetPoint(1).GetY() == 40);

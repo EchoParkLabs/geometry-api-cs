@@ -32,12 +32,12 @@ namespace com.epl.geometry
 			return m_impl.GetDescription();
 		}
 
-		internal override void AssignVertexDescription(com.epl.geometry.VertexDescription src)
+		public override void AssignVertexDescription(com.epl.geometry.VertexDescription src)
 		{
 			m_impl.AssignVertexDescription(src);
 		}
 
-		internal override void MergeVertexDescription(com.epl.geometry.VertexDescription src)
+		public override void MergeVertexDescription(com.epl.geometry.VertexDescription src)
 		{
 			m_impl.MergeVertexDescription(src);
 		}
@@ -258,6 +258,36 @@ namespace com.epl.geometry
 		internal virtual void AddPath(com.epl.geometry.Point2D[] points, int count, bool bForward)
 		{
 			m_impl.AddPath(points, count, bForward);
+		}
+
+		/// <summary>Adds segments from a source multipath to this MultiPath.</summary>
+		/// <param name="src">The source MultiPath to add segments from.</param>
+		/// <param name="srcPathIndex">The index of the path in the the source MultiPath.</param>
+		/// <param name="srcSegmentFrom">
+		/// The index of first segment in the path to start adding from.
+		/// The value has to be between 0 and
+		/// src.getSegmentCount(srcPathIndex) - 1.
+		/// </param>
+		/// <param name="srcSegmentCount">
+		/// The number of segments to add. If 0, the function does
+		/// nothing.
+		/// </param>
+		/// <param name="bStartNewPath">
+		/// When true, a new path is added and segments are added to it.
+		/// Otherwise the segments are added to the last path of this
+		/// MultiPath.
+		/// If bStartNewPath false, the first point of the first source
+		/// segment is not added. This is done to ensure proper connection
+		/// to existing segments. When the source path is closed, and the
+		/// closing segment is among those to be added, it is added also
+		/// as a closing segment, not as a real segment. Use add_segment
+		/// instead if you do not like that behavior.
+		/// This MultiPath obtains all missing attributes from the src
+		/// MultiPath.
+		/// </param>
+		public virtual void AddSegmentsFromPath(com.epl.geometry.MultiPath src, int srcPathIndex, int srcSegmentFrom, int srcSegmentCount, bool bStartNewPath)
+		{
+			m_impl.AddSegmentsFromPath((com.epl.geometry.MultiPathImpl)src._getImpl(), srcPathIndex, srcSegmentFrom, srcSegmentCount, bStartNewPath);
 		}
 
 		/// <summary>Adds a new segment to this multipath.</summary>
@@ -645,12 +675,12 @@ namespace com.epl.geometry
 			return m_impl.GetHashCode();
 		}
 
-		internal override void GetPointByVal(int index, com.epl.geometry.Point outPoint)
+		public override void GetPointByVal(int index, com.epl.geometry.Point outPoint)
 		{
 			m_impl.GetPointByVal(index, outPoint);
 		}
 
-		internal override void SetPointByVal(int index, com.epl.geometry.Point point)
+		public override void SetPointByVal(int index, com.epl.geometry.Point point)
 		{
 			m_impl.SetPointByVal(index, point);
 		}

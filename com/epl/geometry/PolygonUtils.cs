@@ -23,7 +23,7 @@ namespace com.epl.geometry
 {
 	internal sealed class PolygonUtils
 	{
-		internal enum PiPResult
+		public enum PiPResult
 		{
 			PiPOutside,
 			PiPInside,
@@ -35,7 +35,7 @@ namespace com.epl.geometry
 		/// <remarks>
 		/// Tests if Point is inside the Polygon. Returns PiPOutside if not in
 		/// polygon, PiPInside if in the polygon, PiPBoundary is if on the border. It
-		/// tests border only if the tolerance is &gt; 0, otherwise PiPBoundary cannot
+		/// tests border only if the tolerance is greater than 0, otherwise PiPBoundary cannot
 		/// be returned. Note: If the tolerance is not 0, the test is more expensive
 		/// because it calculates closest distance from a point to each segment.
 		/// O(n) complexity, where n is the number of polygon segments.
@@ -86,7 +86,7 @@ namespace com.epl.geometry
 		/// <remarks>
 		/// Tests if Point is inside the Polygon's ring. Returns PiPOutside if not in
 		/// ring, PiPInside if in the ring, PiPBoundary is if on the border. It tests
-		/// border only if the tolerance is &gt; 0, otherwise PiPBoundary cannot be
+		/// border only if the tolerance is greater than 0, otherwise PiPBoundary cannot be
 		/// returned. Note: If the tolerance is not 0, the test is more expensive
 		/// because it calculates closest distance from a point to each segment.
 		/// O(n) complexity, where n is the number of ring segments.
@@ -139,34 +139,11 @@ namespace com.epl.geometry
 		// we would have to do more complex
 		// calculations to differentiat between
 		// internal and external boundaries.
-		// #ifndef DOTNET
-		// /**
-		// *Tests point is inside the Polygon for an array of points.
-		// *Returns PiPOutside if not in polygon, PiPInside if in the polygon,
-		// PiPBoundary is if on the border.
-		// *It tests border only if the tolerance is > 0, otherwise PiPBoundary
-		// cannot be returned.
-		// *Note: If the tolerance is not 0, the test is more expensive.
-		// *
-		// *O(n*m) complexity, where n is the number of polygon segments, m is the
-		// number of input points.
-		// */
-		// static void TestPointsInPolygon2D(Polygon polygon, const Point2D*
-		// inputPoints, int count, double tolerance, PiPResult testResults)
-		// {
-		// LOCALREFCLASS2(Array<Point2D>, Point2D*, int, inputPointsArr,
-		// const_cast<Point2D*>(inputPoints), count);
-		// LOCALREFCLASS2(Array<PolygonUtils::PiPResult>, PolygonUtils::PiPResult*,
-		// int, testResultsArr, testResults, count);
-		// TestPointsInPolygon2D(polygon, inputPointsArr, count, tolerance,
-		// testResultsArr);
-		// }
-		// #endif
 		/// <summary>Tests point is inside the Polygon for an array of points.</summary>
 		/// <remarks>
 		/// Tests point is inside the Polygon for an array of points. Returns
 		/// PiPOutside if not in polygon, PiPInside if in the polygon, PiPBoundary is
-		/// if on the border. It tests border only if the tolerance is &gt; 0, otherwise
+		/// if on the border. It tests border only if the tolerance is greater than 0, otherwise
 		/// PiPBoundary cannot be returned. Note: If the tolerance is not 0, the test
 		/// is more expensive.
 		/// O(n*m) complexity, where n is the number of polygon segments, m is the
@@ -198,25 +175,6 @@ namespace com.epl.geometry
 			}
 		}
 
-		// public static void testPointsInPolygon2D(Polygon polygon, Geometry geom,
-		// int count, double tolerance, PiPResult[] testResults)
-		// {
-		// if(geom.getType() == Type.Point)
-		// {
-		//
-		// }
-		// else if(Geometry.isMultiVertex(geom.getType()))
-		// {
-		//
-		// }
-		//
-		//
-		// if (inputPoints.length < count || testResults.length < count)
-		// throw new IllegalArgumentException();//GEOMTHROW(invalid_argument);
-		//
-		// for (int i = 0; i < count; i++)
-		// testResults[i] = isPointInPolygon2D(polygon, inputPoints[i], tolerance);
-		// }
 		/// <summary>
 		/// Tests point is inside an Area Geometry (Envelope, Polygon) for an array
 		/// of points.
@@ -225,7 +183,7 @@ namespace com.epl.geometry
 		/// Tests point is inside an Area Geometry (Envelope, Polygon) for an array
 		/// of points. Returns PiPOutside if not in area, PiPInside if in the area,
 		/// PiPBoundary is if on the border. It tests border only if the tolerance is
-		/// &gt; 0, otherwise PiPBoundary cannot be returned. Note: If the tolerance is
+		/// greater than 0, otherwise PiPBoundary cannot be returned. Note: If the tolerance is
 		/// not 0, the test is more expensive.
 		/// O(n*m) complexity, where n is the number of polygon segments, m is the
 		/// number of input points.

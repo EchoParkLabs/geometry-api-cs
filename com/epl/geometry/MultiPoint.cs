@@ -29,7 +29,7 @@ namespace com.epl.geometry
 	/// essential characteristic of the point set.
 	/// </remarks>
 	[System.Serializable]
-	public sealed class MultiPoint : com.epl.geometry.MultiVertexGeometry
+	public class MultiPoint : com.epl.geometry.MultiVertexGeometry
 	{
 		private const long serialVersionUID = 2L;
 
@@ -98,7 +98,7 @@ namespace com.epl.geometry
 
 		/// <summary>Adds a point multipoint.</summary>
 		/// <param name="point">The Point to be added to this multipoint.</param>
-		public void Add(com.epl.geometry.Point point)
+		public virtual void Add(com.epl.geometry.Point point)
 		{
 			m_impl.Add(point);
 		}
@@ -106,16 +106,23 @@ namespace com.epl.geometry
 		/// <summary>Adds a point with the specified X, Y coordinates to this multipoint.</summary>
 		/// <param name="x">The new Point's X coordinate.</param>
 		/// <param name="y">The new Point's Y coordinate.</param>
-		public void Add(double x, double y)
+		public virtual void Add(double x, double y)
 		{
 			m_impl.Add(x, y);
+		}
+
+		/// <summary>Adds a point with the specified X, Y coordinates to this multipoint.</summary>
+		/// <param name="pt">the point to add</param>
+		public virtual void Add(com.epl.geometry.Point2D pt)
+		{
+			m_impl.Add(pt.x, pt.y);
 		}
 
 		/// <summary>Adds a 3DPoint with the specified X, Y, Z coordinates to this multipoint.</summary>
 		/// <param name="x">The new Point's X coordinate.</param>
 		/// <param name="y">The new Point's Y coordinate.</param>
 		/// <param name="z">The new Point's Z coordinate.</param>
-		internal void Add(double x, double y, double z)
+		internal virtual void Add(double x, double y, double z)
 		{
 			m_impl.Add(x, y, z);
 		}
@@ -131,17 +138,17 @@ namespace com.epl.geometry
 		/// point to be appended. Use -1 to indicate the rest of the
 		/// source multipoint.
 		/// </param>
-		public void Add(com.epl.geometry.MultiVertexGeometry src, int srcFrom, int srcTo)
+		public virtual void Add(com.epl.geometry.MultiVertexGeometry src, int srcFrom, int srcTo)
 		{
 			m_impl.Add((com.epl.geometry.MultiVertexGeometryImpl)src._getImpl(), srcFrom, srcTo);
 		}
 
-		internal void AddPoints(com.epl.geometry.Point2D[] points)
+		internal virtual void AddPoints(com.epl.geometry.Point2D[] points)
 		{
 			m_impl.AddPoints(points);
 		}
 
-		internal void AddPoints(com.epl.geometry.Point[] points)
+		internal virtual void AddPoints(com.epl.geometry.Point[] points)
 		{
 			m_impl.AddPoints(points);
 		}
@@ -149,7 +156,7 @@ namespace com.epl.geometry
 		/// <summary>Inserts a point to this multipoint.</summary>
 		/// <param name="beforePointIndex">The index right before the new point to insert.</param>
 		/// <param name="pt">The point to insert.</param>
-		public void InsertPoint(int beforePointIndex, com.epl.geometry.Point pt)
+		public virtual void InsertPoint(int beforePointIndex, com.epl.geometry.Point pt)
 		{
 			m_impl.InsertPoint(beforePointIndex, pt);
 		}
@@ -157,14 +164,14 @@ namespace com.epl.geometry
 		// inserts a point. The point is connected with Lines
 		/// <summary>Removes a point from this multipoint.</summary>
 		/// <param name="pointIndex">The index of the point to be removed.</param>
-		public void RemovePoint(int pointIndex)
+		public virtual void RemovePoint(int pointIndex)
 		{
 			m_impl.RemovePoint(pointIndex);
 		}
 
 		/// <summary>Resizes the multipoint to have the given size.</summary>
 		/// <param name="pointCount">- The number of points in this multipoint.</param>
-		public void Resize(int pointCount)
+		public virtual void Resize(int pointCount)
 		{
 			m_impl.Resize(pointCount);
 		}
@@ -239,7 +246,7 @@ namespace com.epl.geometry
 			m_impl.AddAttribute(semantics);
 		}
 
-		internal override void AssignVertexDescription(com.epl.geometry.VertexDescription src)
+		public override void AssignVertexDescription(com.epl.geometry.VertexDescription src)
 		{
 			m_impl.AssignVertexDescription(src);
 		}
@@ -254,7 +261,7 @@ namespace com.epl.geometry
 			m_impl.DropAttribute(semantics);
 		}
 
-		internal override void MergeVertexDescription(com.epl.geometry.VertexDescription src)
+		public override void MergeVertexDescription(com.epl.geometry.VertexDescription src)
 		{
 			m_impl.MergeVertexDescription(src);
 		}
@@ -316,17 +323,17 @@ namespace com.epl.geometry
 			return m_impl.GetHashCode();
 		}
 
-		internal int QueryCoordinates(com.epl.geometry.Point2D[] dst, int dstSize, int beginIndex, int endIndex)
+		internal virtual int QueryCoordinates(com.epl.geometry.Point2D[] dst, int dstSize, int beginIndex, int endIndex)
 		{
 			return m_impl.QueryCoordinates(dst, dstSize, beginIndex, endIndex);
 		}
 
-		internal override void GetPointByVal(int index, com.epl.geometry.Point outPoint)
+		public override void GetPointByVal(int index, com.epl.geometry.Point outPoint)
 		{
 			m_impl.GetPointByVal(index, outPoint);
 		}
 
-		internal override void SetPointByVal(int index, com.epl.geometry.Point pointSrc)
+		public override void SetPointByVal(int index, com.epl.geometry.Point pointSrc)
 		{
 			m_impl.SetPointByVal(index, pointSrc);
 		}

@@ -894,7 +894,7 @@ namespace com.epl.geometry
 
 		public void Sort(int start, int end)
 		{
-			System.Array.Sort(m_buffer, start, end);
+			System.Array.Sort(m_buffer, start, end - start);
 		}
 	}
 }

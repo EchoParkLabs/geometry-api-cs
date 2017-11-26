@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -159,56 +178,52 @@ namespace com.epl.geometry
 		{
 		}
 
-		public static bool WriteObjectToFile(string fileName, object obj)
-		{
-			try
-			{
-				java.io.File f = new java.io.File(fileName);
-				f.SetWritable(true);
-				java.io.FileOutputStream fout = new java.io.FileOutputStream(f);
-				java.io.ObjectOutputStream oo = new java.io.ObjectOutputStream(fout);
-				oo.WriteObject(obj);
-				fout.Close();
-				return true;
-			}
-			catch (System.Exception)
-			{
-				return false;
-			}
-		}
-
-		public static object ReadObjectFromFile(string fileName)
-		{
-			try
-			{
-				java.io.File f = new java.io.File(fileName);
-				f.SetReadable(true);
-				java.io.FileInputStream streamIn = new java.io.FileInputStream(f);
-				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(streamIn);
-				object obj = ii.ReadObject();
-				streamIn.Close();
-				return obj;
-			}
-			catch (System.Exception)
-			{
-				return null;
-			}
-		}
-
-		public static com.epl.geometry.MapGeometry FromJson(string jsonString)
-		{
-			org.codehaus.jackson.JsonFactory factory = new org.codehaus.jackson.JsonFactory();
-			try
-			{
-				org.codehaus.jackson.JsonParser jsonParser = factory.CreateJsonParser(jsonString);
-				jsonParser.NextToken();
-				com.epl.geometry.OperatorImportFromJson importer = (com.epl.geometry.OperatorImportFromJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromJson);
-				return importer.Execute(com.epl.geometry.Geometry.Type.Unknown, jsonParser);
-			}
-			catch (System.Exception)
-			{
-			}
-			return null;
-		}
+//		public static bool WriteObjectToFile(string fileName, object obj)
+//		{
+//			try
+//			{
+//				java.io.File f = new java.io.File(fileName);
+//				f.SetWritable(true);
+//				java.io.FileOutputStream fout = new java.io.FileOutputStream(f);
+//				java.io.ObjectOutputStream oo = new java.io.ObjectOutputStream(fout);
+//				oo.WriteObject(obj);
+//				fout.Close();
+//				return true;
+//			}
+//			catch (System.Exception)
+//			{
+//				return false;
+//			}
+//		}
+//
+//		public static object ReadObjectFromFile(string fileName)
+//		{
+//			try
+//			{
+//				java.io.File f = new java.io.File(fileName);
+//				f.SetReadable(true);
+//				java.io.FileInputStream streamIn = new java.io.FileInputStream(f);
+//				java.io.ObjectInputStream ii = new java.io.ObjectInputStream(streamIn);
+//				object obj = ii.ReadObject();
+//				streamIn.Close();
+//				return obj;
+//			}
+//			catch (System.Exception)
+//			{
+//				return null;
+//			}
+//		}
+//
+//		public static com.epl.geometry.MapGeometry FromJson(string jsonString)
+//		{
+//			try
+//			{
+//				return com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, jsonString);
+//			}
+//			catch (System.Exception)
+//			{
+//			}
+//			return null;
+//		}
 	}
 }

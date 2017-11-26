@@ -31,10 +31,9 @@ namespace com.epl.geometry
 		static OperatorFactoryLocal()
 		{
 			// Register all implemented operator allocators in the dictionary
-//			st_supportedOperators[com.epl.geometry.Operator.Type.Project] = new com.epl.geometry.OperatorProjectLocal();
+			st_supportedOperators[com.epl.geometry.Operator.Type.Project] = new com.epl.geometry.OperatorProjectLocal();
 //			st_supportedOperators[com.epl.geometry.Operator.Type.ExportToJson] = new com.epl.geometry.OperatorExportToJsonLocal();
 //			st_supportedOperators[com.epl.geometry.Operator.Type.ImportFromJson] = new com.epl.geometry.OperatorImportFromJsonLocal();
-//			st_supportedOperators[com.epl.geometry.Operator.Type.ImportMapGeometryFromJson] = new com.epl.geometry.OperatorImportFromJsonLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.ExportToESRIShape] = new com.epl.geometry.OperatorExportToESRIShapeLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.ImportFromESRIShape] = new com.epl.geometry.OperatorImportFromESRIShapeLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.Proximity2D] = new com.epl.geometry.OperatorProximity2DLocal();
@@ -52,10 +51,10 @@ namespace com.epl.geometry
 			st_supportedOperators[com.epl.geometry.Operator.Type.Simplify] = new com.epl.geometry.OperatorSimplifyLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.Offset] = new com.epl.geometry.OperatorOffsetLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.GeodeticDensifyByLength] = new com.epl.geometry.OperatorGeodeticDensifyLocal();
-//			st_supportedOperators[com.epl.geometry.Operator.Type.ShapePreservingDensify] = new com.epl.geometry.OperatorShapePreservingDensifyLocal();
+			st_supportedOperators[com.epl.geometry.Operator.Type.ShapePreservingDensify] = new com.epl.geometry.OperatorShapePreservingDensifyLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.GeodesicBuffer] = new com.epl.geometry.OperatorGeodesicBufferLocal();
-//			st_supportedOperators[com.epl.geometry.Operator.Type.GeodeticLength] = new com.epl.geometry.OperatorGeodeticLengthLocal();
-//			st_supportedOperators[com.epl.geometry.Operator.Type.GeodeticArea] = new com.epl.geometry.OperatorGeodeticAreaLocal();
+			st_supportedOperators[com.epl.geometry.Operator.Type.GeodeticLength] = new com.epl.geometry.OperatorGeodeticLengthLocal();
+			st_supportedOperators[com.epl.geometry.Operator.Type.GeodeticArea] = new com.epl.geometry.OperatorGeodeticAreaLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.Buffer] = new com.epl.geometry.OperatorBufferLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.Distance] = new com.epl.geometry.OperatorDistanceLocal();
 			st_supportedOperators[com.epl.geometry.Operator.Type.Intersection] = new com.epl.geometry.OperatorIntersectionLocal();
@@ -149,17 +148,25 @@ namespace com.epl.geometry
 //			catch (System.Exception)
 //			{
 //			}
-//			org.codehaus.jackson.JsonFactory jf = new org.codehaus.jackson.JsonFactory();
-//			org.codehaus.jackson.JsonParser jp = null;
+//			com.epl.geometry.MapGeometry mapGeom = com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, jsonString);
+//			return mapGeom;
+//		}
+//
+//		public static com.epl.geometry.MapGeometry LoadGeometryFromJSONStringDbg(string json)
+//		{
+//			if (json == null)
+//			{
+//				throw new System.ArgumentException();
+//			}
+//			com.epl.geometry.MapGeometry mapGeom = null;
 //			try
 //			{
-//				jp = jf.CreateJsonParser(jsonString);
-//				jp.NextToken();
+//				mapGeom = com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, json);
 //			}
-//			catch (System.Exception)
+//			catch (System.Exception e)
 //			{
+//				throw new System.ArgumentException(e.ToString());
 //			}
-//			com.epl.geometry.MapGeometry mapGeom = com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, jp);
 //			return mapGeom;
 //		}
 //

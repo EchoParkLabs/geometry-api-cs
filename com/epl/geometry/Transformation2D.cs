@@ -23,8 +23,9 @@ namespace com.epl.geometry
 {
 	/// <summary>The affine transformation class for 2D.</summary>
 	/// <remarks>
-	/// The affine transformation class for 2D. <br />
-	/// Vector is a row: <code>
+	/// The affine transformation class for 2D.
+	/// Vector is a row:
+	/// <code>
 	/// <br />           |m11 m12 0|
 	/// <br />| x y 1| * |m21 m22 0| = |m11 * x + m21 * y + m31   m12 * x + m22 * y + m32   1|
 	/// <br />           |m31 m32 1|
@@ -467,7 +468,7 @@ namespace com.epl.geometry
 			}
 			pt.SetCoords(1.0, 0.0);
 			Transform(pt, pt);
-			pt.Sub(com.epl.geometry.Point2D.Construct(1.0, 0));
+			pt.Sub(com.epl.geometry.Point2D.Construct(1.0, 0.0));
 			return pt.SqrLength() <= tol * tol;
 		}
 

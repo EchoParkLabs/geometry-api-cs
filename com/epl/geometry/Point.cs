@@ -31,23 +31,20 @@ namespace com.epl.geometry
 	/// Systems, the X coordinate is the longitude and the Y is the latitude.
 	/// </remarks>
 	[System.Serializable]
-	public sealed class Point : com.epl.geometry.Geometry
+	public class Point : com.epl.geometry.Geometry
 	{
-		private const long serialVersionUID = 2L;
-
 		internal double[] m_attributes;
 
 		/// <summary>Creates an empty 2D point.</summary>
 		public Point()
 		{
-			// TODO:remove as we use
-			// writeReplace and
-			// GeometrySerializer
+			//We are using writeReplace instead.
+			//private static final long serialVersionUID = 2L;
 			// use doubles to store everything (long are bitcast)
 			m_description = com.epl.geometry.VertexDescriptionDesignerImpl.GetDefaultDescriptor2D();
 		}
 
-		internal Point(com.epl.geometry.VertexDescription vd)
+		public Point(com.epl.geometry.VertexDescription vd)
 		{
 			if (vd == null)
 			{
@@ -128,7 +125,7 @@ namespace com.epl.geometry
 
 		/// <summary>Returns XYZ coordinates of the point.</summary>
 		/// <remarks>Returns XYZ coordinates of the point. Z will be set to 0 if Z is missing.</remarks>
-		internal com.epl.geometry.Point3D GetXYZ()
+		public virtual com.epl.geometry.Point3D GetXYZ()
 		{
 			if (IsEmptyImpl())
 			{
@@ -150,7 +147,7 @@ namespace com.epl.geometry
 
 		/// <summary>Sets the XYZ coordinates of this point.</summary>
 		/// <param name="pt">The point to create the XYZ coordinate from.</param>
-		internal void SetXYZ(com.epl.geometry.Point3D pt)
+		public virtual void SetXYZ(com.epl.geometry.Point3D pt)
 		{
 			_touch();
 			bool bHasZ = HasAttribute(com.epl.geometry.VertexDescription.Semantics.Z);
@@ -193,7 +190,7 @@ namespace com.epl.geometry
 
 		/// <summary>Sets the X coordinate of the point.</summary>
 		/// <param name="x">The X coordinate to be set for this point.</param>
-		public void SetX(double x)
+		public virtual void SetX(double x)
 		{
 			SetAttribute(com.epl.geometry.VertexDescription.Semantics.POSITION, 0, x);
 		}
@@ -210,46 +207,46 @@ namespace com.epl.geometry
 
 		/// <summary>Sets the Y coordinate of this point.</summary>
 		/// <param name="y">The Y coordinate to be set for this point.</param>
-		public void SetY(double y)
+		public virtual void SetY(double y)
 		{
 			SetAttribute(com.epl.geometry.VertexDescription.Semantics.POSITION, 1, y);
 		}
 
 		/// <summary>Returns the Z coordinate of this point.</summary>
-		public double GetZ()
+		public virtual double GetZ()
 		{
 			return GetAttributeAsDbl(com.epl.geometry.VertexDescription.Semantics.Z, 0);
 		}
 
 		/// <summary>Sets the Z coordinate of this point.</summary>
 		/// <param name="z">The Z coordinate to be set for this point.</param>
-		public void SetZ(double z)
+		public virtual void SetZ(double z)
 		{
 			SetAttribute(com.epl.geometry.VertexDescription.Semantics.Z, 0, z);
 		}
 
 		/// <summary>Returns the attribute M of this point.</summary>
-		public double GetM()
+		public virtual double GetM()
 		{
 			return GetAttributeAsDbl(com.epl.geometry.VertexDescription.Semantics.M, 0);
 		}
 
 		/// <summary>Sets the M coordinate of this point.</summary>
 		/// <param name="m">The M coordinate to be set for this point.</param>
-		public void SetM(double m)
+		public virtual void SetM(double m)
 		{
 			SetAttribute(com.epl.geometry.VertexDescription.Semantics.M, 0, m);
 		}
 
 		/// <summary>Returns the ID of this point.</summary>
-		public int GetID()
+		public virtual int GetID()
 		{
 			return GetAttributeAsInt(com.epl.geometry.VertexDescription.Semantics.ID, 0);
 		}
 
 		/// <summary>Sets the ID of this point.</summary>
 		/// <param name="id">The ID of this point.</param>
-		public void SetID(int id)
+		public virtual void SetID(int id)
 		{
 			SetAttribute(com.epl.geometry.VertexDescription.Semantics.ID, 0, id);
 		}
@@ -261,7 +258,7 @@ namespace com.epl.geometry
 		/// NORMAL has ordinate of 1.
 		/// </param>
 		/// <returns>The ordinate as double value.</returns>
-		public double GetAttributeAsDbl(int semantics, int ordinate)
+		public virtual double GetAttributeAsDbl(int semantics, int ordinate)
 		{
 			if (IsEmptyImpl())
 			{
@@ -294,7 +291,7 @@ namespace com.epl.geometry
 		/// NORMAL has ordinate of 1.
 		/// </param>
 		/// <returns>The ordinate value truncated to a 32 bit integer value.</returns>
-		public int GetAttributeAsInt(int semantics, int ordinate)
+		public virtual int GetAttributeAsInt(int semantics, int ordinate)
 		{
 			if (IsEmptyImpl())
 			{
@@ -324,7 +321,7 @@ namespace com.epl.geometry
 		/// number of elements must match the persistence type, as well as
 		/// the number of components of the attribute.
 		/// </param>
-		public void SetAttribute(int semantics, int ordinate, double value)
+		public virtual void SetAttribute(int semantics, int ordinate, double value)
 		{
 			_touch();
 			int ncomps = com.epl.geometry.VertexDescription.GetComponentCount(semantics);
@@ -345,7 +342,7 @@ namespace com.epl.geometry
 			m_attributes[m_description._getPointAttributeOffset(attributeIndex) + ordinate] = value;
 		}
 
-		public void SetAttribute(int semantics, int ordinate, int value)
+		public virtual void SetAttribute(int semantics, int ordinate, int value)
 		{
 			SetAttribute(semantics, ordinate, (double)value);
 		}
@@ -378,7 +375,7 @@ namespace com.epl.geometry
 				return;
 			}
 			int[] mapping = com.epl.geometry.VertexDescriptionDesignerImpl.MapAttributes(newDescription, m_description);
-			double[] newAttributes = new double[newDescription._getTotalComponents()];
+			double[] newAttributes = new double[newDescription.GetTotalComponentCount()];
 			int j = 0;
 			for (int i = 0, n = newDescription.GetAttributeCount(); i < n; i++)
 			{
@@ -410,10 +407,10 @@ namespace com.epl.geometry
 		}
 
 		/// <summary>Sets the Point to a default, non-empty state.</summary>
-		internal void _setToDefault()
+		internal virtual void _setToDefault()
 		{
-			ResizeAttributes(m_description._getTotalComponents());
-			com.epl.geometry.Point.AttributeCopy(m_description._getDefaultPointAttributes(), m_attributes, m_description._getTotalComponents());
+			ResizeAttributes(m_description.GetTotalComponentCount());
+			com.epl.geometry.Point.AttributeCopy(m_description._getDefaultPointAttributes(), m_attributes, m_description.GetTotalComponentCount());
 			m_attributes[0] = com.epl.geometry.NumberUtils.NaN();
 			m_attributes[1] = com.epl.geometry.NumberUtils.NaN();
 		}
@@ -457,8 +454,8 @@ namespace com.epl.geometry
 			else
 			{
 				pointDst.AssignVertexDescription(m_description);
-				pointDst.ResizeAttributes(m_description._getTotalComponents());
-				AttributeCopy(m_attributes, pointDst.m_attributes, m_description._getTotalComponents());
+				pointDst.ResizeAttributes(m_description.GetTotalComponentCount());
+				AttributeCopy(m_attributes, pointDst.m_attributes, m_description.GetTotalComponentCount());
 			}
 		}
 
@@ -559,7 +556,7 @@ namespace com.epl.geometry
 		/// <summary>Set the X and Y coordinate of the point.</summary>
 		/// <param name="x">X coordinate of the point.</param>
 		/// <param name="y">Y coordinate of the point.</param>
-		public void SetXY(double x, double y)
+		public virtual void SetXY(double x, double y)
 		{
 			_touch();
 			if (m_attributes == null)
@@ -600,7 +597,7 @@ namespace com.epl.geometry
 					return false;
 				}
 			}
-			for (int i = 0, n = m_description._getTotalComponents(); i < n; i++)
+			for (int i = 0, n = m_description.GetTotalComponentCount(); i < n; i++)
 			{
 				if (m_attributes[i] != otherPt.m_attributes[i])
 				{
@@ -616,7 +613,7 @@ namespace com.epl.geometry
 			int hashCode = m_description.GetHashCode();
 			if (!IsEmptyImpl())
 			{
-				for (int i = 0, n = m_description._getTotalComponents(); i < n; i++)
+				for (int i = 0, n = m_description.GetTotalComponentCount(); i < n; i++)
 				{
 					long bits = System.BitConverter.DoubleToInt64Bits(m_attributes[i]);
 					int hc = (int)(bits ^ ((long)(((ulong)bits) >> 32)));

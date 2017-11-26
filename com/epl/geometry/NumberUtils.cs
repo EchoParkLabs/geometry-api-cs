@@ -75,6 +75,13 @@ namespace com.epl.geometry
 			return double.NaN;
 		}
 
+		//combines two hash values
+		public static int HashCombine(int hash1, int hash2)
+		{
+			return (hash1 * 31 + hash2) & unchecked((int)(0x7FFFFFFF));
+		}
+
+		//makes a hash out of an int
 		internal static int Hash(int n)
 		{
 			int hash = 5381;
@@ -87,6 +94,7 @@ namespace com.epl.geometry
 			return hash;
 		}
 
+		//	//makes a hash out of an double
 		internal static int Hash(double d)
 		{
 			long bits = System.BitConverter.DoubleToInt64Bits(d);
@@ -94,6 +102,7 @@ namespace com.epl.geometry
 			return Hash(hc);
 		}
 
+		//adds an int to a hash value
 		internal static int Hash(int hashIn, int n)
 		{
 			int hash = ((hashIn << 5) + hashIn) + (n & unchecked((int)(0xFF)));
@@ -105,6 +114,7 @@ namespace com.epl.geometry
 			return hash;
 		}
 
+		//adds a double to a hash value
 		internal static int Hash(int hash, double d)
 		{
 			long bits = System.BitConverter.DoubleToInt64Bits(d);

@@ -44,7 +44,7 @@ namespace com.epl.geometry
 		/// <param name="maxDeviationMeters">The maximum deviation. Must be a positive value to be used. Pass zero or NaN to disable densification by deviation.</param>
 		/// <param name="reserved">Must be 0 or NaN. Reserved for future use. Throws and exception if not NaN or 0.</param>
 		/// <returns>
-		/// Returns the densified geometries (It does nothing to geometries with dim &lt; 1, but simply passes them along).
+		/// Returns the densified geometries (It does nothing to geometries with dim less than 1, but simply passes them along).
 		/// The operation always starts from the lowest point on the segment, thus guaranteeing that topologically equal segments are always densified exactly the same.
 		/// </returns>
 		public abstract com.epl.geometry.GeometryCursor Execute(com.epl.geometry.GeometryCursor geoms, com.epl.geometry.SpatialReference sr, double maxLengthMeters, double maxDeviationMeters, double reserved, com.epl.geometry.ProgressTracker progressTracker);
@@ -60,7 +60,7 @@ namespace com.epl.geometry
 		/// <param name="maxDeviationMeters">The maximum deviation. Must be a positive value to be used. Pass zero or NaN to disable densification by deviation.</param>
 		/// <param name="reserved">Must be 0 or NaN. Reserved for future use. Throws and exception if not NaN or 0.</param>
 		/// <returns>
-		/// Returns the densified geometries (It does nothing to geometries with dim &lt; 1, but simply passes them along).
+		/// Returns the densified geometries (It does nothing to geometries with dim less than 1, but simply passes them along).
 		/// The operation always starts from the lowest point on the segment, thus guaranteeing that topologically equal segments are always densified exactly the same.
 		/// </returns>
 		public abstract com.epl.geometry.Geometry Execute(com.epl.geometry.Geometry geom, com.epl.geometry.SpatialReference sr, double maxLengthMeters, double maxDeviationMeters, double reserved, com.epl.geometry.ProgressTracker progressTracker);

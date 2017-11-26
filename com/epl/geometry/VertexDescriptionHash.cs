@@ -32,21 +32,18 @@ namespace com.epl.geometry
 	/// </remarks>
 	internal sealed class VertexDescriptionHash
 	{
-		internal System.Collections.Generic.Dictionary<int, System.WeakReference<com.epl.geometry.VertexDescription>> map = new System.Collections.Generic.Dictionary<int, System.WeakReference<com.epl.geometry.VertexDescription>>();
+		internal System.Collections.Generic.Dictionary<int, com.epl.geometry.VertexDescription> m_map = new System.Collections.Generic.Dictionary<int, com.epl.geometry.VertexDescription>();
 
-		private static com.epl.geometry.VertexDescription m_vd2D;
+		private static com.epl.geometry.VertexDescription m_vd2D = new com.epl.geometry.VertexDescription(1);
 
-		private static com.epl.geometry.VertexDescription m_vd3D;
+		private static com.epl.geometry.VertexDescription m_vd3D = new com.epl.geometry.VertexDescription(3);
 
 		private static readonly com.epl.geometry.VertexDescriptionHash INSTANCE = new com.epl.geometry.VertexDescriptionHash();
 
 		private VertexDescriptionHash()
 		{
-			com.epl.geometry.VertexDescriptionDesignerImpl vdd2D = new com.epl.geometry.VertexDescriptionDesignerImpl();
-			Add(vdd2D);
-			com.epl.geometry.VertexDescriptionDesignerImpl vdd3D = new com.epl.geometry.VertexDescriptionDesignerImpl();
-			vdd3D.AddAttribute(com.epl.geometry.VertexDescription.Semantics.Z);
-			Add(vdd3D);
+			m_map[1] = m_vd2D;
+			m_map[3] = m_vd3D;
 		}
 
 		public static com.epl.geometry.VertexDescriptionHash GetInstance()
@@ -64,57 +61,23 @@ namespace com.epl.geometry
 			return m_vd3D;
 		}
 
-		public com.epl.geometry.VertexDescription Add(com.epl.geometry.VertexDescriptionDesignerImpl vdd)
+		public com.epl.geometry.VertexDescription FindOrAdd(int bitSet)
 		{
+			if (bitSet == 1)
+			{
+				return m_vd2D;
+			}
+			if (bitSet == 3)
+			{
+				return m_vd3D;
+			}
 			lock (this)
 			{
-				// Firstly quick test for 2D/3D descriptors.
-				int h = vdd.GetHashCode();
-				if ((m_vd2D != null) && m_vd2D.GetHashCode() == h)
-				{
-					if (vdd.IsDesignerFor(m_vd2D))
-					{
-						return m_vd2D;
-					}
-				}
-				if ((m_vd3D != null) && (m_vd3D.GetHashCode() == h))
-				{
-					if (vdd.IsDesignerFor(m_vd3D))
-					{
-						return m_vd3D;
-					}
-				}
-				// Now search in the hash.
 				com.epl.geometry.VertexDescription vd = null;
-				if (map.ContainsKey(h))
+				if (!m_map.TryGetValue(bitSet, out vd))
 				{
-					System.WeakReference<com.epl.geometry.VertexDescription> vdweak = map[h];
-					if (!vdweak.TryGetTarget(out vd))
-					{
-						// GC'd VertexDescription
-						map.Remove(h);
-					}
-				}
-				if (vd == null)
-				{
-					// either not in map to begin with, or has been GC'd
-					vd = vdd._createInternal();
-					if (vd.GetAttributeCount() == 1)
-					{
-						m_vd2D = vd;
-					}
-					else
-					{
-						if ((vd.GetAttributeCount() == 2) && (vd.GetSemantics(1) == com.epl.geometry.VertexDescription.Semantics.Z))
-						{
-							m_vd3D = vd;
-						}
-						else
-						{
-							System.WeakReference<com.epl.geometry.VertexDescription> vdweak = new System.WeakReference<com.epl.geometry.VertexDescription>(vd);
-							map[h] = vdweak;
-						}
-					}
+					vd = new com.epl.geometry.VertexDescription(bitSet);
+					m_map[bitSet] = vd;
 				}
 				return vd;
 			}

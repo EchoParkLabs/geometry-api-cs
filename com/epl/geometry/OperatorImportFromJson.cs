@@ -31,23 +31,15 @@ namespace com.epl.geometry
 
 		/// <summary>Performs the ImportFromJson operation on a number of Json Strings</summary>
 		/// <returns>Returns a MapGeometryCursor.</returns>
-		internal abstract com.epl.geometry.MapGeometryCursor Execute(com.epl.geometry.Geometry.Type type, com.epl.geometry.JsonParserCursor jsonParserCursor);
+		internal abstract com.epl.geometry.MapGeometryCursor Execute(com.epl.geometry.Geometry.Type type, com.epl.geometry.JsonReaderCursor jsonReaderCursor);
 
 		/// <summary>Performs the ImportFromJson operation on a single Json string</summary>
 		/// <returns>Returns a MapGeometry.</returns>
-		public abstract com.epl.geometry.MapGeometry Execute(com.epl.geometry.Geometry.Type type, org.codehaus.jackson.JsonParser jsonParser);
+		public abstract com.epl.geometry.MapGeometry Execute(com.epl.geometry.Geometry.Type type, com.epl.geometry.JsonReader jsonReader);
 
 		/// <summary>Performs the ImportFromJson operation on a single Json string</summary>
 		/// <returns>Returns a MapGeometry.</returns>
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
-		/// <exception cref="System.IO.IOException"/>
 		public abstract com.epl.geometry.MapGeometry Execute(com.epl.geometry.Geometry.Type type, string @string);
-
-		/// <summary>Performs the ImportFromJson operation on a JSONObject</summary>
-		/// <returns>Returns a MapGeometry.</returns>
-		/// <exception cref="org.json.JSONException"/>
-		/// <exception cref="System.IO.IOException"/>
-		public abstract com.epl.geometry.MapGeometry Execute(com.epl.geometry.Geometry.Type type, org.json.JSONObject jsonObject);
 
 		public static com.epl.geometry.OperatorImportFromJson Local()
 		{

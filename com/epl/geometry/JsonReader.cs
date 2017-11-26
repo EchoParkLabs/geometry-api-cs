@@ -21,24 +21,51 @@ email: info@echoparklabs.io
 
 namespace com.epl.geometry
 {
-	internal abstract class JsonReader
+	/// <summary>An abstract reader for Json.</summary>
+	/// <remarks>
+	/// An abstract reader for Json.
+	/// See JsonParserReader for a concrete implementation around JsonParser.
+	/// </remarks>
+	public abstract class JsonReader
 	{
-		/// <exception cref="System.Exception"/>
-		internal abstract org.codehaus.jackson.JsonToken NextToken();
+		public enum Token
+		{
+			END_ARRAY,
+			END_OBJECT,
+			FIELD_NAME,
+			START_ARRAY,
+			START_OBJECT,
+			VALUE_FALSE,
+			VALUE_NULL,
+			VALUE_NUMBER_FLOAT,
+			VALUE_NUMBER_INT,
+			VALUE_STRING,
+			VALUE_TRUE
+		}
 
-		/// <exception cref="System.Exception"/>
-		internal abstract org.codehaus.jackson.JsonToken CurrentToken();
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public abstract com.epl.geometry.JsonReader.Token NextToken();
 
-		/// <exception cref="System.Exception"/>
-		internal abstract void SkipChildren();
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public abstract com.epl.geometry.JsonReader.Token CurrentToken();
 
-		/// <exception cref="System.Exception"/>
-		internal abstract string CurrentString();
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public abstract void SkipChildren();
 
-		/// <exception cref="System.Exception"/>
-		internal abstract double CurrentDoubleValue();
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public abstract string CurrentString();
 
-		/// <exception cref="System.Exception"/>
-		internal abstract int CurrentIntValue();
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public abstract double CurrentDoubleValue();
+
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public abstract int CurrentIntValue();
+
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public abstract bool CurrentBooleanValue();
+	}
+
+	public static class JsonReaderConstants
+	{
 	}
 }

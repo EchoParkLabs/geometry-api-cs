@@ -115,32 +115,80 @@ namespace com.epl.geometry
 
 		internal static com.epl.geometry.Geometry CalculateConvexHull_(com.epl.geometry.Geometry geom, com.epl.geometry.ProgressTracker progress_tracker)
 		{
-			if (IsConvex_(geom, progress_tracker))
+			if (geom.IsEmpty())
 			{
-				return geom;
+				return geom.CreateInstance();
 			}
-			int type = geom.GetType().Value();
-			if (com.epl.geometry.MultiPath.IsSegment(type))
+			com.epl.geometry.Geometry.Type type = geom.GetType();
+			if (com.epl.geometry.Geometry.IsSegment(type.Value()))
 			{
-				com.epl.geometry.Polyline polyline = new com.epl.geometry.Polyline(geom.GetDescription());
-				polyline.AddSegment((com.epl.geometry.Segment)geom, true);
-				return polyline;
-			}
-			if (type == com.epl.geometry.Geometry.GeometryType.MultiPoint)
-			{
-				com.epl.geometry.MultiPoint multi_point = (com.epl.geometry.MultiPoint)geom;
-				if (multi_point.GetPointCount() == 2)
+				// Segments are always returned either as a Point or Polyline
+				com.epl.geometry.Segment segment = (com.epl.geometry.Segment)geom;
+				if (segment.GetStartXY().Equals(segment.GetEndXY()))
+				{
+					com.epl.geometry.Point point = new com.epl.geometry.Point();
+					segment.QueryStart(point);
+					return point;
+				}
+				else
 				{
 					com.epl.geometry.Point pt = new com.epl.geometry.Point();
 					com.epl.geometry.Polyline polyline = new com.epl.geometry.Polyline(geom.GetDescription());
-					multi_point.GetPointByVal(0, pt);
+					segment.QueryStart(pt);
 					polyline.StartPath(pt);
-					multi_point.GetPointByVal(1, pt);
+					segment.QueryEnd(pt);
 					polyline.LineTo(pt);
 					return polyline;
 				}
 			}
-			com.epl.geometry.Polygon convex_hull = com.epl.geometry.ConvexHull.Construct((com.epl.geometry.MultiVertexGeometry)geom);
+			else
+			{
+				if (type == com.epl.geometry.Geometry.Type.Envelope)
+				{
+					com.epl.geometry.Envelope envelope = (com.epl.geometry.Envelope)geom;
+					com.epl.geometry.Envelope2D env = new com.epl.geometry.Envelope2D();
+					envelope.QueryEnvelope2D(env);
+					if (env.xmin == env.xmax && env.ymin == env.ymax)
+					{
+						com.epl.geometry.Point point = new com.epl.geometry.Point();
+						envelope.QueryCornerByVal(0, point);
+						return point;
+					}
+					else
+					{
+						if (env.xmin == env.xmax || env.ymin == env.ymax)
+						{
+							com.epl.geometry.Point pt = new com.epl.geometry.Point();
+							com.epl.geometry.Polyline polyline = new com.epl.geometry.Polyline(geom.GetDescription());
+							envelope.QueryCornerByVal(0, pt);
+							polyline.StartPath(pt);
+							envelope.QueryCornerByVal(1, pt);
+							polyline.LineTo(pt);
+							return polyline;
+						}
+						else
+						{
+							com.epl.geometry.Polygon polygon = new com.epl.geometry.Polygon(geom.GetDescription());
+							polygon.AddEnvelope(envelope, false);
+							return polygon;
+						}
+					}
+				}
+			}
+			if (IsConvex_(geom, progress_tracker))
+			{
+				if (type == com.epl.geometry.Geometry.Type.MultiPoint)
+				{
+					// Downgrade to a Point for simplistic output
+					com.epl.geometry.MultiPoint multi_point = (com.epl.geometry.MultiPoint)geom;
+					com.epl.geometry.Point point = new com.epl.geometry.Point();
+					multi_point.GetPointByVal(0, point);
+					return point;
+				}
+				return geom;
+			}
+			System.Diagnostics.Debug.Assert((com.epl.geometry.Geometry.IsMultiVertex(type.Value())));
+			com.epl.geometry.Geometry convex_hull = com.epl.geometry.ConvexHull.Construct((com.epl.geometry.MultiVertexGeometry)geom);
 			return convex_hull;
 		}
 
@@ -151,55 +199,60 @@ namespace com.epl.geometry
 				return true;
 			}
 			// vacuously true
-			int type = geom.GetType().Value();
-			if (type == com.epl.geometry.Geometry.GeometryType.Point)
+			com.epl.geometry.Geometry.Type type = geom.GetType();
+			if (type == com.epl.geometry.Geometry.Type.Point)
 			{
 				return true;
 			}
 			// vacuously true
-			if (type == com.epl.geometry.Geometry.GeometryType.Envelope)
+			if (type == com.epl.geometry.Geometry.Type.Envelope)
 			{
+				com.epl.geometry.Envelope envelope = (com.epl.geometry.Envelope)geom;
+				if (envelope.GetXMin() == envelope.GetXMax() || envelope.GetYMin() == envelope.GetYMax())
+				{
+					return false;
+				}
 				return true;
 			}
-			// always convex
-			if (com.epl.geometry.MultiPath.IsSegment(type))
+			if (com.epl.geometry.MultiPath.IsSegment(type.Value()))
 			{
-				return false;
+				com.epl.geometry.Segment segment = (com.epl.geometry.Segment)geom;
+				if (segment.GetStartXY().Equals(segment.GetEndXY()))
+				{
+					return false;
+				}
+				return true;
 			}
-			// upgrade to polyline
-			if (type == com.epl.geometry.Geometry.GeometryType.MultiPoint)
+			// true, but we will upgrade to a Polyline for the ConvexHull operation
+			if (type == com.epl.geometry.Geometry.Type.MultiPoint)
 			{
 				com.epl.geometry.MultiPoint multi_point = (com.epl.geometry.MultiPoint)geom;
 				if (multi_point.GetPointCount() == 1)
 				{
 					return true;
 				}
-				// vacuously true
+				// vacuously true, but we will downgrade to a Point for the ConvexHull operation
 				return false;
 			}
-			// upgrade to polyline if point count is 2, otherwise
-			// create convex hull
-			if (type == com.epl.geometry.Geometry.GeometryType.Polyline)
+			if (type == com.epl.geometry.Geometry.Type.Polyline)
 			{
 				com.epl.geometry.Polyline polyline = (com.epl.geometry.Polyline)geom;
-				if (polyline.GetPathCount() == 1 && polyline.GetPointCount() <= 2)
+				if (polyline.GetPathCount() == 1 && polyline.GetPointCount() == 2)
 				{
-					return true;
+					if (!polyline.GetXY(0).Equals(polyline.GetXY(1)))
+					{
+						return true;
+					}
 				}
 				// vacuously true
 				return false;
 			}
 			// create convex hull
 			com.epl.geometry.Polygon polygon = (com.epl.geometry.Polygon)geom;
-			if (polygon.GetPathCount() != 1)
+			if (polygon.GetPathCount() != 1 || polygon.GetPointCount() < 3)
 			{
 				return false;
 			}
-			if (polygon.GetPointCount() <= 2)
-			{
-				return true;
-			}
-			// vacuously true
 			return com.epl.geometry.ConvexHull.IsPathConvex(polygon, 0, progress_tracker);
 		}
 	}

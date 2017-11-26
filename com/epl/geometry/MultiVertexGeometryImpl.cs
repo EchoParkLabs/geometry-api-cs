@@ -225,8 +225,7 @@ namespace com.epl.geometry
 			m_accelerators = null;
 		}
 
-		// Checked vs. Jan 11, 2011
-		internal override void GetPointByVal(int index, com.epl.geometry.Point dst)
+		public override void GetPointByVal(int index, com.epl.geometry.Point dst)
 		{
 			if (index < 0 || index >= m_pointCount)
 			{
@@ -255,8 +254,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		// Checked vs. Jan 11, 2011
-		internal override void SetPointByVal(int index, com.epl.geometry.Point src)
+		public override void SetPointByVal(int index, com.epl.geometry.Point src)
 		{
 			if (index < 0 || index >= m_pointCount)
 			{
@@ -1243,6 +1241,10 @@ namespace com.epl.geometry
 		public abstract bool _buildRasterizedGeometryAccelerator(double toleranceXY, com.epl.geometry.Geometry.GeometryAccelerationDegree accelDegree);
 
 		public abstract bool _buildQuadTreeAccelerator(com.epl.geometry.Geometry.GeometryAccelerationDegree d);
-		// //////////////////METHODS To REMOVE ///////////////////////
+
+		public override string ToString()
+		{
+			return "MultiVertexGeometryImpl";
+		}
 	}
 }

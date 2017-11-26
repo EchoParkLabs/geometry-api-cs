@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using Sharpen;
 
 namespace com.epl.geometry.ogc
@@ -58,7 +77,13 @@ namespace com.epl.geometry.ogc
 		public virtual string AsGeoJson()
 		{
 			com.epl.geometry.OperatorExportToGeoJson op = (com.epl.geometry.OperatorExportToGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToGeoJson);
-			return op.Execute(GetEsriGeometry());
+			return op.Execute(esriSR, GetEsriGeometry());
+		}
+
+		internal virtual string AsGeoJsonImpl(int export_flags)
+		{
+			com.epl.geometry.OperatorExportToGeoJson op = (com.epl.geometry.OperatorExportToGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ExportToGeoJson);
+			return op.Execute(export_flags, esriSR, GetEsriGeometry());
 		}
 
 		/// <returns>Convert to REST JSON.</returns>
@@ -168,12 +193,30 @@ namespace com.epl.geometry.ogc
 
 		public abstract com.epl.geometry.ogc.OGCGeometry Boundary();
 
-		/// <summary>OGC equals</summary>
+		/// <summary>OGC equals.</summary>
+		/// <remarks>
+		/// OGC equals. Performs topological comparison with tolerance.
+		/// This is different from equals(Object), that uses exact comparison.
+		/// </remarks>
 		public virtual bool Equals(com.epl.geometry.ogc.OGCGeometry another)
 		{
+			if (this == another)
+			{
+				return true;
+			}
+			if (another == null)
+			{
+				return false;
+			}
 			com.epl.geometry.Geometry geom1 = GetEsriGeometry();
 			com.epl.geometry.Geometry geom2 = another.GetEsriGeometry();
 			return com.epl.geometry.GeometryEngine.Equals(geom1, geom2, GetEsriSpatialReference());
+		}
+
+		[System.Obsolete]
+		public virtual bool Equals(com.epl.geometry.ogc.OGCGeometry another)
+		{
+			return Equals(another);
 		}
 
 		public virtual bool Disjoint(com.epl.geometry.ogc.OGCGeometry another)
@@ -460,18 +503,12 @@ namespace com.epl.geometry.ogc
 			return com.epl.geometry.ogc.OGCGeometry.CreateFromEsriGeometry(g, com.epl.geometry.SpatialReference.Create(4326));
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
-		/// <exception cref="System.IO.IOException"/>
 		public static com.epl.geometry.ogc.OGCGeometry FromJson(string @string)
 		{
-			org.codehaus.jackson.JsonFactory factory = new org.codehaus.jackson.JsonFactory();
-			org.codehaus.jackson.JsonParser jsonParserPt = factory.CreateJsonParser(@string);
-			jsonParserPt.NextToken();
-			com.epl.geometry.MapGeometry mapGeom = com.epl.geometry.GeometryEngine.JsonToGeometry(jsonParserPt);
+			com.epl.geometry.MapGeometry mapGeom = com.epl.geometry.GeometryEngine.JsonToGeometry(com.epl.geometry.JsonParserReader.CreateFromString(@string));
 			return com.epl.geometry.ogc.OGCGeometry.CreateFromEsriGeometry(mapGeom.GetGeometry(), mapGeom.GetSpatialReference());
 		}
 
-		/// <exception cref="org.json.JSONException"/>
 		public static com.epl.geometry.ogc.OGCGeometry FromGeoJson(string @string)
 		{
 			com.epl.geometry.OperatorImportFromGeoJson op = (com.epl.geometry.OperatorImportFromGeoJson)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ImportFromGeoJson);
@@ -674,6 +711,63 @@ namespace com.epl.geometry.ogc
 				snippet = snippet.Substring(0, 197 - 0) + "...";
 			}
 			return string.Format("%s: %s", this.GetType().FullName, snippet);
+		}
+
+		public override bool Equals(object other)
+		{
+			if (other == null)
+			{
+				return false;
+			}
+			if (other == this)
+			{
+				return true;
+			}
+			if (other.GetType() != GetType())
+			{
+				return false;
+			}
+			com.epl.geometry.ogc.OGCGeometry another = (com.epl.geometry.ogc.OGCGeometry)other;
+			com.epl.geometry.Geometry geom1 = GetEsriGeometry();
+			com.epl.geometry.Geometry geom2 = another.GetEsriGeometry();
+			if (geom1 == null)
+			{
+				if (geom2 != null)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				if (!geom1.Equals(geom2))
+				{
+					return false;
+				}
+			}
+			if (esriSR == another.esriSR)
+			{
+				return true;
+			}
+			if (esriSR != null && another.esriSR != null)
+			{
+				return esriSR.Equals(another.esriSR);
+			}
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			int hash = 1;
+			com.epl.geometry.Geometry geom1 = GetEsriGeometry();
+			if (geom1 != null)
+			{
+				hash = geom1.GetHashCode();
+			}
+			if (esriSR != null)
+			{
+				hash = com.epl.geometry.NumberUtils.HashCombine(hash, esriSR.GetHashCode());
+			}
+			return hash;
 		}
 	}
 }

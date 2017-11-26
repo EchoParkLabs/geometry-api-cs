@@ -32,6 +32,7 @@ namespace com.epl.geometry
 			internal com.epl.geometry.Geometry.Type geometryType;
 
 			internal byte[] esriShape = null;
+			//Left here for backward compatibility. Use GenericGeometrySerializer instead
 		}
 
 		[System.Serializable]

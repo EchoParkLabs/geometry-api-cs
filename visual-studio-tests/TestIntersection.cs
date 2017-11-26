@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -71,11 +90,11 @@ namespace com.epl.geometry
 //			NUnit.Framework.Assert.IsTrue(System.Math.Abs(points[0].GetY() - 3892060.0000000000) < 1e-7);
 //			NUnit.Framework.Assert.IsTrue(System.Math.Abs(points[2].GetX() - 855307.00000000093) < 1e-7);
 //			NUnit.Framework.Assert.IsTrue(System.Math.Abs(points[2].GetY() - 3892079.0000000000) < 1e-7);
-//			geomr = operatorIntersection.Execute(poly1, poly2, inputSR, null);
-//			NUnit.Framework.Assert.IsNotNull(geomr);
-//			NUnit.Framework.Assert.IsTrue(geomr.GetType() == com.epl.geometry.Geometry.Type.Polygon);
-//			com.epl.geometry.Polygon outputGeom = (com.epl.geometry.Polygon)geomr;
-//			NUnit.Framework.Assert.IsTrue(outputGeom.GetPointCount() == 4);
+			geomr = operatorIntersection.Execute(poly1, poly2, inputSR, null);
+			NUnit.Framework.Assert.IsNotNull(geomr);
+			NUnit.Framework.Assert.IsTrue(geomr.GetType() == com.epl.geometry.Geometry.Type.Polygon);
+			com.epl.geometry.Polygon outputGeom = (com.epl.geometry.Polygon)geomr;
+			NUnit.Framework.Assert.IsTrue(outputGeom.GetPointCount() == 4);
 //			points = com.epl.geometry.TestCommonMethods.PointsFromMultiPath(outputGeom);
 //			NUnit.Framework.Assert.IsTrue(System.Math.Abs(points[0].GetX() - 855278.000000000) < 1e-7);
 //			NUnit.Framework.Assert.IsTrue(System.Math.Abs(points[0].GetY() - 3892060.0000000000) < 1e-7);
@@ -929,5 +948,46 @@ namespace com.epl.geometry
 //			bool eq = com.epl.geometry.OperatorEquals.Local().Execute(g, polyline, sr, null);
 //			NUnit.Framework.Assert.IsTrue(eq);
 //		}
+		/*
+		Point2D uniqueIntersectionPointOfNonDisjointGeometries(Geometry g1, Geometry g2, SpatialReference sr) {
+		Geometry g1Test = g1;
+		boolean g1Polygon = g1.getType() == Geometry.Type.Polygon;
+		boolean g2Polygon = g2.getType() == Geometry.Type.Polygon;
+		
+		if (g1Polygon || g2Polygon)
+		{
+		if (g1Polygon) {
+		Point2D p = getFirstPoint(g2);
+		if (PolygonUtils.isPointInPolygon2D((Polygon)g1, p, 0) != PiPResult.PiPOutside)
+		return p;
+		}
+		if (g2Polygon) {
+		Point2D p = getFirstPoint(g1);
+		if (PolygonUtils.isPointInPolygon2D((Polygon)g2, p, 0) != PiPResult.PiPOutside)
+		return p;
+		}
+		}
+		
+		if (g1Polygon)
+		{
+		Polyline polyline = new Polyline();
+		polyline.add((MultiPath)g1, false);
+		g1Test = polyline;
+		}
+		Geometry g2Test = g2;
+		if (g2Polygon)
+		{
+		Polyline polyline = new Polyline();
+		polyline.add((MultiPath)g2, false);
+		g2Test = polyline;
+		}
+		
+		GeometryCursor gc = OperatorIntersection.local().execute(new SimpleGeometryCursor(g1Test), new SimpleGeometryCursor(g2Test), sr, null, 3);
+		for (Geometry res = gc.next(); res != null; res = gc.next()) {
+		return getFirstPoint(res);
+		}
+		
+		throw new GeometryException("internal error");
+		}*/
 	}
 }

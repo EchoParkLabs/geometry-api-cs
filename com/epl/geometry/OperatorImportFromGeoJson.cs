@@ -29,6 +29,21 @@ namespace com.epl.geometry
 		}
 
 		/// <summary>Performs the ImportFromGeoJson operation.</summary>
+		/// <param name="type">
+		/// Use the
+		/// <see cref="Type"/>
+		/// enum.
+		/// </param>
+		/// <param name="jsonObject">The JSONObject holding the geometry and spatial reference.</param>
+		/// <returns>Returns the imported MapGeometry.</returns>
+		/// <exception cref="JsonGeometryException"/>
+		public abstract com.epl.geometry.MapGeometry Execute(int importFlags, com.epl.geometry.Geometry.Type type, com.epl.geometry.JsonReader jsonReader, com.epl.geometry.ProgressTracker progressTracker);
+
+		/// <summary>Deprecated, use version without import_flags.</summary>
+		/// <remarks>
+		/// Deprecated, use version without import_flags.
+		/// Performs the ImportFromGeoJson operation.
+		/// </remarks>
 		/// <param name="import_flags">
 		/// Use the
 		/// <see cref="GeoJsonImportFlags"/>
@@ -40,8 +55,8 @@ namespace com.epl.geometry
 		/// enum.
 		/// </param>
 		/// <param name="geoJsonString">The string holding the Geometry in geoJson format.</param>
-		/// <returns>Returns the imported Geometry.</returns>
-		/// <exception cref="org.json.JSONException"></exception>
+		/// <returns>Returns the imported MapGeometry.</returns>
+		/// <exception cref="JSONException"/>
 		public abstract com.epl.geometry.MapGeometry Execute(int import_flags, com.epl.geometry.Geometry.Type type, string geoJsonString, com.epl.geometry.ProgressTracker progress_tracker);
 
 		/// <summary>Performs the ImportFromGeoJson operation.</summary>
@@ -52,7 +67,7 @@ namespace com.epl.geometry
 		/// </param>
 		/// <param name="geoJsonString">The string holding the Geometry in geoJson format.</param>
 		/// <returns>Returns the imported MapOGCStructure.</returns>
-		/// <exception cref="org.json.JSONException"></exception>
+		/// <exception cref="JSONException"/>
 		public abstract com.epl.geometry.MapOGCStructure ExecuteOGC(int import_flags, string geoJsonString, com.epl.geometry.ProgressTracker progress_tracker);
 
 		public static com.epl.geometry.OperatorImportFromGeoJson Local()

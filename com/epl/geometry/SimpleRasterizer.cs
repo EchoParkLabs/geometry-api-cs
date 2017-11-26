@@ -309,6 +309,55 @@ namespace com.epl.geometry
 			}
 		}
 
+		internal bool AddSegmentStroke(double x1, double y1, double x2, double y2, double half_width, bool skip_short, double[] helper_xy_10_elm)
+		{
+			double vec_x = x2 - x1;
+			double vec_y = y2 - y1;
+			double len = System.Math.Sqrt(vec_x * vec_x + vec_y * vec_y);
+			if (skip_short && len < 0.5)
+			{
+				return false;
+			}
+			bool bshort = len < 0.00001;
+			if (bshort)
+			{
+				len = 0.00001;
+				vec_x = len;
+				vec_y = 0.0;
+			}
+			double f = half_width / len;
+			vec_x *= f;
+			vec_y *= f;
+			double vecA_x = -vec_y;
+			double vecA_y = vec_x;
+			double vecB_x = vec_y;
+			double vecB_y = -vec_x;
+			//extend by half width
+			x1 -= vec_x;
+			y1 -= vec_y;
+			x2 += vec_x;
+			y2 += vec_y;
+			//create rotated rectangle
+			double[] fan = helper_xy_10_elm;
+			System.Diagnostics.Debug.Assert((fan.Length == 10));
+			fan[0] = x1 + vecA_x;
+			fan[1] = y1 + vecA_y;
+			//fan[0].add(pt_start, vecA);
+			fan[2] = x1 + vecB_x;
+			fan[3] = y1 + vecB_y;
+			//fan[1].add(pt_start, vecB);
+			fan[4] = x2 + vecB_x;
+			fan[5] = y2 + vecB_y;
+			//fan[2].add(pt_end, vecB)
+			fan[6] = x2 + vecA_x;
+			fan[7] = y2 + vecA_y;
+			//fan[3].add(pt_end, vecA)
+			fan[8] = fan[0];
+			fan[9] = fan[1];
+			AddRing(fan);
+			return true;
+		}
+
 		public com.epl.geometry.SimpleRasterizer.ScanCallback GetScanCallback()
 		{
 			return callback_;

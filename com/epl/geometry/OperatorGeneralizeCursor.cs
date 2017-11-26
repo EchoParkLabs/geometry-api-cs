@@ -74,10 +74,6 @@ namespace com.epl.geometry
 				return geom;
 			}
 			com.epl.geometry.MultiPath mp = (com.epl.geometry.MultiPath)geom;
-			if (mp == null)
-			{
-				throw com.epl.geometry.GeometryException.GeometryInternalError();
-			}
 			com.epl.geometry.MultiPath dstmp = (com.epl.geometry.MultiPath)geom.CreateInstance();
 			com.epl.geometry.Line line = new com.epl.geometry.Line();
 			for (int ipath = 0, npath = mp.GetPathCount(); ipath < npath; ipath++)
@@ -128,17 +124,19 @@ namespace com.epl.geometry
 			{
 				resultStack.Add(stack.Get(0));
 			}
-			if (resultStack.Size() == stack.Size())
+			int rs_size = resultStack.Size();
+			int path_size = mpsrc.GetPathSize(ipath);
+			if (rs_size == path_size && rs_size == stack.Size())
 			{
 				mpdst.AddPath(mpsrc, ipath, true);
 			}
 			else
 			{
-				if (resultStack.Size() >= 2)
+				if (resultStack.Size() > 0)
 				{
-					if (m_bRemoveDegenerateParts && resultStack.Size() == 2)
+					if (m_bRemoveDegenerateParts && resultStack.Size() <= 2)
 					{
-						if (bClosed)
+						if (bClosed || resultStack.Size() == 1)
 						{
 							return;
 						}
@@ -163,7 +161,7 @@ namespace com.epl.geometry
 					}
 					if (bClosed)
 					{
-						if (!m_bRemoveDegenerateParts && resultStack.Size() == 2)
+						for (int i_1 = resultStack.Size(); i_1 < 3; i_1++)
 						{
 							mpdst.LineTo(point);
 						}

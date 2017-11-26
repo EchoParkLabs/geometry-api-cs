@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -17,7 +36,7 @@ namespace com.epl.geometry
 			
 		}
 
-		internal org.codehaus.jackson.JsonFactory factory = new org.codehaus.jackson.JsonFactory();
+		internal com.fasterxml.jackson.core.JsonFactory factory = new com.fasterxml.jackson.core.JsonFactory();
 
 		internal com.epl.geometry.SpatialReference spatialReferenceWebMerc1 = com.epl.geometry.SpatialReference.Create(102100);
 
@@ -25,7 +44,7 @@ namespace com.epl.geometry
 
 		internal com.epl.geometry.SpatialReference spatialReferenceWGS84 = com.epl.geometry.SpatialReference.Create(4326);
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		[NUnit.Framework.Test]
 		public virtual void TestLocalExport()
@@ -40,7 +59,7 @@ namespace com.epl.geometry
 			NUnit.Framework.Assert.IsTrue(s.Contains("."));
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		internal virtual bool TestPoint()
 		{
@@ -48,7 +67,7 @@ namespace com.epl.geometry
 			com.epl.geometry.Point point1 = new com.epl.geometry.Point(10.0, 20.0);
 			com.epl.geometry.Point pointEmpty = new com.epl.geometry.Point();
 			{
-				org.codehaus.jackson.JsonParser pointWebMerc1Parser = factory.CreateJsonParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWebMerc1, point1));
+				com.fasterxml.jackson.core.JsonParser pointWebMerc1Parser = factory.CreateParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWebMerc1, point1));
 				com.epl.geometry.MapGeometry pointWebMerc1MP = com.epl.geometry.GeometryEngine.JsonToGeometry(pointWebMerc1Parser);
 				NUnit.Framework.Assert.IsTrue(point1.GetX() == ((com.epl.geometry.Point)pointWebMerc1MP.GetGeometry()).GetX());
 				NUnit.Framework.Assert.IsTrue(point1.GetY() == ((com.epl.geometry.Point)pointWebMerc1MP.GetGeometry()).GetY());
@@ -57,7 +76,7 @@ namespace com.epl.geometry
 				{
 					bAnswer = false;
 				}
-				pointWebMerc1Parser = factory.CreateJsonParser(com.epl.geometry.GeometryEngine.GeometryToJson(null, point1));
+				pointWebMerc1Parser = factory.CreateParser(com.epl.geometry.GeometryEngine.GeometryToJson(null, point1));
 				pointWebMerc1MP = com.epl.geometry.GeometryEngine.JsonToGeometry(pointWebMerc1Parser);
 				NUnit.Framework.Assert.IsTrue(null == pointWebMerc1MP.GetSpatialReference());
 				if (pointWebMerc1MP.GetSpatialReference() != null)
@@ -68,9 +87,9 @@ namespace com.epl.geometry
 					}
 				}
 				string pointEmptyString = com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWebMerc1, pointEmpty);
-				pointWebMerc1Parser = factory.CreateJsonParser(pointEmptyString);
+				pointWebMerc1Parser = factory.CreateParser(pointEmptyString);
 			}
-			org.codehaus.jackson.JsonParser pointWebMerc2Parser = factory.CreateJsonParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWebMerc2, point1));
+			com.fasterxml.jackson.core.JsonParser pointWebMerc2Parser = factory.CreateParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWebMerc2, point1));
 			com.epl.geometry.MapGeometry pointWebMerc2MP = com.epl.geometry.GeometryEngine.JsonToGeometry(pointWebMerc2Parser);
 			NUnit.Framework.Assert.IsTrue(point1.GetX() == ((com.epl.geometry.Point)pointWebMerc2MP.GetGeometry()).GetX());
 			NUnit.Framework.Assert.IsTrue(point1.GetY() == ((com.epl.geometry.Point)pointWebMerc2MP.GetGeometry()).GetY());
@@ -80,7 +99,7 @@ namespace com.epl.geometry
 				bAnswer = false;
 			}
 			{
-				org.codehaus.jackson.JsonParser pointWgs84Parser = factory.CreateJsonParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, point1));
+				com.fasterxml.jackson.core.JsonParser pointWgs84Parser = factory.CreateParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, point1));
 				com.epl.geometry.MapGeometry pointWgs84MP = com.epl.geometry.GeometryEngine.JsonToGeometry(pointWgs84Parser);
 				NUnit.Framework.Assert.IsTrue(point1.GetX() == ((com.epl.geometry.Point)pointWgs84MP.GetGeometry()).GetX());
 				NUnit.Framework.Assert.IsTrue(point1.GetY() == ((com.epl.geometry.Point)pointWgs84MP.GetGeometry()).GetY());
@@ -108,7 +127,7 @@ namespace com.epl.geometry
 			{
 				// import
 				string s = "{\"x\":0.0,\"y\":1.0,\"z\":5.0,\"m\":11.0,\"spatialReference\":{\"wkid\":102100,\"latestWkid\":3857}}";
-				org.codehaus.jackson.JsonParser parser = factory.CreateJsonParser(s);
+				com.fasterxml.jackson.core.JsonParser parser = factory.CreateParser(s);
 				com.epl.geometry.MapGeometry map_pt = com.epl.geometry.GeometryEngine.JsonToGeometry(parser);
 				com.epl.geometry.Point pt = (com.epl.geometry.Point)map_pt.GetGeometry();
 				NUnit.Framework.Assert.IsTrue(pt.GetX() == 0.0);
@@ -118,7 +137,7 @@ namespace com.epl.geometry
 			}
 			{
 				string s = "{\"x\" : 5.0, \"y\" : null, \"spatialReference\" : {\"wkid\" : 4326}} ";
-				org.codehaus.jackson.JsonParser parser = factory.CreateJsonParser(s);
+				com.fasterxml.jackson.core.JsonParser parser = factory.CreateParser(s);
 				com.epl.geometry.MapGeometry map_pt = com.epl.geometry.GeometryEngine.JsonToGeometry(parser);
 				com.epl.geometry.Point pt = (com.epl.geometry.Point)map_pt.GetGeometry();
 				NUnit.Framework.Assert.IsTrue(pt.IsEmpty());
@@ -128,7 +147,7 @@ namespace com.epl.geometry
 			return bAnswer;
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		internal virtual bool TestMultiPoint()
 		{
@@ -140,7 +159,7 @@ namespace com.epl.geometry
 			multiPoint1.Add(-97.06127, 32.832);
 			{
 				string s = com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, multiPoint1);
-				org.codehaus.jackson.JsonParser mPointWgs84Parser = factory.CreateJsonParser(s);
+				com.fasterxml.jackson.core.JsonParser mPointWgs84Parser = factory.CreateParser(s);
 				com.epl.geometry.MapGeometry mPointWgs84MP = com.epl.geometry.GeometryEngine.JsonToGeometry(mPointWgs84Parser);
 				NUnit.Framework.Assert.IsTrue(multiPoint1.GetPointCount() == ((com.epl.geometry.MultiPoint)mPointWgs84MP.GetGeometry()).GetPointCount());
 				NUnit.Framework.Assert.IsTrue(multiPoint1.GetPoint(0).GetX() == ((com.epl.geometry.MultiPoint)mPointWgs84MP.GetGeometry()).GetPoint(0).GetX());
@@ -167,7 +186,7 @@ namespace com.epl.geometry
 			}
 			{
 				string points = "{\"hasM\" : false, \"hasZ\" : true, \"uncle remus\" : null, \"points\" : [ [0,0,1], [0.0,10.0,1], [10.0,10.0,1], [10.0,0.0,1, 6666] ],\"spatialReference\" : {\"wkid\" : 4326}}";
-				com.epl.geometry.MapGeometry mp = com.epl.geometry.GeometryEngine.JsonToGeometry(factory.CreateJsonParser(points));
+				com.epl.geometry.MapGeometry mp = com.epl.geometry.GeometryEngine.JsonToGeometry(factory.CreateParser(points));
 				com.epl.geometry.MultiPoint multipoint = (com.epl.geometry.MultiPoint)mp.GetGeometry();
 				NUnit.Framework.Assert.IsTrue(multipoint.GetPointCount() == 4);
 				com.epl.geometry.Point2D point2d;
@@ -189,7 +208,7 @@ namespace com.epl.geometry
 			return bAnswer;
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		internal virtual bool TestPolyline()
 		{
@@ -202,7 +221,7 @@ namespace com.epl.geometry
 			polyline.StartPath(-97.06326, 32.759);
 			polyline.LineTo(-97.06298, 32.755);
 			{
-				org.codehaus.jackson.JsonParser polylinePathsWgs84Parser = factory.CreateJsonParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, polyline));
+				com.fasterxml.jackson.core.JsonParser polylinePathsWgs84Parser = factory.CreateParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, polyline));
 				com.epl.geometry.MapGeometry mPolylineWGS84MP = com.epl.geometry.GeometryEngine.JsonToGeometry(polylinePathsWgs84Parser);
 				NUnit.Framework.Assert.IsTrue(polyline.GetPointCount() == ((com.epl.geometry.Polyline)mPolylineWGS84MP.GetGeometry()).GetPointCount());
 				NUnit.Framework.Assert.IsTrue(polyline.GetPoint(0).GetX() == ((com.epl.geometry.Polyline)mPolylineWGS84MP.GetGeometry()).GetPoint(0).GetX());
@@ -237,7 +256,7 @@ namespace com.epl.geometry
 			}
 			{
 				string paths = "{\"hasZ\" : true, \"paths\" : [ [ [0.0, 0.0,3], [0, 10.0,3], [10.0, 10.0,3, 6666], [10.0, 0.0,3, 6666] ], [ [1.0, 1,3], [1.0, 9.0,3], [9.0, 9.0,3], [1.0, 9.0,3] ] ], \"spatialReference\" : {\"wkid\" : 4326}, \"hasM\" : false}";
-				com.epl.geometry.MapGeometry mapGeometry = com.epl.geometry.GeometryEngine.JsonToGeometry(factory.CreateJsonParser(paths));
+				com.epl.geometry.MapGeometry mapGeometry = com.epl.geometry.GeometryEngine.JsonToGeometry(factory.CreateParser(paths));
 				com.epl.geometry.Polyline p = (com.epl.geometry.Polyline)mapGeometry.GetGeometry();
 				NUnit.Framework.Assert.IsTrue(p.GetPathCount() == 2);
 				int count = p.GetPathCount();
@@ -254,7 +273,7 @@ namespace com.epl.geometry
 			return bAnswer;
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		internal virtual bool TestPolygon()
 		{
@@ -267,7 +286,7 @@ namespace com.epl.geometry
 			polygon.StartPath(-97.06326, 32.759);
 			polygon.LineTo(-97.06298, 32.755);
 			{
-				org.codehaus.jackson.JsonParser polygonPathsWgs84Parser = factory.CreateJsonParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, polygon));
+				com.fasterxml.jackson.core.JsonParser polygonPathsWgs84Parser = factory.CreateParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, polygon));
 				com.epl.geometry.MapGeometry mPolygonWGS84MP = com.epl.geometry.GeometryEngine.JsonToGeometry(polygonPathsWgs84Parser);
 				NUnit.Framework.Assert.IsTrue(polygon.GetPointCount() + 1 == ((com.epl.geometry.Polygon)mPolygonWGS84MP.GetGeometry()).GetPointCount());
 				NUnit.Framework.Assert.IsTrue(polygon.GetPoint(0).GetX() == ((com.epl.geometry.Polygon)mPolygonWGS84MP.GetGeometry()).GetPoint(0).GetX());
@@ -307,7 +326,7 @@ namespace com.epl.geometry
 			{
 				// Test Import Polygon from Polygon
 				string rings = "{\"hasZ\": true, \"rings\" : [ [ [0,0, 5], [0.0, 10.0, 5], [10.0,10.0, 5, 66666], [10.0,0.0, 5] ], [ [12, 12] ],  [ [13 , 17], [13 , 17] ], [ [1.0, 1.0, 5, 66666], [9.0,1.0, 5], [9.0,9.0, 5], [1.0,9.0, 5], [1.0, 1.0, 5] ] ] }";
-				com.epl.geometry.MapGeometry mapGeometry = com.epl.geometry.GeometryEngine.JsonToGeometry(factory.CreateJsonParser(rings));
+				com.epl.geometry.MapGeometry mapGeometry = com.epl.geometry.GeometryEngine.JsonToGeometry(factory.CreateParser(rings));
 				com.epl.geometry.Polygon p = (com.epl.geometry.Polygon)mapGeometry.GetGeometry();
 				double area = p.CalculateArea2D();
 				double length = p.CalculateLength2D();
@@ -320,7 +339,7 @@ namespace com.epl.geometry
 			return bAnswer;
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		internal virtual bool TestEnvelope()
 		{
@@ -328,7 +347,7 @@ namespace com.epl.geometry
 			com.epl.geometry.Envelope envelope = new com.epl.geometry.Envelope();
 			envelope.SetCoords(-109.55, 25.76, -86.39, 49.94);
 			{
-				org.codehaus.jackson.JsonParser envelopeWGS84Parser = factory.CreateJsonParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, envelope));
+				com.fasterxml.jackson.core.JsonParser envelopeWGS84Parser = factory.CreateParser(com.epl.geometry.GeometryEngine.GeometryToJson(spatialReferenceWGS84, envelope));
 				com.epl.geometry.MapGeometry envelopeWGS84MP = com.epl.geometry.GeometryEngine.JsonToGeometry(envelopeWGS84Parser);
 				NUnit.Framework.Assert.IsTrue(envelope.IsEmpty() == envelopeWGS84MP.GetGeometry().IsEmpty());
 				NUnit.Framework.Assert.IsTrue(envelope.GetXMax() == ((com.epl.geometry.Envelope)envelopeWGS84MP.GetGeometry()).GetXMax());
@@ -361,7 +380,7 @@ namespace com.epl.geometry
 			{
 				// import
 				string s = "{\"xmin\":0.0,\"ymin\":1.0,\"xmax\":2.0,\"ymax\":3.0,\"zmin\":5.0,\"zmax\":7.0,\"mmin\":11.0,\"mmax\":13.0,\"spatialReference\":{\"wkid\":102100,\"latestWkid\":3857}}";
-				org.codehaus.jackson.JsonParser parser = factory.CreateJsonParser(s);
+				com.fasterxml.jackson.core.JsonParser parser = factory.CreateParser(s);
 				com.epl.geometry.MapGeometry map_env = com.epl.geometry.GeometryEngine.JsonToGeometry(parser);
 				com.epl.geometry.Envelope env = (com.epl.geometry.Envelope)map_env.GetGeometry();
 				com.epl.geometry.Envelope1D z = env.QueryInterval(com.epl.geometry.VertexDescription.Semantics.Z, 0);
@@ -373,7 +392,7 @@ namespace com.epl.geometry
 			}
 			{
 				string s = "{ \"zmin\" : 33, \"xmin\" : -109.55, \"zmax\" : 53, \"ymin\" : 25.76, \"xmax\" : -86.39, \"ymax\" : 49.94, \"mmax\" : 13}";
-				org.codehaus.jackson.JsonParser parser = factory.CreateJsonParser(s);
+				com.fasterxml.jackson.core.JsonParser parser = factory.CreateParser(s);
 				com.epl.geometry.MapGeometry map_env = com.epl.geometry.GeometryEngine.JsonToGeometry(parser);
 				com.epl.geometry.Envelope env = (com.epl.geometry.Envelope)map_env.GetGeometry();
 				com.epl.geometry.Envelope2D e = new com.epl.geometry.Envelope2D();
@@ -388,17 +407,17 @@ namespace com.epl.geometry
 			return bAnswer;
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		internal virtual bool TestCR181369()
 		{
 			// CR181369
 			bool bAnswer = true;
 			string jsonStringPointAndWKT = "{\"x\":10.0,\"y\":20.0,\"spatialReference\":{\"wkt\" : \"PROJCS[\\\"NAD83_UTM_zone_15N\\\",GEOGCS[\\\"GCS_North_American_1983\\\",DATUM[\\\"D_North_American_1983\\\",SPHEROID[\\\"GRS_1980\\\",6378137.0,298.257222101]],PRIMEM[\\\"Greenwich\\\",0.0],UNIT[\\\"Degree\\\",0.0174532925199433]],PROJECTION[\\\"Transverse_Mercator\\\"],PARAMETER[\\\"false_easting\\\",500000.0],PARAMETER[\\\"false_northing\\\",0.0],PARAMETER[\\\"central_meridian\\\",-93.0],PARAMETER[\\\"scale_factor\\\",0.9996],PARAMETER[\\\"latitude_of_origin\\\",0.0],UNIT[\\\"Meter\\\",1.0]]\"} }";
-			org.codehaus.jackson.JsonParser jsonParserPointAndWKT = factory.CreateJsonParser(jsonStringPointAndWKT);
+			com.fasterxml.jackson.core.JsonParser jsonParserPointAndWKT = factory.CreateParser(jsonStringPointAndWKT);
 			com.epl.geometry.MapGeometry mapGeom2 = com.epl.geometry.GeometryEngine.JsonToGeometry(jsonParserPointAndWKT);
 			string jsonStringPointAndWKT2 = com.epl.geometry.GeometryEngine.GeometryToJson(mapGeom2.GetSpatialReference(), mapGeom2.GetGeometry());
-			org.codehaus.jackson.JsonParser jsonParserPointAndWKT2 = factory.CreateJsonParser(jsonStringPointAndWKT2);
+			com.fasterxml.jackson.core.JsonParser jsonParserPointAndWKT2 = factory.CreateParser(jsonStringPointAndWKT2);
 			com.epl.geometry.MapGeometry mapGeom3 = com.epl.geometry.GeometryEngine.JsonToGeometry(jsonParserPointAndWKT2);
 			NUnit.Framework.Assert.IsTrue(((com.epl.geometry.Point)mapGeom2.GetGeometry()).GetX() == ((com.epl.geometry.Point)mapGeom3.GetGeometry()).GetX());
 			NUnit.Framework.Assert.IsTrue(((com.epl.geometry.Point)mapGeom2.GetGeometry()).GetY() == ((com.epl.geometry.Point)mapGeom3.GetGeometry()).GetY());

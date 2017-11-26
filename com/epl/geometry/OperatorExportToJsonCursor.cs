@@ -106,9 +106,8 @@ namespace com.epl.geometry
 					}
 				}
 			}
-			catch (System.Exception e)
+			catch (System.Exception)
 			{
-				e.PrintStackTrace();
 			}
 		}
 
@@ -185,8 +184,8 @@ namespace com.epl.geometry
 						jsonWriter.AddValueArray();
 						if (bPositionAsF)
 						{
-							jsonWriter.AddValueDoubleF(pt.x, decimals);
-							jsonWriter.AddValueDoubleF(pt.y, decimals);
+							jsonWriter.AddValueDouble(pt.x, decimals, true);
+							jsonWriter.AddValueDouble(pt.y, decimals, true);
 						}
 						else
 						{
@@ -221,8 +220,8 @@ namespace com.epl.geometry
 						jsonWriter.AddValueArray();
 						if (bPositionAsF)
 						{
-							jsonWriter.AddValueDoubleF(pt.x, decimals);
-							jsonWriter.AddValueDoubleF(pt.y, decimals);
+							jsonWriter.AddValueDouble(pt.x, decimals, true);
+							jsonWriter.AddValueDouble(pt.y, decimals, true);
 						}
 						else
 						{
@@ -302,8 +301,8 @@ namespace com.epl.geometry
 					jsonWriter.AddValueArray();
 					if (bPositionAsF)
 					{
-						jsonWriter.AddValueDoubleF(pt.x, decimals);
-						jsonWriter.AddValueDoubleF(pt.y, decimals);
+						jsonWriter.AddValueDouble(pt.x, decimals, true);
+						jsonWriter.AddValueDouble(pt.y, decimals, true);
 					}
 					else
 					{
@@ -364,8 +363,8 @@ namespace com.epl.geometry
 			{
 				if (bPositionAsF)
 				{
-					jsonWriter.AddPairDoubleF("x", pt.GetX(), decimals);
-					jsonWriter.AddPairDoubleF("y", pt.GetY(), decimals);
+					jsonWriter.AddPairDouble("x", pt.GetX(), decimals, true);
+					jsonWriter.AddPairDouble("y", pt.GetY(), decimals, true);
 				}
 				else
 				{
@@ -425,10 +424,10 @@ namespace com.epl.geometry
 			{
 				if (bPositionAsF)
 				{
-					jsonWriter.AddPairDoubleF("xmin", env.GetXMin(), decimals);
-					jsonWriter.AddPairDoubleF("ymin", env.GetYMin(), decimals);
-					jsonWriter.AddPairDoubleF("xmax", env.GetXMax(), decimals);
-					jsonWriter.AddPairDoubleF("ymax", env.GetYMax(), decimals);
+					jsonWriter.AddPairDouble("xmin", env.GetXMin(), decimals, true);
+					jsonWriter.AddPairDouble("ymin", env.GetYMin(), decimals, true);
+					jsonWriter.AddPairDouble("xmax", env.GetXMax(), decimals, true);
+					jsonWriter.AddPairDouble("ymax", env.GetYMax(), decimals, true);
 				}
 				else
 				{

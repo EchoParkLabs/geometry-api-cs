@@ -23,37 +23,19 @@ namespace com.epl.geometry
 {
 	internal class OperatorImportFromJsonLocal : com.epl.geometry.OperatorImportFromJson
 	{
-		internal override com.epl.geometry.MapGeometryCursor Execute(com.epl.geometry.Geometry.Type type, com.epl.geometry.JsonParserCursor jsonParserCursor)
+		internal override com.epl.geometry.MapGeometryCursor Execute(com.epl.geometry.Geometry.Type type, com.epl.geometry.JsonReaderCursor jsonParserCursor)
 		{
 			return new com.epl.geometry.OperatorImportFromJsonCursor(type.Value(), jsonParserCursor);
 		}
 
-		public override com.epl.geometry.MapGeometry Execute(com.epl.geometry.Geometry.Type type, org.codehaus.jackson.JsonParser jsonParser)
+		public override com.epl.geometry.MapGeometry Execute(com.epl.geometry.Geometry.Type type, com.epl.geometry.JsonReader jsonParser)
 		{
-			com.epl.geometry.SimpleJsonParserCursor jsonParserCursor = new com.epl.geometry.SimpleJsonParserCursor(jsonParser);
-			com.epl.geometry.OperatorImportFromJsonCursor cursor = new com.epl.geometry.OperatorImportFromJsonCursor(type.Value(), jsonParserCursor);
-			return cursor.Next();
+			return com.epl.geometry.OperatorImportFromJsonCursor.ImportFromJsonParser(type.Value(), jsonParser);
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
-		/// <exception cref="System.IO.IOException"/>
 		public override com.epl.geometry.MapGeometry Execute(com.epl.geometry.Geometry.Type type, string @string)
 		{
-			org.codehaus.jackson.JsonFactory factory = new org.codehaus.jackson.JsonFactory();
-			org.codehaus.jackson.JsonParser jsonParserPt = factory.CreateJsonParser(@string);
-			jsonParserPt.NextToken();
-			return Execute(type, jsonParserPt);
-		}
-
-		/// <exception cref="org.json.JSONException"/>
-		/// <exception cref="System.IO.IOException"/>
-		public override com.epl.geometry.MapGeometry Execute(com.epl.geometry.Geometry.Type type, org.json.JSONObject jsonObject)
-		{
-			if (jsonObject == null)
-			{
-				return null;
-			}
-			return com.epl.geometry.OperatorImportFromJsonCursor.ImportFromJsonParser(type.Value(), new com.epl.geometry.JsonValueReader(jsonObject));
+			return Execute(type, com.epl.geometry.JsonParserReader.CreateFromString(@string));
 		}
 	}
 }

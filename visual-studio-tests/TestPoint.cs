@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -27,30 +46,30 @@ namespace com.epl.geometry
 			pt.ToString();
 		}
 
-//		[NUnit.Framework.Test]
-//		public virtual void TestEnvelope2000()
-//		{
-//			com.epl.geometry.Point[] points = new com.epl.geometry.Point[2000];
-//			System.Random random = new System.Random(69);
-//			for (int i = 0; i < 2000; i++)
-//			{
-//				points[i] = new com.epl.geometry.Point();
-//				points[i].SetX(random.NextDouble() * 100);
-//				points[i].SetY(random.NextDouble() * 100);
-//			}
-//			for (int iter = 0; iter < 2; iter++)
-//			{
+		[NUnit.Framework.Test]
+		public virtual void TestEnvelope2000()
+		{
+			com.epl.geometry.Point[] points = new com.epl.geometry.Point[2000];
+			System.Random random = new System.Random(69);
+			for (int i = 0; i < 2000; i++)
+			{
+				points[i] = new com.epl.geometry.Point();
+				points[i].SetX(random.NextDouble() * 100);
+				points[i].SetY(random.NextDouble() * 100);
+			}
+			for (int iter = 0; iter < 2; iter++)
+			{
 //				long startTime = Sharpen.Runtime.NanoTime();
-//				com.epl.geometry.Envelope geomExtent = new com.epl.geometry.Envelope();
-//				com.epl.geometry.Envelope fullExtent = new com.epl.geometry.Envelope();
-//				for (int i_1 = 0; i_1 < 2000; i_1++)
-//				{
-//					points[i_1].QueryEnvelope(geomExtent);
-//					fullExtent.Merge(geomExtent);
-//				}
+				com.epl.geometry.Envelope geomExtent = new com.epl.geometry.Envelope();
+				com.epl.geometry.Envelope fullExtent = new com.epl.geometry.Envelope();
+				for (int i_1 = 0; i_1 < 2000; i_1++)
+				{
+					points[i_1].QueryEnvelope(geomExtent);
+					fullExtent.Merge(geomExtent);
+				}
 //				long endTime = Sharpen.Runtime.NanoTime();
-//			}
-//		}
+			}
+		}
 
 		[NUnit.Framework.Test]
 		public virtual void TestBasic()

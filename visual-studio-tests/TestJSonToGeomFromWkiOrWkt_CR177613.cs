@@ -1,10 +1,29 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
 {
 	public class TestJSonToGeomFromWkiOrWkt_CR177613 : NUnit.Framework.TestFixtureAttribute
 	{
-		internal org.codehaus.jackson.JsonFactory factory = new org.codehaus.jackson.JsonFactory();
+		internal com.fasterxml.jackson.core.JsonFactory factory = new com.fasterxml.jackson.core.JsonFactory();
 
 		/// <exception cref="System.Exception"/>
 		[SetUp]
@@ -19,13 +38,13 @@ namespace com.epl.geometry
 			
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		[NUnit.Framework.Test]
 		public virtual void TestPolygonWithEmptyWKT_NoWKI()
 		{
 			string jsonStringPg = "{ \"rings\" :[  [ [-97.06138,32.837], [-97.06133,32.836], " + "[-97.06124,32.834], [-97.06127,32.832], [-97.06138,32.837] ],  " + "[ [-97.06326,32.759], [-97.06298,32.755], [-97.06153,32.749], [-97.06326,32.759] ]], " + "\"spatialReference\" : {\"wkt\" : \"\"}}";
-			org.codehaus.jackson.JsonParser jsonParserPg = factory.CreateJsonParser(jsonStringPg);
+			com.fasterxml.jackson.core.JsonParser jsonParserPg = factory.CreateParser(jsonStringPg);
 			jsonParserPg.NextToken();
 			com.epl.geometry.MapGeometry mapGeom = com.epl.geometry.GeometryEngine.JsonToGeometry(jsonParserPg);
 			com.epl.geometry.Utils.ShowProjectedGeometryInfo(mapGeom);
@@ -33,13 +52,13 @@ namespace com.epl.geometry
 			NUnit.Framework.Assert.IsTrue(sr == null);
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
 		[NUnit.Framework.Test]
 		public virtual void TestOnlyWKI()
 		{
 			string jsonStringSR = "{\"wkid\" : 4326}";
-			org.codehaus.jackson.JsonParser jsonParserSR = factory.CreateJsonParser(jsonStringSR);
+			com.fasterxml.jackson.core.JsonParser jsonParserSR = factory.CreateJsonParser(jsonStringSR);
 			jsonParserSR.NextToken();
 			com.epl.geometry.MapGeometry mapGeom = com.epl.geometry.GeometryEngine.JsonToGeometry(jsonParserSR);
 			com.epl.geometry.Utils.ShowProjectedGeometryInfo(mapGeom);
@@ -64,8 +83,8 @@ namespace com.epl.geometry
 			try
 			{
 				string jSonStr = com.epl.geometry.GeometryEngine.GeometryToJson(4326, pg);
-				org.codehaus.jackson.JsonFactory jf = new org.codehaus.jackson.JsonFactory();
-				org.codehaus.jackson.JsonParser jp = jf.CreateJsonParser(jSonStr);
+				com.fasterxml.jackson.core.JsonFactory jf = new com.fasterxml.jackson.core.JsonFactory();
+				com.fasterxml.jackson.core.JsonParser jp = jf.CreateJsonParser(jSonStr);
 				jp.NextToken();
 				com.epl.geometry.MapGeometry mg = com.epl.geometry.GeometryEngine.JsonToGeometry(jp);
 				com.epl.geometry.Geometry gm = mg.GetGeometry();
@@ -91,16 +110,16 @@ namespace com.epl.geometry
 			}
 		}
 
-		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
+		/// <exception cref="com.fasterxml.jackson.core.JsonParseException"/>
 		/// <exception cref="System.IO.IOException"/>
-		public static int FromJsonToWkid(org.codehaus.jackson.JsonParser parser)
+		public static int FromJsonToWkid(com.fasterxml.jackson.core.JsonParser parser)
 		{
 			int wkid = 0;
-			if (parser.GetCurrentToken() != org.codehaus.jackson.JsonToken.START_OBJECT)
+			if (parser.GetCurrentToken() != com.fasterxml.jackson.core.JsonToken.START_OBJECT)
 			{
 				return 0;
 			}
-			while (parser.NextToken() != org.codehaus.jackson.JsonToken.END_OBJECT)
+			while (parser.NextToken() != com.fasterxml.jackson.core.JsonToken.END_OBJECT)
 			{
 				string fieldName = parser.GetCurrentName();
 				if ("wkid".Equals(fieldName))

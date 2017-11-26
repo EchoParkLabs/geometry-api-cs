@@ -17,7 +17,7 @@ For additional information, contact:
 
 email: info@echoparklabs.io
 */
-
+using System.Linq;
 
 namespace com.epl.geometry
 {
@@ -267,8 +267,82 @@ namespace com.epl.geometry
 			// ellipticity for WGS_1984
 			double rpu = System.Math.PI / 180.0;
 			com.epl.geometry.PeDouble answer = new com.epl.geometry.PeDouble();
-			com.epl.geometry.GeoDist.Geodesic_distance_ngs(a, e2, ptFrom.GetXY().x * rpu, ptFrom.GetXY().y * rpu, ptTo.GetXY().x * rpu, ptTo.GetXY().y * rpu, answer, null, null);
+			com.epl.geometry.GeoDist.Geodesic_distance_ngs(a, e2, ptFrom.GetX() * rpu, ptFrom.GetY() * rpu, ptTo.GetX() * rpu, ptTo.GetY() * rpu, answer, null, null);
 			return answer.val;
+		}
+
+		public virtual string GetAuthority()
+		{
+			int latestWKID = GetLatestID();
+			if (latestWKID <= 0)
+			{
+				return "";
+			}
+			return GetAuthority_(latestWKID);
+		}
+
+		private string GetAuthority_(int latestWKID)
+		{
+			string authority;
+			if (latestWKID >= 1024 && latestWKID <= 32767)
+			{
+				int index = m_esri_codes.ToList().BinarySearch(latestWKID);
+				if (index >= 0)
+				{
+					authority = "ESRI";
+				}
+				else
+				{
+					authority = "EPSG";
+				}
+			}
+			else
+			{
+				authority = "ESRI";
+			}
+			return authority;
+		}
+
+		private static readonly int[] m_esri_codes = new int[] { 2181, 2182, 2183, 2184, 2185, 2186, 2187, 4305, 4812, 20002, 20003, 20062, 20063, 24721, 26761, 26762, 26763, 26764, 26765, 26788, 26789, 26790, 30591, 30592, 31491, 31492, 31493, 31494, 31495, 32059, 32060 };
+
+		// ED_1950_Turkey_9
+		// ED_1950_Turkey_10
+		// ED_1950_Turkey_11
+		// ED_1950_Turkey_12
+		// ED_1950_Turkey_13
+		// ED_1950_Turkey_14
+		// ED_1950_Turkey_15
+		// GCS_Voirol_Unifie_1960
+		// GCS_Voirol_Unifie_1960_Paris
+		// Pulkovo_1995_GK_Zone_2
+		// Pulkovo_1995_GK_Zone_3
+		// Pulkovo_1995_GK_Zone_2N
+		// Pulkovo_1995_GK_Zone_3N
+		// La_Canoa_UTM_Zone_21N
+		// NAD_1927_StatePlane_Hawaii_1_FIPS_5101
+		// NAD_1927_StatePlane_Hawaii_2_FIPS_5102
+		// NAD_1927_StatePlane_Hawaii_3_FIPS_5103
+		// NAD_1927_StatePlane_Hawaii_4_FIPS_5104
+		// NAD_1927_StatePlane_Hawaii_5_FIPS_5105
+		// NAD_1927_StatePlane_Michigan_North_FIPS_2111
+		// NAD_1927_StatePlane_Michigan_Central_FIPS_2112
+		// NAD_1927_StatePlane_Michigan_South_FIPS_2113
+		// Nord_Algerie
+		// Sud_Algerie
+		// Germany_Zone_1
+		// Germany_Zone_2
+		// Germany_Zone_3
+		// Germany_Zone_4
+		// Germany_Zone_5
+		// NAD_1927_StatePlane_Puerto_Rico_FIPS_5201
+		// NAD_1927_StatePlane_Virgin_Islands_St_Croix_FIPS_5202
+		public override int GetHashCode()
+		{
+			if (m_userWkid != 0)
+			{
+				return com.epl.geometry.NumberUtils.Hash(m_userWkid);
+			}
+			return m_userWkt.GetHashCode();
 		}
 	}
 }

@@ -30,7 +30,6 @@ namespace com.epl.geometry
 			Project,
 			ExportToJson,
 			ImportFromJson,
-			ImportMapGeometryFromJson,
 			ExportToESRIShape,
 			ImportFromESRIShape,
 			Union,

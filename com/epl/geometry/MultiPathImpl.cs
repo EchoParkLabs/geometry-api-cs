@@ -1941,7 +1941,7 @@ namespace com.epl.geometry
 			{
 				return false;
 			}
-			if (m_paths != null && !m_paths.Equals(otherMultiPath.m_paths, 0, pathCount + 1))
+			if (pathCount > 0 && m_paths != null && !m_paths.Equals(otherMultiPath.m_paths, 0, pathCount + 1))
 			{
 				return false;
 			}
@@ -1949,9 +1949,19 @@ namespace com.epl.geometry
 			{
 				return false;
 			}
-			if (m_pathFlags != null && !m_pathFlags.Equals(otherMultiPath.m_pathFlags, 0, pathCount))
 			{
-				return false;
+				// Note: OGC flags do not participate in the equals operation by
+				// design.
+				// Because for the polygon pathFlags will have all enum_closed set,
+				// we do not need to compare this stream. Only for polyline.
+				// Polyline does not have OGC flags set.
+				if (!m_bPolygon)
+				{
+					if (m_pathFlags != null && !m_pathFlags.Equals(otherMultiPath.m_pathFlags, 0, pathCount))
+					{
+						return false;
+					}
+				}
 			}
 			return base.Equals(other);
 		}
@@ -2159,7 +2169,7 @@ namespace com.epl.geometry
 			{
 				_updateRingAreas2D();
 				int pathCount = GetPathCount();
-				if (m_pathFlags == null || m_pathFlags.Size() < pathCount)
+				if (pathCount > 0 && (m_pathFlags == null || m_pathFlags.Size() < pathCount))
 				{
 					m_pathFlags = (com.epl.geometry.AttributeStreamOfInt8)com.epl.geometry.AttributeStreamBase.CreateByteStream(pathCount + 1);
 				}
@@ -2698,7 +2708,7 @@ namespace com.epl.geometry
 			{
 				m_accelerators = new com.epl.geometry.GeometryAccelerators();
 			}
-			//TODO: when less than two envelopes - no need to this.
+			// TODO: when less than two envelopes - no need to this.
 			if (m_accelerators.GetQuadTreeForPaths() != null)
 			{
 				return true;
@@ -2718,6 +2728,11 @@ namespace com.epl.geometry
 		internal int GetFillRule()
 		{
 			return m_fill_rule;
+		}
+
+		internal void ClearDirtyOGCFlags()
+		{
+			_setDirtyFlag(com.epl.geometry.MultiVertexGeometryImpl.DirtyFlags.DirtyOGCFlags, false);
 		}
 	}
 }

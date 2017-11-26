@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -15,6 +34,36 @@ namespace com.epl.geometry
 		protected void TearDown()
 		{
 			
+		}
+
+		[NUnit.Framework.Test]
+		public static void TestFewPoints()
+		{
+			{
+				com.epl.geometry.Polygon polygon = new com.epl.geometry.Polygon();
+				polygon.AddPath((com.epl.geometry.Point2D[])null, 0, true);
+				polygon.InsertPoint(0, -1, com.epl.geometry.Point2D.Construct(5, 5));
+				com.epl.geometry.Point convex_hull = (com.epl.geometry.Point)com.epl.geometry.OperatorConvexHull.Local().Execute(polygon, null);
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY().Equals(com.epl.geometry.Point2D.Construct(5, 5)));
+			}
+			{
+				com.epl.geometry.Point2D[] pts = new com.epl.geometry.Point2D[3];
+				pts[0] = com.epl.geometry.Point2D.Construct(0, 0);
+				pts[1] = com.epl.geometry.Point2D.Construct(0, 0);
+				pts[2] = com.epl.geometry.Point2D.Construct(0, 0);
+				int[] out_pts = new int[3];
+				int res = com.epl.geometry.ConvexHull.Construct(pts, 3, out_pts);
+				NUnit.Framework.Assert.IsTrue(res == 1);
+				NUnit.Framework.Assert.IsTrue(out_pts[0] == 0);
+			}
+			{
+				com.epl.geometry.Point2D[] pts = new com.epl.geometry.Point2D[1];
+				pts[0] = com.epl.geometry.Point2D.Construct(0, 0);
+				int[] out_pts = new int[1];
+				int res = com.epl.geometry.ConvexHull.Construct(pts, 1, out_pts);
+				NUnit.Framework.Assert.IsTrue(res == 1);
+				NUnit.Framework.Assert.IsTrue(out_pts[0] == 0);
+			}
 		}
 
 		[NUnit.Framework.Test]
@@ -37,7 +86,7 @@ namespace com.epl.geometry
 				polygon.LineTo(1, 0);
 				polygon.LineTo(3, 0);
 				com.epl.geometry.Polygon densified = (com.epl.geometry.Polygon)(densify.Execute(polygon, .5, null));
-				com.epl.geometry.Polygon convex_hull = (com.epl.geometry.Polygon)(bounding.Execute(densified, null));
+				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)(bounding.Execute(densified, null));
 				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
 				NUnit.Framework.Assert.IsTrue(convex_hull.CalculateArea2D() == 0.0);
 				com.epl.geometry.Point2D p1 = convex_hull.GetXY(0);
@@ -210,24 +259,23 @@ namespace com.epl.geometry
 				mpoint.Add(4, 4);
 				mpoint.Add(4, 4);
 				mpoint.Add(4, 4);
-				com.epl.geometry.Polygon convex_hull = (com.epl.geometry.Polygon)(bounding.Execute(mpoint, null));
-				NUnit.Framework.Assert.IsTrue(convex_hull.GetPointCount() == 2);
+				com.epl.geometry.Point convex_hull = (com.epl.geometry.Point)bounding.Execute(mpoint, null);
 				NUnit.Framework.Assert.IsTrue(convex_hull.CalculateArea2D() == 0.0);
 				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY().Equals(com.epl.geometry.Point2D.Construct(4, 4)));
 			}
 			{
 				com.epl.geometry.MultiPoint mpoint = new com.epl.geometry.MultiPoint();
 				mpoint.Add(4, 4);
-				com.epl.geometry.MultiPoint convex_hull = (com.epl.geometry.MultiPoint)(bounding.Execute(mpoint, null));
-				NUnit.Framework.Assert.IsTrue(convex_hull.GetPointCount() == 1);
+				com.epl.geometry.Point convex_hull = (com.epl.geometry.Point)bounding.Execute(mpoint, null);
 				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
-				NUnit.Framework.Assert.IsTrue(convex_hull == mpoint);
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY().Equals(com.epl.geometry.Point2D.Construct(4, 4)));
 			}
 			{
 				com.epl.geometry.MultiPoint mpoint = new com.epl.geometry.MultiPoint();
 				mpoint.Add(4, 4);
 				mpoint.Add(4, 5);
-				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)(bounding.Execute(mpoint, null));
+				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)bounding.Execute(mpoint, null);
 				NUnit.Framework.Assert.IsTrue(convex_hull.GetPointCount() == 2);
 				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
 				NUnit.Framework.Assert.IsTrue(convex_hull.CalculateLength2D() == 1.0);
@@ -236,7 +284,7 @@ namespace com.epl.geometry
 				com.epl.geometry.Line line = new com.epl.geometry.Line();
 				line.SetStartXY(0, 0);
 				line.SetEndXY(0, 1);
-				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)(bounding.Execute(line, null));
+				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)bounding.Execute(line, null);
 				NUnit.Framework.Assert.IsTrue(convex_hull.GetPointCount() == 2);
 				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
 				NUnit.Framework.Assert.IsTrue(convex_hull.CalculateLength2D() == 1.0);
@@ -245,7 +293,7 @@ namespace com.epl.geometry
 				com.epl.geometry.Polyline polyline = new com.epl.geometry.Polyline();
 				polyline.StartPath(0, 0);
 				polyline.LineTo(0, 1);
-				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)(bounding.Execute(polyline, null));
+				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)bounding.Execute(polyline, null);
 				NUnit.Framework.Assert.IsTrue(convex_hull.GetPointCount() == 2);
 				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
 				NUnit.Framework.Assert.IsTrue(polyline == convex_hull);
@@ -253,9 +301,62 @@ namespace com.epl.geometry
 			}
 			{
 				com.epl.geometry.Envelope env = new com.epl.geometry.Envelope(0, 0, 10, 10);
-				com.epl.geometry.Envelope convex_hull = (com.epl.geometry.Envelope)(bounding.Execute(env, null));
+				NUnit.Framework.Assert.IsTrue(com.epl.geometry.OperatorConvexHull.Local().IsConvex(env, null));
+				com.epl.geometry.Polygon convex_hull = (com.epl.geometry.Polygon)bounding.Execute(env, null);
 				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
-				NUnit.Framework.Assert.IsTrue(env == convex_hull);
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetPointCount() == 4);
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY(0).Equals(com.epl.geometry.Point2D.Construct(0, 0)));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY(1).Equals(com.epl.geometry.Point2D.Construct(0, 10)));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY(2).Equals(com.epl.geometry.Point2D.Construct(10, 10)));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY(3).Equals(com.epl.geometry.Point2D.Construct(10, 0)));
+			}
+			{
+				com.epl.geometry.Envelope env = new com.epl.geometry.Envelope(0, 0, 0, 10);
+				NUnit.Framework.Assert.IsTrue(!com.epl.geometry.OperatorConvexHull.Local().IsConvex(env, null));
+				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)bounding.Execute(env, null);
+				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetPointCount() == 2);
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY(0).Equals(com.epl.geometry.Point2D.Construct(0, 0)));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY(1).Equals(com.epl.geometry.Point2D.Construct(0, 10)));
+			}
+			{
+				com.epl.geometry.Envelope env = new com.epl.geometry.Envelope(0, 0, 0, 10);
+				NUnit.Framework.Assert.IsTrue(!com.epl.geometry.OperatorConvexHull.Local().IsConvex(env, null));
+				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)bounding.Execute(env, null);
+				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetPointCount() == 2);
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY(0).Equals(com.epl.geometry.Point2D.Construct(0, 0)));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY(1).Equals(com.epl.geometry.Point2D.Construct(0, 10)));
+			}
+			{
+				com.epl.geometry.Envelope env = new com.epl.geometry.Envelope(5, 5, 5, 5);
+				NUnit.Framework.Assert.IsTrue(!com.epl.geometry.OperatorConvexHull.Local().IsConvex(env, null));
+				com.epl.geometry.Point convex_hull = (com.epl.geometry.Point)bounding.Execute(env, null);
+				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
+				NUnit.Framework.Assert.IsTrue(convex_hull.GetXY().Equals(com.epl.geometry.Point2D.Construct(5, 5)));
+			}
+		}
+
+		[NUnit.Framework.Test]
+		public static void TestSegment()
+		{
+			{
+				com.epl.geometry.Line line = new com.epl.geometry.Line();
+				line.SetStartXY(5, 5);
+				line.SetEndXY(5, 5);
+				NUnit.Framework.Assert.IsTrue(!com.epl.geometry.OperatorConvexHull.Local().IsConvex(line, null));
+				com.epl.geometry.Point point = (com.epl.geometry.Point)com.epl.geometry.OperatorConvexHull.Local().Execute(line, null);
+				NUnit.Framework.Assert.IsTrue(point.GetXY().Equals(com.epl.geometry.Point2D.Construct(5, 5)));
+			}
+			{
+				com.epl.geometry.Line line = new com.epl.geometry.Line();
+				line.SetStartXY(5, 5);
+				line.SetEndXY(5, 6);
+				NUnit.Framework.Assert.IsTrue(com.epl.geometry.OperatorConvexHull.Local().IsConvex(line, null));
+				com.epl.geometry.Polyline polyline = (com.epl.geometry.Polyline)com.epl.geometry.OperatorConvexHull.Local().Execute(line, null);
+				NUnit.Framework.Assert.IsTrue(polyline.GetPointCount() == 2);
+				NUnit.Framework.Assert.IsTrue(polyline.GetXY(0).Equals(com.epl.geometry.Point2D.Construct(5, 5)));
+				NUnit.Framework.Assert.IsTrue(polyline.GetXY(1).Equals(com.epl.geometry.Point2D.Construct(5, 6)));
 			}
 		}
 
@@ -292,19 +393,24 @@ namespace com.epl.geometry
 			square.LineTo(3, 0);
 			square.LineTo(2, 1);
 			com.epl.geometry.Polygon densified = (com.epl.geometry.Polygon)(densify.Execute(square, 1.0, null));
+			densified.AddAttribute(com.epl.geometry.VertexDescription.Semantics.ID);
+			for (int i = 0; i < densified.GetPointCount(); i++)
+			{
+				densified.SetAttribute(com.epl.geometry.VertexDescription.Semantics.ID, i, 0, i);
+			}
 			com.epl.geometry.Polygon convex_hull = (com.epl.geometry.Polygon)(bounding.Execute(densified, null));
 			com.epl.geometry.Polygon differenced = (com.epl.geometry.Polygon)(difference.Execute(densified, convex_hull, com.epl.geometry.SpatialReference.Create(4326), null));
 			NUnit.Framework.Assert.IsTrue(differenced.IsEmpty());
 			NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
 		}
 
-		[NUnit.Framework.Test]
-		public static void TestPolygons()
-		{
-			com.epl.geometry.OperatorConvexHull bounding = (com.epl.geometry.OperatorConvexHull)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ConvexHull);
-			com.epl.geometry.OperatorDensifyByLength densify = (com.epl.geometry.OperatorDensifyByLength)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.DensifyByLength);
-			com.epl.geometry.OperatorDifference difference = (com.epl.geometry.OperatorDifference)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.Difference);
-			{
+//		[NUnit.Framework.Test]
+//		public static void TestPolygons()
+//		{
+//			com.epl.geometry.OperatorConvexHull bounding = (com.epl.geometry.OperatorConvexHull)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.ConvexHull);
+//			com.epl.geometry.OperatorDensifyByLength densify = (com.epl.geometry.OperatorDensifyByLength)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.DensifyByLength);
+//			com.epl.geometry.OperatorDifference difference = (com.epl.geometry.OperatorDifference)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.Difference);
+//			{
 //				com.epl.geometry.Polygon shape = (com.epl.geometry.Polygon)(com.epl.geometry.TestCommonMethods.FromJson("{\"rings\":[[[1.3734426370715553,-90],[-24.377532184629967,-63.428606327053856],[-25.684686546621553,90],[-24.260574484321914,80.526315789473699],[-25.414389575040037,90],[-23.851448513708718,90],[-23.100135788742072,87.435887853000679],[5.6085096351011448,-48.713222410606306],[1.3734426370715553,-90]]]}"
 //					).GetGeometry());
 //				com.epl.geometry.Polygon convex_hull = (com.epl.geometry.Polygon)(bounding.Execute(shape, null));
@@ -320,18 +426,18 @@ namespace com.epl.geometry
 //				com.epl.geometry.Polygon differenced = (com.epl.geometry.Polygon)(difference.Execute(densified, convex_hull, com.epl.geometry.SpatialReference.Create(4326), null));
 //				NUnit.Framework.Assert.IsTrue(differenced.IsEmpty());
 //				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
-			}
-			{
-				com.epl.geometry.Polygon polygon = new com.epl.geometry.Polygon();
-				polygon.StartPath(1, 0);
-				polygon.LineTo(-1, 0);
-				polygon.LineTo(0, -1);
-				com.epl.geometry.Polygon convex_hull = (com.epl.geometry.Polygon)(bounding.Execute(polygon, null));
-				com.epl.geometry.Polygon differenced = (com.epl.geometry.Polygon)(difference.Execute(polygon, convex_hull, com.epl.geometry.SpatialReference.Create(4326), null));
-				NUnit.Framework.Assert.IsTrue(differenced.IsEmpty());
-				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
-			}
-			{
+//			}
+//			{
+//				com.epl.geometry.Polygon polygon = new com.epl.geometry.Polygon();
+//				polygon.StartPath(1, 0);
+//				polygon.LineTo(-1, 0);
+//				polygon.LineTo(0, -1);
+//				com.epl.geometry.Polygon convex_hull = (com.epl.geometry.Polygon)(bounding.Execute(polygon, null));
+//				com.epl.geometry.Polygon differenced = (com.epl.geometry.Polygon)(difference.Execute(polygon, convex_hull, com.epl.geometry.SpatialReference.Create(4326), null));
+//				NUnit.Framework.Assert.IsTrue(differenced.IsEmpty());
+//				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
+//			}
+//			{
 //				com.epl.geometry.Polygon polygon = (com.epl.geometry.Polygon)(com.epl.geometry.TestCommonMethods.FromJson("{\"rings\":[[[-38.554566833914528,21.902000764339238],[-30.516168471666138,90],[-38.554566833914528,21.902000764339238]],[[-43.013227444613932,28.423410187206883],[-43.632473335895916,90],[-42.342268693420237,62.208637129146894],[-37.218731802058755,63.685357222187029],[-32.522681335230686,47.080307818055296],[-40.537308829621097,-21.881392019745604],[-47.59510451722663,18.812521648505964],[-53.25344489340366,30.362745244224911],[-46.629060462410138,90],[-50.069277433245119,18.254168921734287],[-42.171214434397982,72.623347387008081],[-43.000844452530551,90],[-46.162281544954659,90],[-39.462049205071331,90],[-47.434856316742902,38.662565208814371],[-52.13115779642537,-19.952586632199857],[-56.025328966335081,90],[-60.056846215416158,-44.023645282268355],[-60.12338894192289,50.374596189881942],[-35.787508034048379,-7.8839007676038513],[-60.880218074135605,-46.447995750907815],[-67.782542852117956,-85.106300958016107],[-65.053131764313761,-0.96651520578494665],[-72.375821140304154,90],[-78.561502106749245,90],[-83.809168672565946,33.234498214085811],[-60.880218054506344,-46.447995733653201],[-75.637095425108981,59.886574792622838],[-71.364085965028096,31.976373491332097],[-67.89968380886117,90],[-67.544349171474749,8.8435794458927504],[-70.780047377934707,80.683454463576624],[-64.996733940204948,34.349882797035313],[-56.631753638680905,39.815838152456926],[-60.392350183516896,52.75446132093407],[-58.51633728692137,90],[-64.646972065627097,41.444197803942579],[-73.355591244695518,-0.15370205145035776],[-43.013227444613932,28.423410187206883]],[[-69.646471076946,-85.716191379686904],[-62.854465128320491,-45.739046580967972],[-71.377481570643141,-90],[-66.613495837251435,-90],[-66.9765142407159,-90],[-66.870099169607329,-90],[-67.23180828626819,-61.248439074609649],[-58.889775875438851,-90],[-53.391995883729322,-69.476385967096491],[-69.646471076946,-85.716191379686904]]]}"
 //					).GetGeometry());
 //				com.epl.geometry.Polygon densified = (com.epl.geometry.Polygon)(densify.Execute(polygon, 10.0, null));
@@ -466,8 +572,8 @@ namespace com.epl.geometry
 //				com.epl.geometry.Polygon differenced = (com.epl.geometry.Polygon)(difference.Execute(polygon, convex_hull, com.epl.geometry.SpatialReference.Create(4326), null));
 //				NUnit.Framework.Assert.IsTrue(differenced.IsEmpty());
 //				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
-			}
-		}
+//			}
+//		}
 
 		[NUnit.Framework.Test]
 		public static void TestPolylines()
@@ -484,7 +590,7 @@ namespace com.epl.geometry
 				poly.LineTo(0, 40);
 				poly.LineTo(0, 500);
 				com.epl.geometry.Polyline densified = (com.epl.geometry.Polyline)(densify.Execute(poly, 10.0, null));
-				com.epl.geometry.Polygon convex_hull = (com.epl.geometry.Polygon)(bounding.Execute(densified, null));
+				com.epl.geometry.Polyline convex_hull = (com.epl.geometry.Polyline)(bounding.Execute(densified, null));
 				com.epl.geometry.Polyline differenced = (com.epl.geometry.Polyline)(difference.Execute(densified, convex_hull, com.epl.geometry.SpatialReference.Create(4326), null));
 				NUnit.Framework.Assert.IsTrue(differenced.IsEmpty());
 				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
@@ -513,7 +619,7 @@ namespace com.epl.geometry
 			com.epl.geometry.OperatorDensifyByLength densify = (com.epl.geometry.OperatorDensifyByLength)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.DensifyByLength);
 			com.epl.geometry.OperatorDifference difference = (com.epl.geometry.OperatorDifference)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.Difference);
 			com.epl.geometry.OperatorContains contains = (com.epl.geometry.OperatorContains)com.epl.geometry.OperatorFactoryLocal.GetInstance().GetOperator(com.epl.geometry.Operator.Type.Contains);
-			{
+//			{
 //				com.epl.geometry.Polygon shape = (com.epl.geometry.Polygon)(com.epl.geometry.TestCommonMethods.FromJson("{\"rings\":[[[6.7260599916745036,-90],[15.304037095218971,-18.924146439950675],[6.3163297788539232,-90],[5.2105387036445823,-59.980719950158637],[5.1217504663506981,-60.571174400735508],[8.2945138368731044,-27.967042187979146],[15.76606600357545,28.594953216378414],[8.4365340991447919,66.880924521951329],[10.115022726199774,65.247385313781265],[12.721206966604395,-23.793016208456883],[12.051875868947576,-11.368909618476637],[11.867118776841318,44.968896646914239],[7.5326099218274614,35.095776924526533],[8.86765609460479,90],[3.2036592678446922,55.507964789691712],[0.23585282258761486,-42.620591380394039],[-1.2660432762142744,90],[5.5580612840503001,-9.4879902323389196],[12.258387597532487,-35.945231749575591],[-48.746716054894101,90],[7.2294405148356846,-15.719232058488402],[13.798313011339591,-10.467172541381753],[7.4430022048746718,6.3951685161785656],[6.4876332898327815,31.10016146737189],[9.3645424359058911,47.123308099298804],[13.398605254542668,-6.4398318586014325],[-90,90],[13.360786277212718,82.971274676174545],[7.9405631778693566,90],[10.512482079680538,90],[16.994982794293946,19.60673041736408],[16.723893839323615,22.728853852102926],[23.178783416627525,90],[6.7260599916745036,-90]],[[26.768777234301993,90],[20.949797955126346,90],[11.967758262201434,-0.45048849056049711],[17.535751576687339,52.767528591651441],[26.768777234301993,90]],[[18.677765775891793,12.559680067559942],[19.060218406331451,90],[17.123595624401705,90],[-2.3805299720687887,-90],[-11.882782057881979,-90],[21.640575461689693,90],[11.368255808198477,85.501555553904794],[17.390084032215348,90],[23.999392897519989,78.255909006554603],[-6.8860811786563101,69.49189433189926],[29.232578855788898,90],[25.951412073846683,90],[-5.5572284181160772,-16.763772082849457],[18.677765775891793,12.559680067559942]]]}"
 //					).GetGeometry());
 //				com.epl.geometry.Polygon densified = (com.epl.geometry.Polygon)(densify.Execute(shape, 10.0, null));
@@ -538,7 +644,7 @@ namespace com.epl.geometry
 //				com.epl.geometry.Polygon differenced = (com.epl.geometry.Polygon)(difference.Execute(shape, convex_hull, com.epl.geometry.SpatialReference.Create(4326), null));
 //				NUnit.Framework.Assert.IsTrue(differenced.IsEmpty());
 //				NUnit.Framework.Assert.IsTrue(bounding.IsConvex(convex_hull, null));
-			}
+//			}
 			{
 				com.epl.geometry.Polygon polygon = new com.epl.geometry.Polygon();
 				polygon.StartPath(0, 0);

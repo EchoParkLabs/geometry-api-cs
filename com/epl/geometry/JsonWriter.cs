@@ -33,6 +33,8 @@ namespace com.epl.geometry
 
 		internal abstract void EndArray();
 
+		internal abstract void AddFieldName(string fieldName);
+
 		internal abstract void AddPairObject(string fieldName);
 
 		internal abstract void AddPairArray(string fieldName);
@@ -41,7 +43,7 @@ namespace com.epl.geometry
 
 		internal abstract void AddPairDouble(string fieldName, double v);
 
-		internal abstract void AddPairDoubleF(string fieldName, double v, int decimals);
+		internal abstract void AddPairDouble(string fieldName, double v, int precision, bool bFixedPoint);
 
 		internal abstract void AddPairInt(string fieldName, int v);
 
@@ -57,7 +59,7 @@ namespace com.epl.geometry
 
 		internal abstract void AddValueDouble(double v);
 
-		internal abstract void AddValueDoubleF(double v, int decimals);
+		internal abstract void AddValueDouble(double v, int precision, bool bFixedPoint);
 
 		internal abstract void AddValueInt(int v);
 
@@ -69,15 +71,21 @@ namespace com.epl.geometry
 		{
 			public const int accept = 0;
 
-			public const int addContainer = 1;
+			public const int addObject = 1;
+
+			public const int addArray = 2;
 
 			public const int popObject = 4;
 
 			public const int popArray = 8;
 
-			public const int addPair = 16;
+			public const int addKey = 16;
 
 			public const int addTerminal = 32;
+
+			public const int addPair = 64;
+
+			public const int addContainer = addObject | addArray;
 
 			public const int addValue = addContainer | addTerminal;
 		}
@@ -98,7 +106,9 @@ namespace com.epl.geometry
 
 			public const int pairEnd = 4;
 
-			public const int elementEnd = 6;
+			public const int elementEnd = 5;
+
+			public const int fieldNameEnd = 6;
 		}
 
 		protected internal static class StateConstants

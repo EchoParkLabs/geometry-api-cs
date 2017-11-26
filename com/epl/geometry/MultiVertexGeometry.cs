@@ -172,7 +172,7 @@ namespace com.epl.geometry
 		/// Returns given vertex of the Geometry. The outPoint will have same
 		/// VertexDescription as this Geometry.
 		/// </remarks>
-		internal abstract void GetPointByVal(int index, com.epl.geometry.Point outPoint);
+		public abstract void GetPointByVal(int index, com.epl.geometry.Point outPoint);
 
 		/// <summary>Sets the vertex at given index of the Geometry.</summary>
 		/// <param name="index">The index of the vertex being changed.</param>
@@ -186,6 +186,6 @@ namespace com.epl.geometry
 		/// the Geometry will be set to the default values (see
 		/// VertexDescription::GetDefaultValue).
 		/// </param>
-		internal abstract void SetPointByVal(int index, com.epl.geometry.Point pointSrc);
+		public abstract void SetPointByVal(int index, com.epl.geometry.Point pointSrc);
 	}
 }

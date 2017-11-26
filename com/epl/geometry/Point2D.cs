@@ -17,7 +17,7 @@ For additional information, contact:
 
 email: info@echoparklabs.io
 */
-
+using System;
 
 namespace com.epl.geometry
 {
@@ -40,6 +40,11 @@ namespace com.epl.geometry
 		{
 			this.x = x;
 			this.y = y;
+		}
+
+		public Point2D(com.epl.geometry.Point2D other)
+		{
+			SetCoords(other);
 		}
 
 		public static com.epl.geometry.Point2D Construct(double x, double y)
@@ -131,22 +136,27 @@ namespace com.epl.geometry
 
 		public void Interpolate(com.epl.geometry.Point2D other, double alpha)
 		{
-			x = x * (1.0 - alpha) + other.x * alpha;
-			y = y * (1.0 - alpha) + other.y * alpha;
+			com.epl.geometry.MathUtils.Lerp(this, other, alpha, this);
 		}
 
 		public void Interpolate(com.epl.geometry.Point2D p1, com.epl.geometry.Point2D p2, double alpha)
 		{
-			x = p1.x * (1.0 - alpha) + p2.x * alpha;
-			y = p1.y * (1.0 - alpha) + p2.y * alpha;
+			com.epl.geometry.MathUtils.Lerp(p1, p2, alpha, this);
 		}
 
+		/// <summary>Calculates this = this * f + shift</summary>
+		/// <param name="f"/>
+		/// <param name="shift"/>
 		public void ScaleAdd(double f, com.epl.geometry.Point2D shift)
 		{
 			x = x * f + shift.x;
 			y = y * f + shift.y;
 		}
 
+		/// <summary>Calculates this = other * f + shift</summary>
+		/// <param name="f"/>
+		/// <param name="other"/>
+		/// <param name="shift"/>
 		public void ScaleAdd(double f, com.epl.geometry.Point2D other, com.epl.geometry.Point2D shift)
 		{
 			x = other.x * f + shift.x;
@@ -165,10 +175,16 @@ namespace com.epl.geometry
 			y *= f;
 		}
 
-		/// <summary>Compares two vertices lexicographicaly.</summary>
+		/// <summary>Compares two vertices lexicographically by y.</summary>
 		public int Compare(com.epl.geometry.Point2D other)
 		{
 			return y < other.y ? -1 : (y > other.y ? 1 : (x < other.x ? -1 : (x > other.x ? 1 : 0)));
+		}
+
+		/// <summary>Compares two vertices lexicographically by x.</summary>
+		internal int CompareX(com.epl.geometry.Point2D other)
+		{
+			return x < other.x ? -1 : (x > other.x ? 1 : (y < other.y ? -1 : (y > other.y ? 1 : 0)));
 		}
 
 		public void Normalize(com.epl.geometry.Point2D other)
@@ -302,7 +318,7 @@ namespace com.epl.geometry
 
 		internal bool _isNan()
 		{
-			return com.epl.geometry.NumberUtils.IsNaN(x);
+			return com.epl.geometry.NumberUtils.IsNaN(x) || com.epl.geometry.NumberUtils.IsNaN(y);
 		}
 
 		// calculates which quarter of xy plane the vector lies in. First quater is
@@ -539,20 +555,272 @@ namespace com.epl.geometry
 			decimal py_mp = new decimal(p.y);
 			det_mp = decimal.Subtract(det_mp, px_mp);
 			decimal rp_y_mp = new decimal(r.y);
-			rp_y_mp = rp_y_mp - py_mp;
+			rp_y_mp = decimal.Subtract(rp_y_mp, py_mp);
 			decimal qp_y_mp = new decimal(q.y);
-			qp_y_mp = qp_y_mp - py_mp;
+			qp_y_mp = decimal.Subtract(qp_y_mp, py_mp);
 			decimal rp_x_mp = new decimal(r.x);
-			rp_x_mp = rp_x_mp - px_mp;
-			det_mp = det_mp * rp_y_mp;
-			qp_y_mp = qp_y_mp * rp_x_mp;
-			det_mp = det_mp - qp_y_mp;
+			rp_x_mp = decimal.Subtract(rp_x_mp, px_mp);
+			det_mp = decimal.Multiply(det_mp, rp_y_mp);
+			qp_y_mp = decimal.Multiply(qp_y_mp, rp_x_mp);
+			det_mp = decimal.Subtract(det_mp, qp_y_mp);
 			return System.Math.Sign(det_mp);
+		}
+
+		private static int InCircleRobustMP_(com.epl.geometry.Point2D p, com.epl.geometry.Point2D q, com.epl.geometry.Point2D r, com.epl.geometry.Point2D s)
+		{
+			decimal sx_mp = new decimal(s.x);
+			decimal sy_mp = new decimal(s.y);
+			decimal psx_mp = new decimal(p.x);
+			decimal psy_mp = new decimal(p.y);
+			psx_mp = decimal.Subtract(psx_mp, sx_mp);
+			psy_mp = decimal.Subtract(psy_mp, sy_mp);
+			decimal qsx_mp = new decimal(q.x);
+			decimal qsy_mp = new decimal(q.y);
+			qsx_mp = decimal.Subtract(qsx_mp, sx_mp);
+			qsy_mp = decimal.Subtract(qsy_mp, sy_mp);
+			decimal rsx_mp = new decimal(r.x);
+			decimal rsy_mp = new decimal(r.y);
+			rsx_mp = decimal.Subtract(rsx_mp, sx_mp);
+			rsy_mp = decimal.Subtract(rsy_mp, sy_mp);
+			decimal pq_det_mp =decimal.Subtract(decimal.Multiply(psx_mp, qsy_mp), decimal.Multiply(psy_mp, qsx_mp));
+			decimal qr_det_mp =decimal.Subtract(decimal.Multiply(qsx_mp, rsy_mp), decimal.Multiply(qsy_mp, rsx_mp));
+			decimal pr_det_mp =decimal.Subtract(decimal.Multiply(psx_mp, rsy_mp), decimal.Multiply(psy_mp, rsx_mp));
+			decimal p_parab_mp =decimal.Add(decimal.Multiply(psx_mp, psx_mp), decimal.Multiply(psy_mp, psy_mp));
+			decimal q_parab_mp =decimal.Add(decimal.Multiply(qsx_mp, qsx_mp), decimal.Multiply(qsy_mp, qsy_mp));
+			decimal r_parab_mp =decimal.Add(decimal.Multiply(rsx_mp, rsx_mp), decimal.Multiply(rsy_mp, rsy_mp));
+			decimal det_mp = decimal.Add(decimal.Subtract(decimal.Multiply(p_parab_mp, qr_det_mp), (decimal.Multiply(q_parab_mp, pr_det_mp))) , (decimal.Multiply(r_parab_mp, pq_det_mp)));
+			return System.Math.Sign(det_mp);
+		}
+
+		/// <summary>Calculates if the point s is inside of the circumcircle inscribed by the clockwise oriented triangle p-q-r.</summary>
+		/// <remarks>
+		/// Calculates if the point s is inside of the circumcircle inscribed by the clockwise oriented triangle p-q-r.
+		/// Returns 1 for outside, -1 for inside, and 0 for cocircular.
+		/// Note that the convention used here differs from what is commonly found in literature, which can define the relation
+		/// in terms of a counter-clockwise oriented circle, and this flips the sign (think of the signed volume of the tetrahedron).
+		/// May use high precision arithmetics for some special cases.
+		/// </remarks>
+		internal static int InCircleRobust(com.epl.geometry.Point2D p, com.epl.geometry.Point2D q, com.epl.geometry.Point2D r, com.epl.geometry.Point2D s)
+		{
+			com.epl.geometry.ECoordinate psx_ec = new com.epl.geometry.ECoordinate();
+			com.epl.geometry.ECoordinate psy_ec = new com.epl.geometry.ECoordinate();
+			psx_ec.Set(p.x);
+			psx_ec.Sub(s.x);
+			psy_ec.Set(p.y);
+			psy_ec.Sub(s.y);
+			com.epl.geometry.ECoordinate qsx_ec = new com.epl.geometry.ECoordinate();
+			com.epl.geometry.ECoordinate qsy_ec = new com.epl.geometry.ECoordinate();
+			qsx_ec.Set(q.x);
+			qsx_ec.Sub(s.x);
+			qsy_ec.Set(q.y);
+			qsy_ec.Sub(s.y);
+			com.epl.geometry.ECoordinate rsx_ec = new com.epl.geometry.ECoordinate();
+			com.epl.geometry.ECoordinate rsy_ec = new com.epl.geometry.ECoordinate();
+			rsx_ec.Set(r.x);
+			rsx_ec.Sub(s.x);
+			rsy_ec.Set(r.y);
+			rsy_ec.Sub(s.y);
+			com.epl.geometry.ECoordinate psx_ec_qsy_ec = new com.epl.geometry.ECoordinate();
+			psx_ec_qsy_ec.Set(psx_ec);
+			psx_ec_qsy_ec.Mul(qsy_ec);
+			com.epl.geometry.ECoordinate psy_ec_qsx_ec = new com.epl.geometry.ECoordinate();
+			psy_ec_qsx_ec.Set(psy_ec);
+			psy_ec_qsx_ec.Mul(qsx_ec);
+			com.epl.geometry.ECoordinate qsx_ec_rsy_ec = new com.epl.geometry.ECoordinate();
+			qsx_ec_rsy_ec.Set(qsx_ec);
+			qsx_ec_rsy_ec.Mul(rsy_ec);
+			com.epl.geometry.ECoordinate qsy_ec_rsx_ec = new com.epl.geometry.ECoordinate();
+			qsy_ec_rsx_ec.Set(qsy_ec);
+			qsy_ec_rsx_ec.Mul(rsx_ec);
+			com.epl.geometry.ECoordinate psx_ec_rsy_ec = new com.epl.geometry.ECoordinate();
+			psx_ec_rsy_ec.Set(psx_ec);
+			psx_ec_rsy_ec.Mul(rsy_ec);
+			com.epl.geometry.ECoordinate psy_ec_rsx_ec = new com.epl.geometry.ECoordinate();
+			psy_ec_rsx_ec.Set(psy_ec);
+			psy_ec_rsx_ec.Mul(rsx_ec);
+			com.epl.geometry.ECoordinate pq_det_ec = new com.epl.geometry.ECoordinate();
+			pq_det_ec.Set(psx_ec_qsy_ec);
+			pq_det_ec.Sub(psy_ec_qsx_ec);
+			com.epl.geometry.ECoordinate qr_det_ec = new com.epl.geometry.ECoordinate();
+			qr_det_ec.Set(qsx_ec_rsy_ec);
+			qr_det_ec.Sub(qsy_ec_rsx_ec);
+			com.epl.geometry.ECoordinate pr_det_ec = new com.epl.geometry.ECoordinate();
+			pr_det_ec.Set(psx_ec_rsy_ec);
+			pr_det_ec.Sub(psy_ec_rsx_ec);
+			com.epl.geometry.ECoordinate psx_ec_psx_ec = new com.epl.geometry.ECoordinate();
+			psx_ec_psx_ec.Set(psx_ec);
+			psx_ec_psx_ec.Mul(psx_ec);
+			com.epl.geometry.ECoordinate psy_ec_psy_ec = new com.epl.geometry.ECoordinate();
+			psy_ec_psy_ec.Set(psy_ec);
+			psy_ec_psy_ec.Mul(psy_ec);
+			com.epl.geometry.ECoordinate qsx_ec_qsx_ec = new com.epl.geometry.ECoordinate();
+			qsx_ec_qsx_ec.Set(qsx_ec);
+			qsx_ec_qsx_ec.Mul(qsx_ec);
+			com.epl.geometry.ECoordinate qsy_ec_qsy_ec = new com.epl.geometry.ECoordinate();
+			qsy_ec_qsy_ec.Set(qsy_ec);
+			qsy_ec_qsy_ec.Mul(qsy_ec);
+			com.epl.geometry.ECoordinate rsx_ec_rsx_ec = new com.epl.geometry.ECoordinate();
+			rsx_ec_rsx_ec.Set(rsx_ec);
+			rsx_ec_rsx_ec.Mul(rsx_ec);
+			com.epl.geometry.ECoordinate rsy_ec_rsy_ec = new com.epl.geometry.ECoordinate();
+			rsy_ec_rsy_ec.Set(rsy_ec);
+			rsy_ec_rsy_ec.Mul(rsy_ec);
+			com.epl.geometry.ECoordinate p_parab_ec = new com.epl.geometry.ECoordinate();
+			p_parab_ec.Set(psx_ec_psx_ec);
+			p_parab_ec.Add(psy_ec_psy_ec);
+			com.epl.geometry.ECoordinate q_parab_ec = new com.epl.geometry.ECoordinate();
+			q_parab_ec.Set(qsx_ec_qsx_ec);
+			q_parab_ec.Add(qsy_ec_qsy_ec);
+			com.epl.geometry.ECoordinate r_parab_ec = new com.epl.geometry.ECoordinate();
+			r_parab_ec.Set(rsx_ec_rsx_ec);
+			r_parab_ec.Add(rsy_ec_rsy_ec);
+			p_parab_ec.Mul(qr_det_ec);
+			q_parab_ec.Mul(pr_det_ec);
+			r_parab_ec.Mul(pq_det_ec);
+			com.epl.geometry.ECoordinate det_ec = new com.epl.geometry.ECoordinate();
+			det_ec.Set(p_parab_ec);
+			det_ec.Sub(q_parab_ec);
+			det_ec.Add(r_parab_ec);
+			if (!det_ec.IsFuzzyZero())
+			{
+				double det_ec_value = det_ec.Value();
+				if (det_ec_value < 0.0)
+				{
+					return -1;
+				}
+				if (det_ec_value > 0.0)
+				{
+					return 1;
+				}
+				return 0;
+			}
+			return InCircleRobustMP_(p, q, r, s);
+		}
+
+		private static com.epl.geometry.Point2D CalculateCenterFromThreePointsHelperMP_(com.epl.geometry.Point2D from, com.epl.geometry.Point2D mid_point, com.epl.geometry.Point2D to)
+		{
+			System.Diagnostics.Debug.Assert((!mid_point.IsEqual(to) && !mid_point.IsEqual(from) && !from.IsEqual(to)));
+			decimal mx = new decimal(mid_point.x);
+			mx = decimal.Subtract(mx, new decimal(from.x));
+			decimal my = new decimal(mid_point.y);
+			my = decimal.Subtract(my, new decimal(from.y));
+			decimal tx = new decimal(to.x);
+			tx = decimal.Subtract(tx, new decimal(from.x));
+			decimal ty = new decimal(to.y);
+			ty = decimal.Subtract(ty, new decimal(from.y));
+			decimal d = decimal.Multiply(mx, ty);
+			decimal tmp = decimal.Multiply(my, tx);
+			d = decimal.Subtract(d, tmp);
+			if (System.Math.Sign(d) == 0)
+			{
+				return com.epl.geometry.Point2D.Construct(com.epl.geometry.NumberUtils.NaN(), com.epl.geometry.NumberUtils.NaN());
+			}
+			d = decimal.Multiply(d, new decimal(2.0));
+			decimal mx2 = decimal.Multiply(mx, mx);
+			decimal my2 = decimal.Multiply(my, my);
+			decimal m_norm2 = decimal.Add(mx2, my2);
+			decimal tx2 = decimal.Multiply(tx, tx);
+			decimal ty2 = decimal.Multiply(ty, ty);
+			decimal t_norm2 = decimal.Add(tx2, ty2);
+			decimal xo = decimal.Multiply(my, t_norm2);
+			tmp = decimal.Multiply(ty, m_norm2);
+			xo = decimal.Subtract(xo, tmp);
+			xo = decimal.Round(decimal.Divide(xo, d), MidpointRounding.ToEven);
+			decimal yo = decimal.Multiply(mx, t_norm2);
+			tmp = decimal.Multiply(tx, m_norm2);
+			yo = decimal.Subtract(yo, tmp);
+			yo = decimal.Round(decimal.Divide(yo, d), MidpointRounding.ToEven);
+			com.epl.geometry.Point2D center = com.epl.geometry.Point2D.Construct(System.Convert.ToDouble(decimal.Subtract(new decimal(from.x), xo)), System.Convert.ToDouble(decimal.Add(new decimal(from.y), yo)));
+			return center;
+		}
+
+		private static com.epl.geometry.Point2D CalculateCenterFromThreePointsHelper_(com.epl.geometry.Point2D from, com.epl.geometry.Point2D mid_point, com.epl.geometry.Point2D to)
+		{
+			System.Diagnostics.Debug.Assert((!mid_point.IsEqual(to) && !mid_point.IsEqual(from) && !from.IsEqual(to)));
+			com.epl.geometry.ECoordinate mx = new com.epl.geometry.ECoordinate(mid_point.x);
+			mx.Sub(from.x);
+			com.epl.geometry.ECoordinate my = new com.epl.geometry.ECoordinate(mid_point.y);
+			my.Sub(from.y);
+			com.epl.geometry.ECoordinate tx = new com.epl.geometry.ECoordinate(to.x);
+			tx.Sub(from.x);
+			com.epl.geometry.ECoordinate ty = new com.epl.geometry.ECoordinate(to.y);
+			ty.Sub(from.y);
+			com.epl.geometry.ECoordinate d = new com.epl.geometry.ECoordinate(mx);
+			d.Mul(ty);
+			com.epl.geometry.ECoordinate tmp = new com.epl.geometry.ECoordinate(my);
+			tmp.Mul(tx);
+			d.Sub(tmp);
+			if (d.Value() == 0.0)
+			{
+				return com.epl.geometry.Point2D.Construct(com.epl.geometry.NumberUtils.NaN(), com.epl.geometry.NumberUtils.NaN());
+			}
+			d.Mul(2.0);
+			com.epl.geometry.ECoordinate mx2 = new com.epl.geometry.ECoordinate(mx);
+			mx2.Mul(mx);
+			com.epl.geometry.ECoordinate my2 = new com.epl.geometry.ECoordinate(my);
+			my2.Mul(my);
+			com.epl.geometry.ECoordinate m_norm2 = new com.epl.geometry.ECoordinate(mx2);
+			m_norm2.Add(my2);
+			com.epl.geometry.ECoordinate tx2 = new com.epl.geometry.ECoordinate(tx);
+			tx2.Mul(tx);
+			com.epl.geometry.ECoordinate ty2 = new com.epl.geometry.ECoordinate(ty);
+			ty2.Mul(ty);
+			com.epl.geometry.ECoordinate t_norm2 = new com.epl.geometry.ECoordinate(tx2);
+			t_norm2.Add(ty2);
+			com.epl.geometry.ECoordinate xo = new com.epl.geometry.ECoordinate(my);
+			xo.Mul(t_norm2);
+			tmp = new com.epl.geometry.ECoordinate(ty);
+			tmp.Mul(m_norm2);
+			xo.Sub(tmp);
+			xo.Div(d);
+			com.epl.geometry.ECoordinate yo = new com.epl.geometry.ECoordinate(mx);
+			yo.Mul(t_norm2);
+			tmp = new com.epl.geometry.ECoordinate(tx);
+			tmp.Mul(m_norm2);
+			yo.Sub(tmp);
+			yo.Div(d);
+			com.epl.geometry.Point2D center = com.epl.geometry.Point2D.Construct(from.x - xo.Value(), from.y + yo.Value());
+			double r1 = com.epl.geometry.Point2D.Construct(from.x - center.x, from.y - center.y).Length();
+			double r2 = com.epl.geometry.Point2D.Construct(mid_point.x - center.x, mid_point.y - center.y).Length();
+			double r3 = com.epl.geometry.Point2D.Construct(to.x - center.x, to.y - center.y).Length();
+			double @base = r1 + System.Math.Abs(from.x) + System.Math.Abs(mid_point.x) + System.Math.Abs(to.x) + System.Math.Abs(from.y) + System.Math.Abs(mid_point.y) + System.Math.Abs(to.y);
+			double tol = 1e-15;
+			if ((System.Math.Abs(r1 - r2) <= @base * tol && System.Math.Abs(r1 - r3) <= @base * tol))
+			{
+				return center;
+			}
+			//returns center value for MP_value type or when calculated radius value for from - center, mid - center, and to - center are very close.
+			return com.epl.geometry.Point2D.Construct(com.epl.geometry.NumberUtils.NaN(), com.epl.geometry.NumberUtils.NaN());
+		}
+
+		internal static com.epl.geometry.Point2D CalculateCircleCenterFromThreePoints(com.epl.geometry.Point2D from, com.epl.geometry.Point2D mid_point, com.epl.geometry.Point2D to)
+		{
+			if (from.IsEqual(to) || from.IsEqual(mid_point) || to.IsEqual(mid_point))
+			{
+				return new com.epl.geometry.Point2D(com.epl.geometry.NumberUtils.NaN(), com.epl.geometry.NumberUtils.NaN());
+			}
+			com.epl.geometry.Point2D pt = CalculateCenterFromThreePointsHelper_(from, mid_point, to);
+			//use error tracking calculations
+			if (pt.IsNaN())
+			{
+				return CalculateCenterFromThreePointsHelperMP_(from, mid_point, to);
+			}
+			else
+			{
+				//use precise calculations
+				return pt;
+			}
 		}
 
 		public override int GetHashCode()
 		{
 			return com.epl.geometry.NumberUtils.Hash(com.epl.geometry.NumberUtils.Hash(x), y);
+		}
+
+		internal double GetAxis(int ordinate)
+		{
+			System.Diagnostics.Debug.Assert((ordinate == 0 || ordinate == 1));
+			return (ordinate == 0 ? x : y);
 		}
 	}
 }

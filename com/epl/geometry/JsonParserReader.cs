@@ -21,50 +21,202 @@ email: info@echoparklabs.io
 
 namespace com.epl.geometry
 {
-	internal sealed class JsonParserReader : com.epl.geometry.JsonReader
+	/// <summary>A throw in JsonReader built around the Jackson JsonParser.</summary>
+	public class JsonParserReader : com.epl.geometry.JsonReader
 	{
-		private org.codehaus.jackson.JsonParser m_jsonParser;
+		private com.fasterxml.jackson.core.JsonParser m_jsonParser;
 
-		internal JsonParserReader(org.codehaus.jackson.JsonParser jsonParser)
+		public JsonParserReader(com.fasterxml.jackson.core.JsonParser jsonParser)
 		{
 			m_jsonParser = jsonParser;
 		}
 
-		/// <exception cref="System.Exception"/>
-		internal override org.codehaus.jackson.JsonToken NextToken()
+		/// <summary>Creates a JsonReader for the string.</summary>
+		/// <remarks>
+		/// Creates a JsonReader for the string.
+		/// The nextToken is called by this method.
+		/// </remarks>
+		public static com.epl.geometry.JsonReader CreateFromString(string str)
 		{
-			org.codehaus.jackson.JsonToken token = m_jsonParser.NextToken();
-			return token;
+			try
+			{
+				com.fasterxml.jackson.core.JsonFactory factory = new com.fasterxml.jackson.core.JsonFactory();
+				com.fasterxml.jackson.core.JsonParser jsonParser = factory.CreateParser(str);
+				jsonParser.NextToken();
+				return new com.epl.geometry.JsonParserReader(jsonParser);
+			}
+			catch (System.Exception ex)
+			{
+				throw new com.epl.geometry.JsonGeometryException(ex.Message);
+			}
 		}
 
-		/// <exception cref="System.Exception"/>
-		internal override org.codehaus.jackson.JsonToken CurrentToken()
+		/// <summary>Creates a JsonReader for the string.</summary>
+		/// <remarks>
+		/// Creates a JsonReader for the string.
+		/// The nextToken is not called by this method.
+		/// </remarks>
+		public static com.epl.geometry.JsonReader CreateFromStringNNT(string str)
 		{
-			return m_jsonParser.GetCurrentToken();
+			try
+			{
+				com.fasterxml.jackson.core.JsonFactory factory = new com.fasterxml.jackson.core.JsonFactory();
+				com.fasterxml.jackson.core.JsonParser jsonParser = factory.CreateParser(str);
+				return new com.epl.geometry.JsonParserReader(jsonParser);
+			}
+			catch (System.Exception ex)
+			{
+				throw new com.epl.geometry.JsonGeometryException(ex.Message);
+			}
 		}
 
-		/// <exception cref="System.Exception"/>
-		internal override void SkipChildren()
+		private static com.epl.geometry.JsonReader.Token MapToken(com.fasterxml.jackson.core.JsonToken token)
 		{
-			m_jsonParser.SkipChildren();
+			if (token == com.fasterxml.jackson.core.JsonToken.END_ARRAY)
+			{
+				return com.epl.geometry.JsonReader.Token.END_ARRAY;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.END_OBJECT)
+			{
+				return com.epl.geometry.JsonReader.Token.END_OBJECT;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.FIELD_NAME)
+			{
+				return com.epl.geometry.JsonReader.Token.FIELD_NAME;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.START_ARRAY)
+			{
+				return com.epl.geometry.JsonReader.Token.START_ARRAY;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.START_OBJECT)
+			{
+				return com.epl.geometry.JsonReader.Token.START_OBJECT;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.VALUE_FALSE)
+			{
+				return com.epl.geometry.JsonReader.Token.VALUE_FALSE;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.VALUE_NULL)
+			{
+				return com.epl.geometry.JsonReader.Token.VALUE_NULL;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_FLOAT)
+			{
+				return com.epl.geometry.JsonReader.Token.VALUE_NUMBER_FLOAT;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_INT)
+			{
+				return com.epl.geometry.JsonReader.Token.VALUE_NUMBER_INT;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.VALUE_STRING)
+			{
+				return com.epl.geometry.JsonReader.Token.VALUE_STRING;
+			}
+			if (token == com.fasterxml.jackson.core.JsonToken.VALUE_TRUE)
+			{
+				return com.epl.geometry.JsonReader.Token.VALUE_TRUE;
+			}
+			if (token == null)
+			{
+				return null;
+			}
+			throw new com.epl.geometry.JsonGeometryException("unexpected token");
 		}
 
-		/// <exception cref="System.Exception"/>
-		internal override string CurrentString()
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public override com.epl.geometry.JsonReader.Token NextToken()
 		{
-			return m_jsonParser.GetText();
+			try
+			{
+				com.fasterxml.jackson.core.JsonToken token = m_jsonParser.NextToken();
+				return MapToken(token);
+			}
+			catch (System.Exception ex)
+			{
+				throw new com.epl.geometry.JsonGeometryException(ex);
+			}
 		}
 
-		/// <exception cref="System.Exception"/>
-		internal override double CurrentDoubleValue()
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public override com.epl.geometry.JsonReader.Token CurrentToken()
 		{
-			return m_jsonParser.GetValueAsDouble();
+			try
+			{
+				return MapToken(m_jsonParser.GetCurrentToken());
+			}
+			catch (System.Exception ex)
+			{
+				throw new com.epl.geometry.JsonGeometryException(ex);
+			}
 		}
 
-		/// <exception cref="System.Exception"/>
-		internal override int CurrentIntValue()
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public override void SkipChildren()
 		{
-			return m_jsonParser.GetValueAsInt();
+			try
+			{
+				m_jsonParser.SkipChildren();
+			}
+			catch (System.Exception ex)
+			{
+				throw new com.epl.geometry.JsonGeometryException(ex);
+			}
+		}
+
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public override string CurrentString()
+		{
+			try
+			{
+				return m_jsonParser.GetText();
+			}
+			catch (System.Exception ex)
+			{
+				throw new com.epl.geometry.JsonGeometryException(ex);
+			}
+		}
+
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public override double CurrentDoubleValue()
+		{
+			try
+			{
+				return m_jsonParser.GetValueAsDouble();
+			}
+			catch (System.Exception ex)
+			{
+				throw new com.epl.geometry.JsonGeometryException(ex);
+			}
+		}
+
+		/// <exception cref="com.epl.geometry.JsonGeometryException"/>
+		public override int CurrentIntValue()
+		{
+			try
+			{
+				return m_jsonParser.GetValueAsInt();
+			}
+			catch (System.Exception ex)
+			{
+				throw new com.epl.geometry.JsonGeometryException(ex);
+			}
+		}
+
+		public override bool CurrentBooleanValue()
+		{
+			com.epl.geometry.JsonReader.Token t = CurrentToken();
+			if (t == com.epl.geometry.JsonReader.Token.VALUE_TRUE)
+			{
+				return true;
+			}
+			else
+			{
+				if (t == com.epl.geometry.JsonReader.Token.VALUE_FALSE)
+				{
+					return false;
+				}
+			}
+			throw new com.epl.geometry.JsonGeometryException("Not a boolean");
 		}
 	}
 }

@@ -23,7 +23,7 @@ namespace com.epl.geometry
 {
 	/// <summary>A polygon is a collection of one or many interior or exterior rings.</summary>
 	[System.Serializable]
-	public sealed class Polygon : com.epl.geometry.MultiPath
+	public class Polygon : com.epl.geometry.MultiPath
 	{
 		private const long serialVersionUID = 2L;
 
@@ -36,7 +36,7 @@ namespace com.epl.geometry
 			m_impl = new com.epl.geometry.MultiPathImpl(true);
 		}
 
-		internal Polygon(com.epl.geometry.VertexDescription vd)
+		public Polygon(com.epl.geometry.VertexDescription vd)
 		{
 			m_impl = new com.epl.geometry.MultiPathImpl(true, vd);
 		}
@@ -59,7 +59,7 @@ namespace com.epl.geometry
 		/// <summary>Calculates the ring area for this ring.</summary>
 		/// <param name="ringIndex">The index of this ring.</param>
 		/// <returns>The ring area for this ring.</returns>
-		public double CalculateRingArea2D(int ringIndex)
+		public virtual double CalculateRingArea2D(int ringIndex)
 		{
 			return m_impl.CalculateRingArea2D(ringIndex);
 		}
@@ -69,7 +69,7 @@ namespace com.epl.geometry
 		/// Returns TRUE if the ring is an exterior ring. Valid only for simple
 		/// polygons.
 		/// </remarks>
-		public bool IsExteriorRing(int partIndex)
+		public virtual bool IsExteriorRing(int partIndex)
 		{
 			return m_impl.IsExteriorRing(partIndex);
 		}
@@ -105,22 +105,22 @@ namespace com.epl.geometry
 		/// <param name="i">The index of the new vertex.</param>
 		/// <param name="x">The X coordinate for the new vertex.</param>
 		/// <param name="y">The Y coordinate for the new vertex.</param>
-		public void SetXY(int i, double x, double y)
+		public virtual void SetXY(int i, double x, double y)
 		{
 			m_impl.SetXY(i, x, y);
 		}
 
-		public void InterpolateAttributes(int path_index, int from_point_index, int to_point_index)
+		public virtual void InterpolateAttributes(int path_index, int from_point_index, int to_point_index)
 		{
 			m_impl.InterpolateAttributes(path_index, from_point_index, to_point_index);
 		}
 
-		public void InterpolateAttributes(int semantics, int path_index, int from_point_index, int to_point_index)
+		public virtual void InterpolateAttributes(int semantics, int path_index, int from_point_index, int to_point_index)
 		{
 			m_impl.InterpolateAttributesForSemantics(semantics, path_index, from_point_index, to_point_index);
 		}
 
-		public int GetExteriorRingCount()
+		public virtual int GetExteriorRingCount()
 		{
 			return m_impl.GetOGCPolygonCount();
 		}
@@ -155,7 +155,7 @@ namespace com.epl.geometry
 		/// This property is not persisted in any format yet.
 		/// See also Polygon.FillRule.
 		/// </remarks>
-		public void SetFillRule(int rule)
+		public virtual void SetFillRule(int rule)
 		{
 			m_impl.SetFillRule(rule);
 		}
@@ -168,7 +168,7 @@ namespace com.epl.geometry
 		/// This property is not persisted in any format yet.
 		/// See also Polygon.FillRule.
 		/// </remarks>
-		public int GetFillRule()
+		public virtual int GetFillRule()
 		{
 			return m_impl.GetFillRule();
 		}

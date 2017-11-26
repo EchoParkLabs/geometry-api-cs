@@ -21,8 +21,8 @@ email: info@echoparklabs.io
 
 namespace com.epl.geometry
 {
-//	/// <summary>Provides services that operate on geometry instances.</summary>
-//	/// <remarks>
+	/// <summary>Provides services that operate on geometry instances.</summary>
+	/// <remarks>
 	/// Provides services that operate on geometry instances. The methods of GeometryEngine class call corresponding OperatorXXX classes.
 	/// Consider using OperatorXXX classes directly as they often provide more functionality and better performance. For example, some Operators accept
 	/// GeometryCursor class that could be implemented to wrap a feature cursor and make it feed geometries directly into an Operator.
@@ -46,7 +46,27 @@ namespace com.epl.geometry
 //		/// The MapGeometry instance containing the imported geometry and its
 //		/// spatial reference.
 //		/// </returns>
-//		public static com.epl.geometry.MapGeometry JsonToGeometry(org.codehaus.jackson.JsonParser json)
+//		public static com.epl.geometry.MapGeometry JsonToGeometry(com.fasterxml.jackson.core.JsonParser json)
+//		{
+//			com.epl.geometry.MapGeometry geom = com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, new com.epl.geometry.JsonParserReader(json));
+//			return geom;
+//		}
+//
+//		/// <summary>Imports the MapGeometry from its JSON representation.</summary>
+//		/// <remarks>
+//		/// Imports the MapGeometry from its JSON representation. M and Z values are
+//		/// not imported from JSON representation.
+//		/// See OperatorImportFromJson.
+//		/// </remarks>
+//		/// <param name="json">
+//		/// The JSON representation of the geometry (with spatial
+//		/// reference).
+//		/// </param>
+//		/// <returns>
+//		/// The MapGeometry instance containing the imported geometry and its
+//		/// spatial reference.
+//		/// </returns>
+//		public static com.epl.geometry.MapGeometry JsonToGeometry(com.epl.geometry.JsonReader json)
 //		{
 //			com.epl.geometry.MapGeometry geom = com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, json);
 //			return geom;
@@ -67,7 +87,7 @@ namespace com.epl.geometry
 //		/// spatial reference.
 //		/// </returns>
 //		/// <exception cref="System.IO.IOException"></exception>
-//		/// <exception cref="org.codehaus.jackson.JsonParseException"></exception>
+//		/// <exception cref="JsonParseException"></exception>
 //		public static com.epl.geometry.MapGeometry JsonToGeometry(string json)
 //		{
 //			com.epl.geometry.MapGeometry geom = com.epl.geometry.OperatorImportFromJson.Local().Execute(com.epl.geometry.Geometry.Type.Unknown, json);
@@ -112,13 +132,38 @@ namespace com.epl.geometry
 //			return exporter.Execute(geometry);
 //		}
 //
+//		/// <summary>Imports the MapGeometry from its JSON representation.</summary>
+//		/// <remarks>
+//		/// Imports the MapGeometry from its JSON representation. M and Z values are
+//		/// not imported from JSON representation.
+//		/// See OperatorImportFromJson.
+//		/// </remarks>
+//		/// <param name="json">
+//		/// The JSON representation of the geometry (with spatial
+//		/// reference).
+//		/// </param>
+//		/// <returns>
+//		/// The MapGeometry instance containing the imported geometry and its
+//		/// spatial reference.
+//		/// </returns>
+//		/// <exception cref="System.IO.IOException"></exception>
+//		/// <exception cref="JsonParseException"></exception>
+//		public static com.epl.geometry.MapGeometry GeoJsonToGeometry(string json, int importFlags, com.epl.geometry.Geometry.Type type)
+//		{
+//			com.epl.geometry.MapGeometry geom = com.epl.geometry.OperatorImportFromGeoJson.Local().Execute(importFlags, type, json, null);
+//			return geom;
+//		}
+//
 //		/// <summary>Exports the specified geometry instance to its GeoJSON representation.</summary>
 //		/// <remarks>
 //		/// Exports the specified geometry instance to its GeoJSON representation.
 //		/// See OperatorExportToGeoJson.
 //		/// </remarks>
 //		/// <seealso cref="GeometryToGeoJson(SpatialReference, Geometry)"/>
-//		/// <param name="wkid">The spatial reference Well Known ID to be used for the GeoJSON representation.</param>
+//		/// <param name="wkid">
+//		/// The spatial reference Well Known ID to be used for the GeoJSON
+//		/// representation.
+//		/// </param>
 //		/// <param name="geometry">The geometry to be exported to GeoJSON.</param>
 //		/// <returns>The GeoJSON representation of the specified geometry.</returns>
 //		public static string GeometryToGeoJson(int wkid, com.epl.geometry.Geometry geometry)
@@ -201,29 +246,7 @@ namespace com.epl.geometry
 			com.epl.geometry.OperatorImportFromWkt op = (com.epl.geometry.OperatorImportFromWkt)factory.GetOperator(com.epl.geometry.Operator.Type.ImportFromWkt);
 			return op.Execute(importFlags, geometryType, wkt, null);
 		}
-//
-//		/// <summary>Imports a geometry from a geoJson string.</summary>
-//		/// <remarks>
-//		/// Imports a geometry from a geoJson string.
-//		/// See OperatorImportFromGeoJson.
-//		/// </remarks>
-//		/// <param name="geoJson">The string containing the geometry in geoJson format.</param>
-//		/// <param name="importFlags">
-//		/// Use the
-//		/// <see cref="GeoJsonImportFlags"/>
-//		/// interface.
-//		/// </param>
-//		/// <param name="geometryType">The required type of the Geometry to be imported. Use Geometry.Type.Unknown if the geometry type needs to be determined from the geoJson context.</param>
-//		/// <returns>The geometry.</returns>
-//		/// <exception cref="GeometryException">when the geometryType is not Geometry.Type.Unknown and the geoJson contains a geometry that cannot be converted to the given geometryType.</exception>
-//		/// <exception cref="IllegalArgument">exception if an error is found while parsing the geoJson string.</exception>
-//		/// <exception cref="org.json.JSONException"/>
-//		public static com.epl.geometry.MapGeometry GeometryFromGeoJson(string geoJson, int importFlags, com.epl.geometry.Geometry.Type geometryType)
-//		{
-//			com.epl.geometry.OperatorImportFromGeoJson op = (com.epl.geometry.OperatorImportFromGeoJson)factory.GetOperator(com.epl.geometry.Operator.Type.ImportFromGeoJson);
-//			return op.Execute(importFlags, geometryType, geoJson, null);
-//		}
-//
+
 		/// <summary>Exports a geometry to a string in WKT format.</summary>
 		/// <remarks>
 		/// Exports a geometry to a string in WKT format.

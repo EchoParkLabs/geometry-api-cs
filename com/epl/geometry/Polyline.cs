@@ -23,7 +23,7 @@ namespace com.epl.geometry
 {
 	/// <summary>A polyline is a collection of one or many paths.</summary>
 	[System.Serializable]
-	public sealed class Polyline : com.epl.geometry.MultiPath
+	public class Polyline : com.epl.geometry.MultiPath
 	{
 		private const long serialVersionUID = 2L;
 
@@ -36,7 +36,7 @@ namespace com.epl.geometry
 			m_impl = new com.epl.geometry.MultiPathImpl(false);
 		}
 
-		internal Polyline(com.epl.geometry.VertexDescription vd)
+		public Polyline(com.epl.geometry.VertexDescription vd)
 		{
 			m_impl = new com.epl.geometry.MultiPathImpl(false, vd);
 		}
@@ -96,12 +96,12 @@ namespace com.epl.geometry
 			m_impl.AddSegment(segment, bStartNewPath);
 		}
 
-		public void InterpolateAttributes(int from_path_index, int from_point_index, int to_path_index, int to_point_index)
+		public virtual void InterpolateAttributes(int from_path_index, int from_point_index, int to_path_index, int to_point_index)
 		{
 			m_impl.InterpolateAttributes(from_path_index, from_point_index, to_path_index, to_point_index);
 		}
 
-		public void InterpolateAttributes(int semantics, int from_path_index, int from_point_index, int to_path_index, int to_point_index)
+		public virtual void InterpolateAttributes(int semantics, int from_path_index, int from_point_index, int to_path_index, int to_point_index)
 		{
 			m_impl.InterpolateAttributesForSemantics(semantics, from_path_index, from_point_index, to_path_index, to_point_index);
 		}

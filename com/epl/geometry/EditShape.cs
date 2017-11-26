@@ -2181,6 +2181,16 @@ namespace com.epl.geometry
 			return m_vertex_index_list.GetField(currentVertex, 1);
 		}
 
+		internal int GetPrevVertex(int currentVertex, int dir)
+		{
+			return dir > 0 ? m_vertex_index_list.GetField(currentVertex, 1) : m_vertex_index_list.GetField(currentVertex, 2);
+		}
+
+		internal int GetNextVertex(int currentVertex, int dir)
+		{
+			return dir > 0 ? m_vertex_index_list.GetField(currentVertex, 2) : m_vertex_index_list.GetField(currentVertex, 1);
+		}
+
 		// Returns a path the vertex belongs to.
 		internal int GetPathFromVertex(int vertex)
 		{

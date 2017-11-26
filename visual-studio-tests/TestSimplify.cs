@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -1158,39 +1177,37 @@ namespace com.epl.geometry
 			poly.LineTo(10, 0);
 			bool result = simplifyOpOGC.IsSimpleOGC(poly, sr4326, true, null, null);
 			NUnit.Framework.Assert.IsTrue(result);
-			poly = new com.epl.geometry.Polyline();
-			poly.StartPath(0, 0);
-			poly.LineTo(10, 10);
-			poly.LineTo(0, 10);
-			poly.LineTo(10, 0);
-			com.epl.geometry.NonSimpleResult nsr = new com.epl.geometry.NonSimpleResult();
-			result = simplifyOpOGC.IsSimpleOGC(poly, sr4326, true, nsr, null);
-			NUnit.Framework.Assert.IsTrue(!result);
-			NUnit.Framework.Assert.IsTrue(nsr.m_reason == com.epl.geometry.NonSimpleResult.Reason.Cracking);
-			com.epl.geometry.MultiPoint mp = new com.epl.geometry.MultiPoint();
-			mp.Add(0, 0);
-			mp.Add(10, 0);
-			result = simplifyOpOGC.IsSimpleOGC(mp, sr4326, true, null, null);
-			NUnit.Framework.Assert.IsTrue(result);
-			mp = new com.epl.geometry.MultiPoint();
-			mp.Add(10, 0);
-			mp.Add(10, 0);
-			nsr = new com.epl.geometry.NonSimpleResult();
-			result = simplifyOpOGC.IsSimpleOGC(mp, sr4326, true, nsr, null);
-			NUnit.Framework.Assert.IsTrue(!result);
-			NUnit.Framework.Assert.IsTrue(nsr.m_reason == com.epl.geometry.NonSimpleResult.Reason.Clustering);
-		}
-
-//		/// <exception cref="System.IO.IOException"/>
+//			poly = new com.epl.geometry.Polyline();
+//			poly.StartPath(0, 0);
+//			poly.LineTo(10, 10);
+//			poly.LineTo(0, 10);
+//			poly.LineTo(10, 0);
+//			com.epl.geometry.NonSimpleResult nsr = new com.epl.geometry.NonSimpleResult();
+//			result = simplifyOpOGC.IsSimpleOGC(poly, sr4326, true, nsr, null);
+//			NUnit.Framework.Assert.IsTrue(!result);
+//			NUnit.Framework.Assert.IsTrue(nsr.m_reason == com.epl.geometry.NonSimpleResult.Reason.Cracking);
+//			com.epl.geometry.MultiPoint mp = new com.epl.geometry.MultiPoint();
+//			mp.Add(0, 0);
+//			mp.Add(10, 0);
+//			result = simplifyOpOGC.IsSimpleOGC(mp, sr4326, true, null, null);
+//			NUnit.Framework.Assert.IsTrue(result);
+//			mp = new com.epl.geometry.MultiPoint();
+//			mp.Add(10, 0);
+//			mp.Add(10, 0);
+//			nsr = new com.epl.geometry.NonSimpleResult();
+//			result = simplifyOpOGC.IsSimpleOGC(mp, sr4326, true, nsr, null);
+//			NUnit.Framework.Assert.IsTrue(!result);
+//			NUnit.Framework.Assert.IsTrue(nsr.m_reason == com.epl.geometry.NonSimpleResult.Reason.Clustering);
+//		}
+//
 //		[NUnit.Framework.Test]
 //		public virtual void TestPolylineIsSimpleForOGC()
 //		{
 //			com.epl.geometry.OperatorImportFromJson importerJson = (com.epl.geometry.OperatorImportFromJson)factory.GetOperator(com.epl.geometry.Operator.Type.ImportFromJson);
 //			com.epl.geometry.OperatorSimplify simplify = (com.epl.geometry.OperatorSimplify)factory.GetOperator(com.epl.geometry.Operator.Type.Simplify);
-//			org.codehaus.jackson.JsonFactory f = new org.codehaus.jackson.JsonFactory();
 //			{
 //				string s = "{\"paths\":[[[0, 10], [8, 5], [5, 2], [6, 0]]]}";
-//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, f.CreateJsonParser(s)).GetGeometry();
+//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, com.epl.geometry.JsonParserReader.CreateFromString(s)).GetGeometry();
 //				bool res = simplifyOpOGC.IsSimpleOGC(g, null, true, null, null);
 //				NUnit.Framework.Assert.IsTrue(res);
 //			}
@@ -1198,14 +1215,14 @@ namespace com.epl.geometry
 //				string s = "{\"paths\":[[[0, 10], [6,  0], [7, 5], [0, 3]]]}";
 //				// self
 //				// intersection
-//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, f.CreateJsonParser(s)).GetGeometry();
+//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, com.epl.geometry.JsonParserReader.CreateFromString(s)).GetGeometry();
 //				bool res = simplifyOpOGC.IsSimpleOGC(g, null, true, null, null);
 //				NUnit.Framework.Assert.IsTrue(!res);
 //			}
 //			{
 //				string s = "{\"paths\":[[[0, 10], [6,  0], [0, 3], [0, 10]]]}";
 //				// closed
-//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, f.CreateJsonParser(s)).GetGeometry();
+//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, com.epl.geometry.JsonParserReader.CreateFromString(s)).GetGeometry();
 //				bool res = simplifyOpOGC.IsSimpleOGC(g, null, true, null, null);
 //				NUnit.Framework.Assert.IsTrue(res);
 //			}
@@ -1215,7 +1232,7 @@ namespace com.epl.geometry
 //				// with
 //				// self
 //				// tangent
-//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, f.CreateJsonParser(s)).GetGeometry();
+//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, com.epl.geometry.JsonParserReader.CreateFromString(s)).GetGeometry();
 //				bool res = simplifyOpOGC.IsSimpleOGC(g, null, true, null, null);
 //				NUnit.Framework.Assert.IsTrue(!res);
 //			}
@@ -1227,7 +1244,7 @@ namespace com.epl.geometry
 //				// at
 //				// a
 //				// point
-//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, f.CreateJsonParser(s)).GetGeometry();
+//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, com.epl.geometry.JsonParserReader.CreateFromString(s)).GetGeometry();
 //				bool res = simplifyOpOGC.IsSimpleOGC(g, null, true, null, null);
 //				NUnit.Framework.Assert.IsTrue(res);
 //			}
@@ -1240,7 +1257,7 @@ namespace com.epl.geometry
 //				// at
 //				// one
 //				// point
-//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, f.CreateJsonParser(s)).GetGeometry();
+//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, com.epl.geometry.JsonParserReader.CreateFromString(s)).GetGeometry();
 //				bool res = simplifyOpOGC.IsSimpleOGC(g, null, true, null, null);
 //				NUnit.Framework.Assert.IsTrue(!res);
 //			}
@@ -1249,7 +1266,7 @@ namespace com.epl.geometry
 //				// two
 //				// lines
 //				// intersect
-//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, f.CreateJsonParser(s)).GetGeometry();
+//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, com.epl.geometry.JsonParserReader.CreateFromString(s)).GetGeometry();
 //				bool res = simplifyOpOGC.IsSimpleOGC(g, null, true, null, null);
 //				NUnit.Framework.Assert.IsTrue(!res);
 //			}
@@ -1260,14 +1277,12 @@ namespace com.epl.geometry
 //				// share
 //				// mid
 //				// point.
-//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, f.CreateJsonParser(s)).GetGeometry();
+//				com.epl.geometry.Geometry g = importerJson.Execute(com.epl.geometry.Geometry.Type.Unknown, com.epl.geometry.JsonParserReader.CreateFromString(s)).GetGeometry();
 //				bool res = simplifyOpOGC.IsSimpleOGC(g, null, true, null, null);
 //				NUnit.Framework.Assert.IsTrue(!res);
 //			}
-//		}
-//
-//		/// <exception cref="org.codehaus.jackson.JsonParseException"/>
-//		/// <exception cref="System.IO.IOException"/>
+		}
+
 //		[NUnit.Framework.Test]
 //		public virtual void TestFillRule()
 //		{

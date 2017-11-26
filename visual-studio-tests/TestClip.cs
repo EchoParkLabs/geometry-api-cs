@@ -1,3 +1,22 @@
+/*
+Copyright 2017 Echo Park Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+For additional information, contact:
+
+email: info@echoparklabs.io
+*/
 using NUnit.Framework;
 
 namespace com.epl.geometry
@@ -82,7 +101,7 @@ namespace com.epl.geometry
 			}
 		}
 
-		public static com.epl.geometry.Polygon MakePolygon()
+		internal static com.epl.geometry.Polygon MakePolygon()
 		{
 			com.epl.geometry.Polygon poly = new com.epl.geometry.Polygon();
 			poly.StartPath(0, 0);
@@ -91,7 +110,7 @@ namespace com.epl.geometry
 			return poly;
 		}
 
-		public static com.epl.geometry.Polyline MakePolyline()
+		internal static com.epl.geometry.Polyline MakePolyline()
 		{
 			com.epl.geometry.Polyline poly = new com.epl.geometry.Polyline();
 			poly.StartPath(0, 0);
@@ -147,7 +166,7 @@ namespace com.epl.geometry
 		}
 
 		// ((MultiPathImpl::SPtr)clippedPolygon._GetImpl()).SaveToTextFileDbg("c:\\temp\\test_ArcObjects_failure_CR196492.txt");
-		public static com.epl.geometry.Polyline MakePolylineCR()
+		internal static com.epl.geometry.Polyline MakePolylineCR()
 		{
 			com.epl.geometry.Polyline polyline = new com.epl.geometry.Polyline();
 			polyline.StartPath(-200, -90);
@@ -160,7 +179,7 @@ namespace com.epl.geometry
 			return polyline;
 		}
 
-		public static com.epl.geometry.MultiPoint MakeMultiPoint()
+		internal static com.epl.geometry.MultiPoint MakeMultiPoint()
 		{
 			com.epl.geometry.MultiPoint mpoint = new com.epl.geometry.MultiPoint();
 			com.epl.geometry.Point2D pt1 = new com.epl.geometry.Point2D();
@@ -178,7 +197,7 @@ namespace com.epl.geometry
 			return mpoint;
 		}
 
-		public static com.epl.geometry.Point MakePoint()
+		internal static com.epl.geometry.Point MakePoint()
 		{
 			com.epl.geometry.Point point = new com.epl.geometry.Point();
 			com.epl.geometry.Point2D pt = new com.epl.geometry.Point2D();

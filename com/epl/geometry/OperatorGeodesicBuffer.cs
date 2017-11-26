@@ -29,7 +29,7 @@ namespace com.epl.geometry
 		}
 
 		/// <summary>Creates a geodesic buffer around the input geometries</summary>
-		/// <param name="input_geometries">The geometries to buffer.</param>
+		/// <param name="inputGeometries">The geometries to buffer.</param>
 		/// <param name="sr">The Spatial_reference of the Geometries.</param>
 		/// <param name="curveType">
 		/// The geodetic curve type of the segments. If the curve_type is Geodetic_curve::shape_preserving, then the segments are densified in the projection where they are defined before
@@ -45,11 +45,13 @@ namespace com.epl.geometry
 		/// </param>
 		/// <param name="bReserved">Must be false. Reserved for future development. Will throw an exception if not false.</param>
 		/// <param name="bUnion">If True, the buffered geometries will be unioned, otherwise they wont be unioned.</param>
+		/// <param name="progressTracker">Can be null. Allows to cancel lengthy operation.</param>
+		/// <returns>Geometry cursor over result buffers.</returns>
 		public abstract com.epl.geometry.GeometryCursor Execute(com.epl.geometry.GeometryCursor inputGeometries, com.epl.geometry.SpatialReference sr, int curveType, double[] distancesMeters, double maxDeviationMeters, bool bReserved, bool bUnion, com.epl.geometry.ProgressTracker progressTracker
 			);
 
 		/// <summary>Creates a geodesic buffer around the input geometry</summary>
-		/// <param name="input_geometry">The geometry to buffer.</param>
+		/// <param name="inputGeometry">The geometry to buffer.</param>
 		/// <param name="sr">The Spatial_reference of the Geometry.</param>
 		/// <param name="curveType">
 		/// The geodetic curve type of the segments. If the curve_type is Geodetic_curve::shape_preserving, then the segments are densified in the projection where they are defined before
@@ -61,6 +63,8 @@ namespace com.epl.geometry
 		/// default deviation.
 		/// </param>
 		/// <param name="bReserved">Must be false. Reserved for future development. Will throw an exception if not false.</param>
+		/// <param name="progressTracker">Can be null. Allows to cancel lengthy operation.</param>
+		/// <returns>Returns result buffer.</returns>
 		public abstract com.epl.geometry.Geometry Execute(com.epl.geometry.Geometry inputGeometry, com.epl.geometry.SpatialReference sr, int curveType, double distanceMeters, double maxDeviationMeters, bool bReserved, com.epl.geometry.ProgressTracker progressTracker);
 
 		public static com.epl.geometry.OperatorGeodesicBuffer Local()
