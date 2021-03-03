@@ -1,5 +1,5 @@
 /*
-Copyright 2017 Echo Park Labs
+Copyright 2017-2021 David Raleigh
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ limitations under the License.
 
 For additional information, contact:
 
-email: info@echoparklabs.io
+email: davidraleigh@gmail.com
 */
 using NUnit.Framework;
 using System.Linq;
